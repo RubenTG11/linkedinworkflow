@@ -1,0 +1,638 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -336
+      ],
+      "id": "0c76dcc5-d8c4-4060-8743-2bef798ee566",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=Du bist ein hochspezialisierter Trend-Analyst für LinkedIn. Deine Mission ist es, die \"Content-Lücke\" für eine spezifische Personal Brand oder Unternehmen zu schließen, indem du aktuelle, hochrelevante Aufhänger im Internet findest.",
+              "role": "system"
+            },
+            {
+              "content": "=3. Suchauftrag & Strategie: Scanne das Web (News, Fachmagazine, soziale Diskussionen) nach Ereignissen der letzten 7 Tage. Suche nach drei unterschiedlichen Kategorien von Aufhängern:\n\nDer News-Flash: Eine aktuelle Nachricht oder Studie aus der Branche {{ $json.res_industry }}.\n\nDer Schmerzpunkt-Löser: Ein aktuelles Problem oder eine Diskussion, die {{ $json.res_audience }} gerade beschäftigt, und für die es eine Lösung gibt.\n\nDer konträre Trend: Eine Entwicklung, die gegen die herkömmliche Meinung in der Branche verstößt (perfekt für einen starken LinkedIn-Hook).\n\n4. Output-Format (Strikt pro Vorschlag): Gib exakt 3 Vorschläge aus. Nutze für jeden Vorschlag dieses Schema:\n\n[TITEL]: Ein prägnanter Arbeitstitel.\n\n[DER FAKT]: Eine detaillierte Zusammenfassung der News/des Trends (Daten, Fakten, Zitate).\n\n[WARUM RELEVANT]: Erkläre, warum genau dieser Fakt für die Zielgruppe {{ $json.res_audience }} einen massiven Nutzwert hat."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        -336
+      ],
+      "id": "551f6202-b4dc-4dec-a54c-971cba1f191b",
+      "name": "Themen-Recherche",
+      "credentials": {
+        "perplexityApi": {
+          "id": "w6QWYTblD1uvXaEE",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "=system",
+              "content": "=ROLLE: Du bist ein präziser Chefredakteur für Personal Branding. Deine Aufgabe ist das \"Surgical Editing\": Korrigiere einen LinkedIn-Entwurf NUR dort, wo er gegen die Identität des Absenders verstößt oder typische KI-Muster aufweist. Lasse den Rest des Textes unangetastet.\n\nDEIN REFERENZ-PROFIL (Der Maßstab):\n\nBranche: {{ $('Formatieren').item.json.res_industry }}\n\nPerspektive: {{ $('Formatieren').item.json.style_perspective }}\n\nAnsprache: {{ $('Formatieren').item.json.style_address }}\n\nEnergie-Level: {{ $('Formatieren').item.json.finger_energy }} (1=sachlich, 10=explosiv)\n\nSignature Phrases: {{ $('Formatieren').item.json.finger_phrases.join(', ') }}\n\nTonalität: {{ $('Formatieren').item.json.style_tonality }}\n\nVerbotene Wörter: {{ $('Formatieren').item.json.guard_forbidden_words.join(', ') }}\n\nDEINE CHIRURGISCHEN KORREKTUR-REGELN:\n\n1. Satzbau-Optimierung (STRENG):\n\nKeine Gedankenstriche: Ersetze Gedankenstriche (–), die zur Satzverbindung oder für Einschübe genutzt werden, durch Kommas oder Punkte. Diese wirken zu konstruiert.\n\nAnpassung: Tausche den Gedankenstrich nicht einfach gegen ein Komma aus. Wenn ein Gedankenstrich einen Einschub oder eine Ergänzung markiert, formuliere den Satz um. Erstelle daraus entweder zwei eigenständige, prägnante Sätze oder nutze Konjunktionen (weil, da, und), damit der Lesefluss natürlich bleibt.\n\n2. Ansprache-Check:\n\nStelle sicher, dass der Text konsequent die Form {{ $('Formatieren').item.json.style_address }} nutzt.\n\nFalls der Text \"Sie\" verwendet, das Profil aber \"Duzen\" verlangt (oder umgekehrt), korrigiere alle betroffenen Pronomen und Verbformen sofort.\n\nEnergie-Abgleich: Prüfe, ob die Intensität des Textes zum Energie-Level ({{ $('Formatieren').item.json.finger_energy }}) passt. Korrigiere, wenn der Text zu lahm oder unpassend überdreht wirkt.\n\nSignaturen: Achte darauf, dass Signature Phrases ({{ $('Formatieren').item.json.finger_phrases.join(', ') }}) natürlich klingen und nicht deplatziert wirken.\n\n3. Perspektiv-Check (Prio 1):\n\nWenn das Profil {{ $('Formatieren').item.json.style_perspective }} verlangt, wandle belehrende \"Sie/Euch\"-Sätze (\"Stellt euch vor\", \"Ihr solltet\") konsequent um.\n\nNutze Reflexionen (\"Ich sehe immer wieder...\", \"Ich frage mich oft...\") statt direkter Handlungsaufforderungen im Hauptteil.\n\nWenn du Fragen aus der \"Sie-Form\" korrigierst, wandle sie in Reflexionen oder direkte Fragen an die Community im passenden Stil (Du/Euch oder Sie) um.'\n\nWenn ein Datum im Text vorkommt achte darauf den Satz so anzupassen, \n\n4. Zeit- & Datums-Präzisierung:\n\nKein „heute“: Ersetze Wörter wie „heute“, „heutzutage“ oder „aktuell“ (sofern sie sich auf den Zeitpunkt der Nachricht beziehen) durch konkrete Datumsangaben (z.B. „am 16. Januar 2026“ oder „mit Stand vom 16. Januar“).\n\nStilistischer Fluss: Das Datum darf nicht wie ein Fremdkörper wirken. Passe den Satzbau so an, dass das Datum organisch eingebettet ist.\n\n5. Unicode-Reparatur:\n\nPrüfe den ersten Satz (Hook). Wenn die Unicode-Fettung Umlaute (ä, ö, ü, ß) zerstört hat, korrigiere das Wort sofort.\n\nWICHTIG: Entferne alle gesetzten Markdown-Sterne (**) rückstandslos. Wandle Texte mit \"**\" am Anfang und Ende des Satzes stattdessen in Fettschrift um.\n\n6. Wahrung der Struktur:\n\nNutze keine Trennlinien (---). Sorge für einfache, saubere Zeilenumbrüche ohne unnötige visuelle Spielereien.\n\nINPUT (Der Entwurf des Writers): > {{ $json.output[0].content[0].text }}\n\nDEIN OUTPUT: > Gib AUSSCHLIESSLICH den fertigen, korrigierten Post-Text zurück. Keine Kommentare, keine Einleitung, keine Erklärungen."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        2064,
+        -336
+      ],
+      "id": "35cdbcf9-9cfb-4bf4-bd5c-fd7b22059acb",
+      "name": "Kritiker",
+      "credentials": {
+        "openAiApi": {
+          "id": "GtjGEBTfdDaAfGDA",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Rolle: Du bist ein Experte für linguistische Profiling-Analysen. Deine Aufgabe ist es, aus dem Input (Persona-Daten und Beispiel-Posts) ein vollumfängliches \"Content-Operating-System\" (COS) im JSON-Format zu erstellen. Dieses COS dient als einzige Datenquelle für nachfolgende spezialisierte KI-Agenten.\n\nAnalyse-Anweisungen:\n\nDeskriptive Tonalität: Beschreibe die Tonalität frei und präzise (z. B. \"nahbar-bayerisch\", \"visionär-empathisch\").\n\nStruktur-Extraktion: Analysiere, ob Storytelling, Daten oder Listen dominieren.\n\nResearcher-Vorgaben: Extrahiere Branche und Zielgruppe für gezielte Websuche.\n\nWriter-Vorgaben: Identifiziere die exakte \"Hook-Formel\" und die Längen-Dynamik.\n\nFingerprint-Analyse: Suche nach \"Linguistischen Fingerabdrücken\": Nutzt die Person Großbuchstaben zur Emphase (Shouting)? Nutzt sie spezifische Satzzeichen-Ketten (z.B. !!? oder :)!)? Wie ist das energetische Level des Textes (1-10)?\n\nCritic-Vorgaben: Erstelle eine Blacklist aus Buzzwords und bereits behandelten Themen.\n\n„WICHTIG: Orientiere dich zu 100 % an den bereitgestellten example_posts. Wenn die Person 'Ich' schreibt, darf die Perspective nicht 'Wir' sein. Wenn die Posts kurz sind, darf der word_count nicht 1200 sein. Analysiere die tatsächliche Datenlage, nicht deine Erwartung an die Branche.“\n\nSTRIKTE AUSGABE-REGELN:\n\nNUR REINER TEXT-OUTPUT: Gib kein json am Anfang und kein am Ende aus. Starte direkt mit der geschweiften Klammer {.\n\nKEIN DISKURS: Keine Einleitung, kein Outro.\n\nVOLLSTÄNDIGKEIT: Fülle jedes Feld.\n\nJSON-STRUKTUR (Das COS-Schema):\n\n{\n  \"research_context\": {\n    \"industry\": \"In welcher Branche bewegt sich die Person?\",\n    \"target_audience_detailed\": \"Wer genau soll das lesen? (Schmerzpunkte, Interessen)\",\n    \"content_pillars\": [\n      \"3-5 Hauptthemen, über die die Person schreibt\"\n    ],\n    \"expertise_level\": \"Wie tief/technisch ist das Wissen? (Laie bis Experte)\"\n  },\n  \"writing_dna\": {\n    \"tonality_description\": \"Freie Beschreibung der Stimme und Stimmung\",\n    \"perspective\": \"Ich, Wir, oder Man-Perspektive?\",\n    \"form_of_address\": \"Duzen (Du/Euch), Siezen (Sie/Ihnen) oder Neutral/Keine direkte Ansprache?\",\n    \"sentence_dynamics\": \"Satzlänge, Rhythmus, Nutzung von rhetorischen Stilmitteln\",\n    \"length_and_pacing\": {\n      \"expected_post_length\": \"Kurz (Impuls), Mittel (Storytelling) oder Lang (Deep-Dive)?\",\n      \"average_word_count\": \"Ungefähre Wortanzahl basierend auf den Beispielen\",\n      \"paragraph_cadence\": \"Wie viele Sätze bilden einen Absatz? Wie ist der Lesefluss (schnell/langsam)?\"\n    },\n    \"hook_formula\": \"Genaue Analyse, wie der erste Satz aufgebaut ist (z.B. Provokation, Frage, Ergebnis)\",\n    \"cta_style\": \"Wie werden die Leute zum Handeln aufgefordert?\",\n    \"vocabulary_preferences\": [\n      \"Bevorzugte Begriffe oder Phrasen, sei hier ausführlich\"\n    ]\n  },\n  \"linguistic_fingerprint\": {\n    \"energy_level\": \"Skala 1-10 (1 = trocken/sachlich, 10 = hochemotional/explosiv)\",\n    \"rhetorical_shouting\": \"Werden Worte komplett großgeschrieben zur Betonung? Wenn ja, welche Beispiele (z.B. JETZT, WEG)?\",\n    \"punctuation_style\": \"Besonderheiten bei Satzzeichen (z.B. exzessive Ausrufezeichen, :)!, ...)\",\n    \"signature_phrases\": [\n      \"Wiederkehrende Ausrufe oder Markenzeichen-Sätze (z.B. Halleluja, Galopp, Sorry to say)\"\n    ],\n    \"narrative_anchors\": [\n      \"Wiederkehrende Story-Elemente (z.B. Dialoge, Zitate, Flashbacks, PS-Zeilen)\"\n    ]\n  },\n  \"visual_fingerprint\": {\n    \"unicode_rules\": \"Wird fette/kursive Unicode-Schrift genutzt? Wo genau?\",\n    \"emoji_logic\": {\n      \"specific_emojis\": [\n        \"Vollständige Liste ALLER genutzten Emojis inkl. Aufzählungszeichen (👉) und Währungssymbole (💸)\"\n      ],\n      \"placement\": \"Anfang, Ende, als Aufzählung?\",\n      \"frequency\": \"Wie viele Emojis pro 100 Wörter?\"\n    },\n    \"formatting_layout\": \"Absatzlänge, Nutzung von Trennlinien oder Listen\"\n  },\n  \"guardrails_for_critic\": {\n    \"forbidden_buzzwords\": [\n      \"Liste von unerwünschten Wörtern\"\n    ],\n    \"style_no_gos\": [\n      \"Was würde den Stil ruinieren? (z.B. zu viel Eigenlob, zu passiv)\"\n    ],\n    \"topic_blacklist\": [\n      \"Themen der bisherigen Posts, um Redundanz zu vermeiden\"\n    ]\n  }\n}"
+            },
+            {
+              "content": "=Hier sind die Inputs für die Analyse:\n\nUnternehmensnname:{{ $json.company_name }}\nPersona:{{ $json.persona }}\nStyle-Guide:{{ $json.style_guide }}\nThemenhistorie:{{ $json.topic_history }}\nBeispielposts:{{ $json.example_posts }}\nAnsprache: {{ $json.form_of_address }}\n\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        464,
+        -336
+      ],
+      "id": "362e1504-3eed-4b97-b9f0-8a519926395c",
+      "name": "Profil-Analyzer",
+      "credentials": {
+        "openAiApi": {
+          "id": "GtjGEBTfdDaAfGDA",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.item.json;\n\n// 1. Helfer-Funktion: Findet den JSON-String irgendwo im Objekt\nfunction findRawJson(obj) {\n    if (typeof obj === 'string' && obj.trim().startsWith('{')) return obj;\n    if (typeof obj === 'object' && obj !== null) {\n        if (obj.output_text && obj.output_text[0] && obj.output_text[0].text) return obj.output_text[0].text;\n        if (obj.text && typeof obj.text === 'string') return obj.text;\n        if (obj.output && typeof obj.output === 'string') return obj.output;\n        for (let key in obj) {\n            let found = findRawJson(obj[key]);\n            if (found) return found;\n        }\n    }\n    return null;\n}\n\n// 2. Helfer-Funktion für tiefes Suchen von Objekten\nfunction findDeep(obj, key) {\n    if (obj && obj.hasOwnProperty(key)) return obj[key];\n    for (let i in obj) {\n        if (typeof obj[i] === 'object' && obj[i] !== null) {\n            let found = findDeep(obj[i], key);\n            if (found) return found;\n        }\n    }\n    return null;\n}\n\nlet cos = {};\nconst jsonString = findRawJson(input);\nif (jsonString) {\n    try {\n        cos = JSON.parse(jsonString.replace(/```json|```/g, '').trim());\n    } catch (e) { cos = {}; }\n}\n\n// Kategorien extrahieren\nconst res = cos.research_context || findDeep(cos, 'research_context') || {};\nconst dna = cos.writing_dna || findDeep(cos, 'writing_dna') || {};\nconst finger = cos.linguistic_fingerprint || findDeep(cos, 'linguistic_fingerprint') || {}; // <-- NEU\nconst vis = cos.visual_fingerprint || findDeep(cos, 'visual_fingerprint') || {};\nconst guard = cos.guardrails_for_critic || findDeep(cos, 'guardrails_for_critic') || {};\n\n// 3. Finales Mapping ALLER Felder\nreturn {\n    // --- RESEARCH ---\n    \"res_industry\": res.industry || \"Unternehmensberatung\",\n    \"res_audience\": res.target_audience_detailed || \"Entscheider\",\n    \"res_pillars\": res.content_pillars || [],\n    \"res_expertise\": res.expertise_level || \"Experte\",\n\n    // --- WRITING DNA ---\n    \"style_tonality\": dna.tonality_description || \"Inspirierend\",\n    \"style_perspective\": dna.perspective || \"Ich-Form\",\n    \"style_address\": dna.form_of_address || \"Duzen (Du/Euch)\",\n    \"style_dynamics\": dna.sentence_dynamics || \"Prägnant\",\n    \"style_hook\": dna.hook_formula || \"Persönlicher Einstieg\",\n    \"style_cta\": dna.cta_style || \"Interaktion\",\n    \"style_word_count\": dna.length_and_pacing?.average_word_count || \"250\",\n    \"style_paragraph_style\": dna.length_and_pacing?.paragraph_cadence || \"Kurze Absätze\",\n    \"style_vocab\": dna.vocabulary_preferences || [],\n\n    // --- LINGUISTIC FINGERPRINT (DIE NEUE KATEGORIE) ---\n    \"finger_energy\": finger.energy_level || \"7\",\n    \"finger_shouting\": finger.rhetorical_shouting || \"Dezent\",\n    \"finger_punctuation\": finger.punctuation_style || \"Standard\",\n    \"finger_phrases\": finger.signature_phrases || [],\n    \"finger_anchors\": finger.narrative_anchors || [],\n\n    // --- VISUALS ---\n    \"vis_unicode\": vis.unicode_rules || \"Fett für Hooks\",\n    \"vis_emojis\": vis.emoji_logic?.specific_emojis || [\"🚀\"],\n    \"vis_emoji_placement\": vis.emoji_logic?.placement || \"Ende\",\n    \"vis_emoji_density\": vis.emoji_logic?.frequency || \"Mittel\",\n    \"vis_layout\": vis.formatting_layout || \"Mobil-optimiert\",\n\n    // --- GUARDRAILS ---\n    \"guard_forbidden_words\": guard.forbidden_buzzwords || [],\n    \"guard_no_gos\": guard.style_no_gos || [],\n    \"guard_blacklist\": guard.topic_blacklist || []\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        -336
+      ],
+      "id": "934900d0-8018-4572-8e64-68e28a8efecb",
+      "name": "Formatieren"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Du bist ein erfahrener Content Strategist. Deine Aufgabe ist es, aus einer Liste von 3 Recherche-Ergebnissen das absolut beste Thema für einen LinkedIn-Post auszuwählen.\n\nDeine Entscheidungsgrundlage (Profil):\n\nZielgruppe: {{ $('Formatieren').item.json.res_audience }}\n\nThemen-Säulen: {{ $('Formatieren').item.json.res_pillars }}\n\nExpertise-Level: {{ $('Formatieren').item.json.res_expertise }}\n\nTonalität: {{ $('Formatieren').item.json.style_tonality }}\n\nBewertungskriterien:\n\nRelevanz: Wie stark betrifft das Thema die Schmerzpunkte von {{ $('Formatieren').item.json.res_audience }}\n\nNeuheit: Ist es ein frischer Fakt oder nur aufgewärmtes Wissen?\n\nStil-Fit: Erlaubt das Thema den spezifischen Schreibstil ({{ $('Formatieren').item.json.style_tonality }})?\n\nExpertise: Passt die Komplexität zu einem {{ $('Formatieren').item.json.res_expertise }}?\n\nDein Auftrag: Analysiere die 3 Vorschläge. Wähle den EINEN Gewinner aus, der heute die höchste Interaktion und den größten Nutzwert verspricht.\n\nÜbernimm im Feld selected_fact nicht nur eine Zusammenfassung, sondern alle konkreten Details, Daten und Beispiele aus dem gewählten Recherche-Punkt.\n\nAusgabe-Format (Strikt JSON): Gib NUR ein JSON-Objekt zurück: { \"selected_title\": \"Titel des Gewinners\", \"selected_fact\": \"Der Kern-Fakt des Gewinner-Themas\", \"reasoning\": \"Kurze Begründung, warum dieses Thema gewählt wurde (1 Satz)\" }"
+            },
+            {
+              "role": "=user",
+              "content": "=Hier sind die 3 Recherche-Ergebnisse: {{ $json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        -336
+      ],
+      "id": "fa5b45d3-be96-40f3-b2ac-6a523aee2768",
+      "name": "Wählt-Thema",
+      "credentials": {
+        "openAiApi": {
+          "id": "GtjGEBTfdDaAfGDA",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.item.json;\n\n// 1. Helfer-Funktion: Findet den JSON-String im Selector-Output\nfunction findRawJson(obj) {\n    if (typeof obj === 'string' && obj.trim().startsWith('{')) return obj;\n    if (typeof obj === 'object' && obj !== null) {\n        if (obj.output_text && obj.output_text[0] && obj.output_text[0].text) return obj.output_text[0].text;\n        if (obj.text && typeof obj.text === 'string') return obj.text;\n        if (obj.output && typeof obj.output === 'string') return obj.output;\n        for (let key in obj) {\n            let found = findRawJson(obj[key]);\n            if (found) return found;\n        }\n    }\n    return null;\n}\n\nlet selection = {};\nconst jsonString = findRawJson(input);\n\nif (jsonString) {\n    try {\n        selection = JSON.parse(jsonString.replace(/```json|```/g, '').trim());\n    } catch (e) {\n        throw new Error(\"Selector-JSON konnte nicht geparst werden.\");\n    }\n} else {\n    throw new Error(\"Kein gültiger Output vom Selector gefunden.\");\n}\n\n// 2. Mapping auf flache Variablen für den Writer\nreturn {\n    \"sel_title\": selection.selected_title || \"Kein Titel gewählt\",\n    \"sel_fact\": selection.selected_fact || \"Kein Fakt gefunden\",\n    \"sel_reasoning\": selection.reasoning || \"Keine Begründung angegeben\",\n    \"sel_link\": selection.selected_link || \"\" // Falls du die Quelle doch mal wieder mitnimmst\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        -336
+      ],
+      "id": "6f819d9f-5dae-4e58-a33d-adeaee349e94",
+      "name": "Formatiert-auch"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=ROLLE: Du bist ein erstklassiger Ghostwriter für LinkedIn. Deine Aufgabe ist es, aus einem Recherche-Fakt einen Post zu schreiben, der exakt so klingt wie der digitale Zwilling der beschriebenen Person. Du passt dich zu 100 % an das bereitgestellte Profil an.\n\n\n1. DER INHALT:\n\n\nThema: {{ $('Formatiert-auch').item.json.sel_title }}\n\nKern-Fakt: {{ $('Formatiert-auch').item.json.sel_fact }}\n\nKontext: {{ $('Formatiert-auch').item.json.sel_reasoning }}\n\n2. DER STIL & ENERGIE:\n\nEnergie-Level (1-10): {{ $('Formatieren').item.json.finger_energy }}. (WICHTIG: Passe die Intensität und Leidenschaft des Textes exakt an diesen Wert an.)\n\nRhetorisches Shouting: {{ $('Formatieren').item.json.finger_shouting }}. (Nutze GROSSBUCHSTABEN für einzelne Wörter genau so, wie hier beschrieben, um maximale Emphase zu erzeugen, mach das für KEINE anderen Wörter!)\n\nTonalität: {{ $('Formatieren').item.json.style_tonality }}\n\nAnsprache (STRENGSTENS EINHALTEN): {{ $('Formatieren').item.json.style_address }}.\n\nPerspektive (STRENGSTENS EINHALTEN): {{ $('Formatieren').item.json.style_perspective }}.\n\nSatz-Dynamik & Interpunktion: {{ $('Formatieren').item.json.style_dynamics }}. {{ $('Formatieren').item.json.style_dynamics }}. Nutze zusätzlich diesen spezifischen Zeichen-Stil: {{ $('Formatieren').item.json.finger_punctuation }}.\n\nBranche: {{ $('Formatieren').item.json.res_industry }}\n\nZielgruppe: {{ $('Formatieren').item.json.res_audience }}\n\nSatz-Dynamik: {{ $('Formatieren').item.json.style_dynamics }}\n\nWortschatz-Präferenzen: {{ $('Formatieren').item.json.style_vocab.join(', ') }}\n\n3. LINGUISTISCHER FINGERABDRUCK:\n\nSignature Phrases: Nutze organisch (nicht erzwungen) Begriffe oder Ausrufe wie: {{ $('Formatieren').item.json.finger_phrases.join(', ') }}.\n\nErzähl-Anker: Baue Elemente ein wie: {{ $('Formatieren').item.json.finger_anchors.join(', ') }}. (Falls 'PS-Zeilen' oder 'Dialoge' genannt sind, integriere diese zwingend.)\n\nWortschatz-Präferenzen: {{ $('Formatieren').item.json.style_vocab.join(', ') }}.\n\n\n4. STRUKTUR:\n\nDer Hook: Nutze zwingend diese Formel: {{ $('Formatieren').item.json.style_hook }}.\n\nLayout: {{ $('Formatieren').item.json.vis_layout }}.\n\nLänge: Ca. {{ $('Formatieren').item.json.style_word_count }} Wörter.\n\nCTA: Beende den Post mit: {{ $('Formatieren').item.json.style_cta }}.\n\n5. VISUELLE REGELN:\n\nUnicode-Fettung: Nutze für den ersten Satz (Hook) fette Unicode-Zeichen (z.B. 𝐖𝐢𝐜𝐡𝐭𝐢𝐠𝐞𝐫 𝐒𝐚𝐭𝐳), wie in {{ $('Formatieren').item.json.vis_unicode }} definiert.\n\nEmoji-Logik: Verwende {{ $('Formatieren').item.json.vis_emojis.join(' ') }}. Platzierung: {{ $('Formatieren').item.json.vis_emoji_placement }}. Dichte: {{ $('Formatieren').item.json.vis_emoji_density }}.\n\n\n6. GUARDRAILS:\n\nVerbotene Wörter: {{ $('Formatieren').item.json.guard_forbidden_words.join(', ') }}\n\nNo-Gos: {{ $('Formatieren').item.json.guard_no_gos.join(', ') }}\n\nEinschränkung: Schreibe niemals über Themen aus dieser Blacklist: {{ $('Formatieren').item.json.guard_blacklist.join(', ') }}.\n\nDEIN AUFTRAG: Schreibe den Post so, dass er für die Zielgruppe {{ $('Formatieren').item.json.res_audience }} einen klaren Mehrwert bietet. Sei authentisch für die Branche {{ $('Formatieren').item.json.res_industry }}. Mach die Persönlichkeit des Liguistischen Fingerabdrucks spürbar. Beginne direkt mit dem Hook. Keine einleitenden Sätze, kein \"Hier ist der Post\"."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        -336
+      ],
+      "id": "e2f19cdc-35cf-4be6-a964-8a56a04c1b1b",
+      "name": "Writer",
+      "credentials": {
+        "openAiApi": {
+          "id": "GtjGEBTfdDaAfGDA",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "timo.uttenweiler@onyva.de",
+        "subject": "=LinkedIn-Post zum Thema: \"{{ $('Formatiert-auch').item.json.sel_title }}\"",
+        "message": "=<h3>Dein neuer LinkedIn-Post ist bereit!</h3>\n<p>Hier ist der Entwurf vom KI-Agenten:</p>\n\n<div style=\"background-color: #f4f4f4; padding: 20px; border-left: 5px solid #0078d4; font-family: sans-serif;\">\n  {{ $('Kritiker').item.json.output[0].content[0].text }}\n</div>\n\n<p>Möchtest du diesen Post genehmigen?</p>\n\n<a href=\"https://onyva.app.n8n.cloud/webhook/90eb176f-a410-4835-9165-44c15b114ebf?action=approve&id={{ $executionId }}\" \n   style=\"background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;\">\n   ✅ Genehmigen & Veröffentlichen\n</a>\n\n<a href=\"https://onyva.app.n8n.cloud/webhook/90eb176f-a410-4835-9165-44c15b114ebf?action=reject&id={{ $executionId }}\" \n   style=\"background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-left: 10px;\">\n   ❌ Ablehnen\n</a>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2608,
+        -336
+      ],
+      "id": "894f32ba-d036-425e-b519-04aefb44c86b",
+      "name": "Send a message1",
+      "webhookId": "99444e24-ce9f-455d-8e0f-eb5720ca9e01",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "G1YShai9sjjVAoce",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1w1vw0mKqlRoxuCc3leHInHnpcwDJr6USg5MNXGpKuY8",
+          "mode": "list",
+          "cachedResultName": "LinkedIn",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1w1vw0mKqlRoxuCc3leHInHnpcwDJr6USg5MNXGpKuY8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Approval",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1w1vw0mKqlRoxuCc3leHInHnpcwDJr6USg5MNXGpKuY8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Thema": "={{ $('Formatiert-auch').item.json.sel_title }}",
+            "Inhalt": "={{ $json.output[0].content[0].text }}",
+            "ID": "={{ $executionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Thema",
+              "displayName": "Thema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Inhalt",
+              "displayName": "Inhalt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Approved",
+              "displayName": "Approved",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2384,
+        -336
+      ],
+      "id": "d057d1e1-4daa-4a2f-a4f1-85489566716e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JaDglRLLYyCw24XV",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n    \"company_name\": \"MAKE IT MATTER\",\n    \"persona\": \"Christina Hildebrandt, Co-Founder MAKE IT MATTER I Kommunikationsberatung, Interimsmanagement, PR & LinkedIn-Kompetenz für KMUs und Agenturen, die wachsen wollen. 25 Jahre Erfahrung in Konzern, Mittelstand und Agenturen.\",\n    \n    // Die Ansprache-Logik für den Critic-Node\n    \"form_of_address\": \"Duzen (Du/Euch) - direkt, leidenschaftlich und hochemotional\",\n    \n    \"style_guide\": \"Kommunikation als Sales-Infrastruktur. Fokus auf ROI ('Alles was nicht einzahlt, muss weg'). Stil: Laut, ehrlich, begeisterungsfähig ('Halleluja!', 'Galopp!'). Nutzt Storytelling durch Flashbacks und persönliche Anekdoten, um strategische Punkte zu belegen.\",\n    \n    \"topic_history\": [\n        \"KI-Suche als Sales-Infrastruktur\",\n        \"Kommunikation treibt Sales über KI\",\n        \"Positionierung für den Mittelstand (leise/komplexe Unternehmen)\",\n        \"LinkedIn als Teil der klassischen Unternehmenskommunikation\",\n        \"Die 'Zweite Pubertät' 2026: Neuanfang und Mut\"\n    ],\n\n    \"example_posts\": [\n        `𝗞𝗜-𝗦𝘂𝗰𝗵𝗲 𝗶𝘀𝘁 𝗱𝗲𝗿 𝗲𝗿𝘀𝘁𝗲 𝗦𝗰𝗵𝗿𝗶𝘁𝘁 𝗶𝗺 𝗦𝗮𝗹𝗲𝘀 𝗙𝘂𝗻𝗻𝗲𝗹. Gute Kommunikation ist Sales-Infrastruktur. Das ist unsere Chance Christina!!! ❞\n\nDas sagte Max kurz vor Weihnachten in einem Café zu mir und ich schrie ihn fast an: \n\"Max!! Sag das nochmal!!! Das ist genial!!! Das ist unser nächster Post!\"\n\nUnd…\nDA IST ER:)!🚀\n\nWarum ich so begeistert war?\nIch glaube, dass Kommunikation unbedingt auch Sales „driven“ muss. \nMake It Matter ist entstanden, weil es nur wenige Agenturen gibt, die so radikal+konsequent Kommunikation als Sales- und Leads-Wachstumstreiber mitdenken wie wir.\nALLES was nicht auf die Unternehnensziele einzahlt muss radikal WEG.\nLisa und ich haben EIN Ziel: Die New Business- bzw. Vertriebsmannschaft soll uns lieben:)\n\nKI spielt uns in die Karten und ist wie ein Brennglas:\nDie KI entscheidet, wer und überhaupt noch empfohlen wird und wer auf Shortlists landet.\n\nJETZT muss man kommunikative KI-Signale setzen und das „Dach decken“. JETZT kann man KI-Pflöcke im Netz einziehen, damit man im Sales-Entscheidungsprozess VORNE sichtbar wird.\n𝗞𝗼𝗺𝗺𝘂𝗻𝗶𝗸𝗮𝘁𝗶𝗼𝗻 𝘁𝗿𝗲𝗶𝗯𝘁 𝗦𝗮𝗹𝗲𝘀 ü𝗯𝗲𝗿 𝗞𝗜. Jetzt und künftig noch mehr!\n\nIm Gespräch mit Max wurde das sehr klar: KI recherchiert nicht mehr wie früher, sie priorisiert und bewertet, lange bevor der Vertrieb überhaupt spricht. \nEs gilt:\n👉Wenn KI ein Unternehmen nicht eindeutig einordnen kann, ist es für Sales nicht im Rennen.\n👉Genau hier wird Kommunikation zur Sales-Infrastruktur.\n\nMake It Matter Matter schafft dafür die strategische Grundlage aus Positionierung, Themenarchitektur und Public Relations als echte Third-Party-Validierung. \n(Klingt gut oder?! Und ist wahr!!)\n\nUnsre Stärken?\n👉LISA HIPP Hipp übersetzt diese Klarheit auf LinkedIn in wiederholbare Narrative, die Einordnung erzeugen. \n👉Max Anzile sorgt dafür, dass diese Signale gezielt distribuiert, getestet und messbar gemacht werden.\n👉 Und ich bin Kommunikation und Public Relations durch und durch (Konzern, Mittelstand, Agenturen. 25 Jahre\n\nSo entsteht für undere kein Content-Feuerwerk, sondern ein SYSTEM, das SALES-VORAUSWAHL gewinnt.\n💸💸💸\n\nWir sehen in der Praxis:\nDeals mit mehreren Kommunikationskontakten \n👉schliessen schneller und stabile\n👉und brauchen weniger Rabatt \nweil Vertrauen steigt und Vergleichbarkeit sinkt.\n\nUnsere Überzeugung ist klar: \nEntweder Kommunikation ist messbarer Teil des Sales Funnels oder sie wird 2026 gestrichen.\nSorry to say!!\nGood for us!!!!🙃\n\nChristina\n#Kommunikation #SalesSupport #SocialMedia #KISEO`,\n\n        `Ein unstrategischer Flashback-Post aus dem Flixbus Richtung Bodensee.\n#AboutEducatedAwareness #AboutMittelstand #AusDerHüfteGeschossen\nSorry Lisa🙈\n⸻\nGestern habe ich brav den Keller aufgeräumt und bin an einer Kiste alter Job-Fotos hängengeblieben.\n📸\nIch in Amsterdam mit Tommy Hilfiger. Beim Abendessen mit Lovely Annette Weber, Flohmärkte mit Chefredakteuren, Bilder mit Steffi Graf, Sönke Wortmann, Natalia Wörner und Heike Makatsch in Nördlingen bei Strenesse. Cartier-Juste-Un-Clou-Launch in New York.\nHalleluja war ich wichtig, dünn, lustig und jung :)\nWas für eine goldene, sorglose Zeit*.\n💫💫💫\nBei diesem Foto👇 musste ich so lachen. Ich weiß noch, wie es entstanden ist:\nWir waren Sponsor beim Bambi. (Wir – damit meine ich Cartier damals.)\nMein Chef Tom Meggle gab mir damals die Erlaubnis, meine Freundinnen Bine Käfer (jetzt Lanz), Celia von Bismarck und Gioia von Thun mitzunehmen.\nWichtig wichtig.\nWir also aufgedresst wie Bolle, kommen an den roten Teppich, Blitzgewitter, 4 Girlies. Dann ein Rufen aus der Fotografenmenge:\n„Christina!!! Kannst Du aus dem Bild gehen??? Wir brauchen die 3 Mädels alleine!!!“ (weil echt wichtig).\nIch weiß noch, wie ich fast zusammengebrochen bin vor Lachen. „Hey!! ICH habe DIE mitgenommen!!“ 🤣🤣🤣\nEin Bild von uns 4 hab ich dann aber doch noch bekommen. Plus einen wundervollen Abend.\n….\nWas das mit Make It Matter äund „Job“ zu tun hat?\nWenig. Aber ein bisschen schon:\nEs zeigt aber, wie sehr ich mich verändert habe:\n💫𝗛𝗲𝘂𝘁𝗲 𝗮𝗿𝗯𝗲𝗶𝘁𝗲 𝗶𝗰𝗵 𝗮𝗺 𝗹𝗶𝗲𝗯𝘀𝘁𝗲𝗻 𝗳𝘂̈𝗿 𝗨𝗻𝘁𝗲𝗿𝗻𝗲𝗵𝗺𝗲𝗻, 𝗱𝗶𝗲 𝗴𝗿𝗼ß𝗮𝗿𝘁𝗶𝗴 𝘀𝗶𝗻𝗱, 𝗮𝗯𝗲𝗿 𝘇𝘂 𝗹𝗲𝗶𝘀𝗲, 𝘇𝘂 𝗸𝗼𝗺𝗽𝗹𝗲𝘅 𝗼𝗱𝗲𝗿 𝘇𝘂 𝗯𝗲𝘀𝗰𝗵𝗲𝗶𝗱𝗲𝗻, 𝘂𝗺 𝘀𝗲𝗹𝗯𝘀𝘁 𝘂̈𝗯𝗲𝗿 𝗶𝗵𝗿𝗲 𝗦𝘁𝗮̈𝗿𝗸𝗲 𝘇𝘂 𝘀𝗽𝗿𝗲𝗰𝗵𝗲𝗻\n(Es gibt so so so tolle Firmen, von denen noch keiner etwas gehört hat, meistens mit unglaublich netten Teams!)\n💫 Heute habe ich mich in erklärungsbedürftige, komplizierte Produkte, EducatedAwareness und #LinkedIn als Teil der klassischen #Unternehmenskommunikation verliebt.\n💫 Heute liebe ich komplexe und „unsexy“ Aufgaben, die ich knacken will.\nSo verändert man sich. Ist das nicht verrückt?\nSchön war’s trotzdem damals. Mensch, bin ich dankbar!\nEuch einen schönen Sonntag. Eure Christina\nwww.make-it-matter.de\n#MakeItMatter #Kommunikation #Wachstumstreiber #Mittelstand #PublicRelations\nPS. Ich setzt mich jetzt gleich an das Papier liebe Lisa. Bis 11.15h gab ich fertig😉`,\n\n        `𝗪𝗘𝗥 𝗠𝗔𝗖𝗛𝗧 𝗠𝗜𝗧??? Ich habe entschieden, dass 2026 meine zweite Pubertät beginnt #MakeItMatter🚀\nHalleluja! Endlich hat das neue Jahr begonnen.\nMit meinen Freunden habe ich gestern beschlossen, dass ich das kommende Jahr jetzt mal völlig neu angehen werde:\nIch stelle mir einfach vor, ich wäre in meiner zweiten Pubertät!!!\nOk, ok, dieses Mal mit besserem Wein, einem kleinen Kontopuffer, 25 Jahren Berufserfahrung, besserem WLAN, aber mit dem gleichen Gefühl von damals:\n𝗗𝗘𝗥 𝗡𝗔̈𝗖𝗛𝗦𝗧𝗘 𝗟𝗘𝗕𝗘𝗡𝗦𝗔𝗕𝗦𝗖𝗛𝗡𝗜𝗧𝗧 𝗪𝗜𝗥𝗗 𝗗𝗘𝗥 𝗕𝗘𝗦𝗧𝗘!!!\nIch fühle es! Alles liegt vor mir und ich kann Pippi-Langstrumpf-mäßig einfach alles erreichen, à la:\n„𝘐𝘤𝘩 𝘩𝘢𝘣 𝘥𝘢𝘴 𝘯𝘰𝘤𝘩 𝘯𝘪𝘦 𝘨𝘦𝘮𝘢𝘤𝘩𝘵 – 𝘥𝘢𝘴 𝘬𝘢𝘯𝘯 𝘪𝘤𝘩 𝘣𝘦𝘴𝘵𝘪𝗺𝘮𝘵.“\n(PS: Wann haben wir das eigentlich verlernt?)\nIch finde die Ähnlichkeit zu meinem (nicht mehr pubertierenden) Sohn Lenny wirklich erstaunlich:\nEr ist genauso begeistert von der Idee, im Ausland zu studieren und sich etwas Eigenes, Großes aufzubauen, wie ich besessen von Lisas und meiner Make-It-Matter-Idee bin.\nJetzt sitzen wir auf dem Driverseat unseres Lebens und können Kommunikations-Burgen aufbauen: das, was wir am allerbesten können!\nWir mussten gestern bei dem Erste-und-Zweite-Pubertäts-Vergleich wirklich lachen:\nAuch die Hormonprobleme sind ähnlich. Nur habe ich meine im Griff bzw. hinter mir. Lenny hat noch eine (aufregende) Reise vor sich.\nMuss man da nicht automatisch grinsen?\nDieses Grinsen werde ich mir für 2026 vornehmen. Ich werde mich öfter an den Sternenzauber meiner ersten Pubertät erinnern, an die unaufhaltsame Kraft, die Fröhlichkeit, den Mut, die Neugierde und die Ausdauer.\nUnd wisst ihr, worauf ich mich am meisten freue?\nAuf die Momente, in denen ich bei den Social Media Pirates - we are hiring – we are hiring – ins Büro komme und Max Anzile (der übrigens 20 Jahre jünger ist als ich) zu mir sagt:\n„Guten Morgen, Boomer!“ …und frech grinst. Auf seine KI-Sessions, seine Ideen, neue Welten, Hummeln im Popo.\nUnd natürlich LISA HIPP, die allerallerallerbeste Geschäftspartnerin, die ich mir vorstellen kann. #ZamReinZamRaus\nSeid ihr dabei? 💫 Zweite Pubertät ab 2026? 💪 Vollgas? ✔️ Lebensfreude? 🫶 Kommunikation neu denken? ✔️ Jahr des Feuerpferdes? 🐎\nDann GALOPP!!!!!\nIch wünsche euch, dass all eure Träume und Wünsche in Erfüllung gehen und dass ihr den Mut habt, etwas dafür zu tun!\n„Wenn die Sehnsucht größer ist als die Angst, wird Mut, Erfolg und Lebensfreude geboren.“\nIst das nicht schön?\nHappy New Year und happy neue Lebensphase(n)\nwünscht Euch Christina\n#MakeItMatter #Kommunikation #PublicRelations #LinkedInComms`\n    ]\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        -336
+      ],
+      "id": "007e6b5d-d136-437b-baee-d74736b2c103",
+      "name": "Christina"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Christina",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Themen-Recherche": {
+      "main": [
+        [
+          {
+            "node": "Wählt-Thema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kritiker": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profil-Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Formatieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatieren": {
+      "main": [
+        [
+          {
+            "node": "Themen-Recherche",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wählt-Thema": {
+      "main": [
+        [
+          {
+            "node": "Formatiert-auch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatiert-auch": {
+      "main": [
+        [
+          {
+            "node": "Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer": {
+      "main": [
+        [
+          {
+            "node": "Kritiker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Christina": {
+      "main": [
+        [
+          {
+            "node": "Profil-Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Themen-Recherche": [
+      {
+        "id": "1b193197-4c0e-4714-824e-55581c6aae2d",
+        "model": "sonar",
+        "created": 1768833929,
+        "usage": {
+          "prompt_tokens": 423,
+          "completion_tokens": 1512,
+          "total_tokens": 1935,
+          "search_context_size": "low",
+          "cost": {
+            "input_tokens_cost": 0,
+            "output_tokens_cost": 0.002,
+            "request_cost": 0.005,
+            "total_cost": 0.007
+          }
+        },
+        "citations": [
+          "https://montagsbuero.de/marketing-trends-2026-mittelstand/",
+          "https://blog.fette-beute.com/ki-trends-2026-wie-ki-die-kommunikation-ver%C3%A4ndert",
+          "https://ap-verlag.de/trendbarometer-industriekommunikation-2026-ki-wird-zum-standard-chancen-aber-teilweise-noch-ungenutzt/101840/",
+          "https://www.contentmanager.de/experte/marketing-trends-2026-das-sagen-die-expertinnen/",
+          "https://www.presseportal.de/pm/109860/6195152",
+          "https://www.fokus-ki.de/ki-strategie/ki-strategie-2026-warum-abwarten-fuer-kmus-teuer-wird-fokus-ki/",
+          "https://itwelt.at/news/kmu-wollen-trotz-krise-staerker-in-digitalisierung-investieren/",
+          "https://staffbase.com/de/blog/interne-kommunikation-trends",
+          "https://www.antenneac.de/artikel/das-sind-die-arbeitsmarkt-trends-2026-2543083"
+        ],
+        "search_results": [
+          {
+            "title": "Marketing-Trends 2026: Was auf Unternehmen zukommt",
+            "url": "https://montagsbuero.de/marketing-trends-2026-mittelstand/",
+            "date": "2025-12-22",
+            "last_updated": "2025-12-22",
+            "snippet": "Marketing-Trends 2026: Was auf KMU und Marketingverantwortliche zukommt · Warum 2026 ein Schlüsseljahr für digitales Marketing wird · Generative ...",
+            "source": "web"
+          },
+          {
+            "title": "KI-Trends 2026: Wie KI die Kommunikation verändert",
+            "url": "https://blog.fette-beute.com/ki-trends-2026-wie-ki-die-kommunikation-ver%C3%A4ndert",
+            "date": "2025-12-19",
+            "last_updated": "2025-12-20",
+            "snippet": "Künstliche Intelligenz eröffnet in der Kommunikation 2026 Chancen für KMU. Die relevanten Trends im Überblick.",
+            "source": "web"
+          },
+          {
+            "title": "Trendbarometer Industriekommunikation 2026: KI wird zum ...",
+            "url": "https://ap-verlag.de/trendbarometer-industriekommunikation-2026-ki-wird-zum-standard-chancen-aber-teilweise-noch-ungenutzt/101840/",
+            "date": "2026-01-14",
+            "last_updated": "2026-01-18",
+            "snippet": "Die wichtigsten Trends im Online Marketing: Warum es 2026 auf Datenqualität, Automatisierung und KI ankommt. 11. Januar 2026. Künstliche ...",
+            "source": "web"
+          },
+          {
+            "title": "Marketing Trends 2026: Das sagen die Expert:innen",
+            "url": "https://www.contentmanager.de/experte/marketing-trends-2026-das-sagen-die-expertinnen/",
+            "date": "2025-12-30",
+            "last_updated": "2026-01-02",
+            "snippet": "Für 2026 sehen wir im digitalen Marketing vor allem drei Trends: die verstärkte Nutzung von KI für personalisierte Kampagnen, die ...",
+            "source": "web"
+          },
+          {
+            "title": "Trendbarometer Industriekommunikation 2026: KI wird zum ...",
+            "url": "https://www.presseportal.de/pm/109860/6195152",
+            "date": "2026-01-13",
+            "last_updated": "2026-01-19",
+            "snippet": "Trendbarometer Industriekommunikation 2026: KI wird zum Standard - Chancen aber teilweise noch ungenutzt · Diskrepanz zwischen Anspruch und ...",
+            "source": "web"
+          },
+          {
+            "title": "KI-Strategie 2026: Warum Abwarten für KMUs teuer wird",
+            "url": "https://www.fokus-ki.de/ki-strategie/ki-strategie-2026-warum-abwarten-fuer-kmus-teuer-wird-fokus-ki/",
+            "date": "2026-01-06",
+            "last_updated": "2026-01-09",
+            "snippet": "Dieser Artikel gibt Ihnen als Entscheider im KMU-Umfeld einen strategischen Überblick, zeigt reale Risiken des Abwartens auf und liefert eine ...",
+            "source": "web"
+          },
+          {
+            "title": "KMU wollen trotz Krise stärker in Digitalisierung investieren",
+            "url": "https://itwelt.at/news/kmu-wollen-trotz-krise-staerker-in-digitalisierung-investieren/",
+            "date": "2023-01-31",
+            "last_updated": "2026-01-08",
+            "snippet": "Eine neue Studie zeigt: 85 Prozent der KMU finden Digitalisierungsmaßnahmen wichtig für den Unternehmenserfolg. Jedes zweite Unternehmen will mehr ...",
+            "source": "web"
+          },
+          {
+            "title": "Die 5 wichtigsten Trends für die interne Kommunikation 2026",
+            "url": "https://staffbase.com/de/blog/interne-kommunikation-trends",
+            "date": "2025-09-16",
+            "last_updated": "2025-10-26",
+            "snippet": "Alljährlicher Artikel mit den Trends in der internen Kommunikation. 2026 werden wir erleben, wie Künstliche Intelligenz (KI) die Employee ...",
+            "source": "web"
+          },
+          {
+            "title": "Das sind die Arbeitsmarkt-Trends 2026",
+            "url": "https://www.antenneac.de/artikel/das-sind-die-arbeitsmarkt-trends-2026-2543083",
+            "date": "2026-01-11",
+            "last_updated": "2026-01-12",
+            "snippet": "1. Jobsicherheit bleibt wichtig · 2. Flexibilität stagniert - Arbeitgeber sitzen am längeren Hebel · 3. KI ist wichtig, aber kann den Menschen ...",
+            "source": "web"
+          }
+        ],
+        "object": "chat.completion",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "# LinkedIn Content-Lücke: 3 Aufhänger für Kommunikationsberatung & KMU-Marketing 2026\n\n---\n\n## 1. News-Flash: KI-Agenten werden zur Standard-Ressource im B2B-Marketing\n\n**[TITEL]:** \"59% der PR-Profis setzen KI ein – aber nur 20% nutzen das volle Potenzial\"\n\n**[DER FAKT:]**\n\nEine aktuelle Studie des PRLab (2025) zeigt: **59 Prozent der PR-Fachleute betrachten KI als Top-Priorität – vor allem für Entwürfe und Trendanalysen.[2]** Parallel dazu hat der Bundesverband Industrie Kommunikation (bvik) in seiner neuen Trendbarometer-Studie 2026 identifiziert, dass **69% der befragten Unternehmen davon ausgehen, dass „künstliche Mitarbeiter\" (KI-Assistenten) das B2B-Marketing in den nächsten zwei Jahren standardmäßig als zusätzliche Ressource unterstützen werden.[3][5]** \n\nDie Realität: Während fast 60% der PR-Profis KI bereits einsetzen, mangelt es vielen Unternehmen noch an klaren Governance-Regeln und strategischen KI-Konzepten.[2][3] KI-Agenten werden nicht als isolierte Tools genutzt, sondern entwickeln sich zu **vernetzten Kommunikationsökosystemen, in denen Brand-, Compliance-, QA- und Product-Roadmap-Agenten zusammenarbeiten.[2]**\n\n**[WARUM RELEVANT]:**\n\nFür KMUs und Agenturen ist dies der kritische Moment: KI ist nicht mehr die Zukunft – sie ist **Standard geworden**. Unternehmen, die jetzt nicht aktiv eine KI-Strategie entwickeln, verlieren Wettbewerbsfähigkeit gegenüber Konkurrenten, die bereits 38% mehr qualifizierte Anfragen mit KI-gestützter Optimierung generieren.[6] \n\nDer massive Nutzwert liegt darin, dass Agenturen und KMUs ihren Clients zeigen können: **KI ist kein Nice-to-have mehr – es ist ein Wettbewerbsfaktor.** Gleichzeitig gibt es noch eine große Lücke zwischen Adoption und strategischer Umsetzung, die Beratungsunternehmen füllen können. Dies ist der ideale Moment für Content, der Unternehmen hilft, von reaktiver KI-Nutzung zu proaktiver KI-Strategie zu wechseln.\n\n---\n\n## 2. Schmerzpunkt-Löser: E-Mail-Marketing bleibt Top-ROI-Kanal – aber nur mit intelligenter Segmentierung\n\n**[TITEL]:** \"E-Mail-Marketing: Der unterschätzte Retention-Engine für KMU-Wachstum\"\n\n**[DER FAKT:]**\n\nDas Marketing-Paradoxon 2026: Während KMUs massiv in KI und neue Kanäle investieren, bleibt **E-Mail-Marketing laut Gartner die am weitesten verbreitete direkte Marketingtechnologie – und 41% der CMOs in großen Unternehmen planen Investitionserhöhungen in diesem Bereich.[3]** \n\nGleichzeitig verschiebt sich der strategische Fokus deutlich: **Kundenbindung wird zum Wachstumsermöglicher, nicht nur die Kundenakquise.[4]** Die Kombination aus KI-gestützter Personalisierung und E-Mail-Automatisierung ermöglicht es KMUs, **Nutzer in Echtzeit mit passenden Inhalten zu erreichen und dabei Transparenz beim Datenschutz zu bewahren – das schafft langfristige Loyalität statt kurzfristige Conversions.[4]**\n\n**[WARUM RELEVANT]:**\n\nHier ist der Schmerzpunkt konkret: Viele KMUs haben E-Mail-Marketing abgeschrieben oder behandeln es als reines Transaktions-Instrument. Die Wahrheit: **E-Mail hat mit intelligenter KI-Segmentierung und automatisierten Sequenzen den höchsten ROI aller direkten Marketingkanäle.** \n\nDer Nutzwert für Agenturen und KMUs liegt in einer pragmatischen, umsetzbaren Strategie: Nicht „mehr Kanäle\", sondern **smarter in existierenden Kanälen mit KI arbeiten**. Das spart Budgets, erhöht Effizienz und liefert nachweisbare Ergebnisse – genau das, das KMUs aktuell suchen, wenn der Wettbewerbsdruck steigt.[3][5]\n\n---\n\n## 3. Konträrer Trend: KI kann Vertrauen nicht ersetzen – und das ist die größte Chance\n\n**[TITEL]:** \"Gegen den Hype: Warum KI-Agenten ohne menschliche Beziehungen scheitern\"\n\n**[DER FAKT:]**\n\nDer konträre Trend findet sich im Kernwiderspruch der aktuellen B2B-Marketing-Diskussion: Während **vollautomatisierte Content-Pipelines und KI-gestützte Kommunikationsökosysteme als Zukunft gepriesen werden**, warnt der Bundesverband Industrie Kommunikation (bvik) explicit davor, dass **„ein vertrauensvolles Kundenverhältnis sich nicht vollständig durch KI-Algorithmen ersetzen lässt\".[3][5]** \n\nParallel dazu zeigen aktuelle Marketing-Trends 2026: **Marken, die Relevanz mit Vertrauen verbinden, schaffen nicht nur mehr Reichweite, sondern auch langfristige Beziehungen und echte Loyalität.[4]** Das bedeutet: KI ist ideal für Effizienz und Personalisierung – aber der echte Wettbewerbsvorteil liegt in der **strategischen Kombination aus KI-gestützter Automatisierung + menschlicher Glaubwürdigkeit und authentischer Kommunikation**.\n\n**[WARUM RELEVANT]:**\n\nDies ist das stärkste LinkedIn-Hook-Potenzial für KMUs und Agenturen: **Während 69% der Unternehmen in KI-Assistenten investieren, verlieren sie gleichzeitig den menschlichen Faktor – und damit Kundenvertrauen.** \n\nDer praktische Nutzwert ist enorm: Agenturen können sich positionieren als **„KI + Human\"-Strategie-Partner**, die KMUs helfen, nicht in die KI-Automatisierungsfalle zu tappen. Die Botschaft: KI für Skalierbarkeit, Menschen für Vertrauen – und diese Kombination ist nicht ersetzbar. Das spricht direkt die Angst vieler KMU-Entscheider an, die befürchten, durch KI-Automatisierung ihre Markenidentität zu verlieren.[3][5][4]"
+            },
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "Profil-Analyzer": [
+      {
+        "output": [
+          {
+            "id": "msg_0c7a615cd00070f000696e4427025081958740231ae7ff843d",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\n  \"research_context\": {\n    \"industry\": \"Kommunikationsberatung und Public Relations\",\n    \"target_audience_detailed\": \"KMUs und Agenturen, die wachsen wollen; Unternehmen, die Kommunikation als strategischen Wachstumsfaktor sehen\",\n    \"content_pillars\": [\n      \"Kommunikation als Sales-Infrastruktur\",\n      \"KI-Einsatz im Sales und Marketing\",\n      \"LinkedIn-Kommunikation für Unternehmen\",\n      \"Positionierung und Neuanfangskonzepte\",\n      \"Persönliche Anekdoten und Erfolgsgeschichten\"\n    ],\n    \"expertise_level\": \"Experte\"\n  },\n  \"writing_dna\": {\n    \"tonality_description\": \"Laut, ehrlich, begeisterungsfähig und nahbar\",\n    \"perspective\": \"Ich-Perspektive\",\n    \"form_of_address\": \"Duzen (Du/Euch)\",\n    \"sentence_dynamics\": \"Mix aus kurzen, impulsiven Sätzen und längeren erklärenden Absätzen, reich an rhetorischen Fragen und Ausrufen\",\n    \"length_and_pacing\": {\n      \"expected_post_length\": \"Mittel (Storytelling)\",\n      \"average_word_count\": \"350-500\",\n      \"paragraph_cadence\": \"2-4 Sätze pro Absatz, dynamischer Lesefluss\"\n    },\n    \"hook_formula\": \"Frage oder provokative Aussage, oft gefolgt von persönlicher Anekdote\",\n    \"cta_style\": \"Direkter Aufruf zum Mitmachen oder Reflektieren\",\n    \"vocabulary_preferences\": [\n      \"Halleluja\",\n      \"Galopp\",\n      \"Sorry to say\",\n      \"kommunikative KI-Signale setzen\",\n      \"Sales-Infrastruktur\"\n    ]\n  },\n  \"linguistic_fingerprint\": {\n    \"energy_level\": \"9\",\n    \"rhetorical_shouting\": \"JA, Beispiele: JETZT, WEG, ALLES\",\n    \"punctuation_style\": \"Exzessive Nutzung von Ausrufezeichen, Kombinationen wie :)!\",\n    \"signature_phrases\": [\n      \"Halleluja\",\n      \"Galopp\",\n      \"Sorry to say\"\n    ],\n    \"narrative_anchors\": [\n      \"Flashbacks\",\n      \"Persönliche Anekdoten\",\n      \"Dialoge\"\n    ]\n  },\n  \"visual_fingerprint\": {\n    \"unicode_rules\": \"Fette Unicode-Schrift für wichtige Begriffe\",\n    \"emoji_logic\": {\n      \"specific_emojis\": [\n        \"🚀\",\n        \"💸\",\n        \"🙃\",\n        \"📸\",\n        \"🤣\",\n        \"💫\",\n        \"🐎\",\n        \"🫶\"\n      ],\n      \"placement\": \"Anfang, Ende und als Highlight im Text\",\n      \"frequency\": \"3-4 Emojis pro 100 Wörter\"\n    },\n    \"formatting_layout\": \"Kurze Absätze, gelegentliche Nutzung von Trennlinien, Aufzählungspunkte.\"\n  },\n  \"guardrails_for_critic\": {\n    \"forbidden_buzzwords\": [\n      \"Innovativ\",\n      \"Disruptiv\",\n      \"Influencer\"\n    ],\n    \"style_no_gos\": [\n      \"Zu viel Eigenlob\",\n      \"Passiver Sprachstil\"\n    ],\n    \"topic_blacklist\": [\n      \"KI-Suche als Sales-Infrastruktur\",\n      \"Neuanfang und Mut im Jahr 2026\"\n    ]\n  }\n}"
+              }
+            ],
+            "role": "assistant"
+          }
+        ]
+      }
+    ],
+    "Wählt-Thema": [
+      {
+        "output": [
+          {
+            "id": "msg_008a45693a2d938e00696e4432551c81a1b1cbe7a88130ba7f",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "```json\n{\n  \"selected_title\": \"News-Flash: KI-Agenten werden zur Standard-Ressource im B2B-Marketing\",\n  \"selected_fact\": \"Eine aktuelle Studie des PRLab (2025) zeigt: 59 Prozent der PR-Fachleute betrachten KI als Top-Priorität – vor allem für Entwürfe und Trendanalysen. Parallel dazu hat der Bundesverband Industrie Kommunikation (bvik) in seiner neuen Trendbarometer-Studie 2026 identifiziert, dass 69% der befragten Unternehmen davon ausgehen, dass „künstliche Mitarbeiter\\\" (KI-Assistenten) das B2B-Marketing in den nächsten zwei Jahren standardmäßig als zusätzliche Ressource unterstützen werden. Während fast 60% der PR-Profis KI bereits einsetzen, mangelt es vielen Unternehmen noch an klaren Governance-Regeln und strategischen KI-Konzepten. KI-Agenten werden nicht als isolierte Tools genutzt, sondern entwickeln sich zu vernetzten Kommunikationsökosystemen, in denen Brand-, Compliance-, QA- und Product-Roadmap-Agenten zusammenarbeiten.\",\n  \"reasoning\": \"Das Thema trifft den Kernschmerzpunkt von KMUs sowie Agenturen und zeigt eine massive Lücke zwischen der aktuellen KI-Nutzung und der strategischen Umsetzung, was eine enorme Relevanz und Dringlichkeit für die Zielgruppe schafft.\"\n}\n```"
+              }
+            ],
+            "role": "assistant"
+          }
+        ]
+      }
+    ],
+    "Writer": [
+      {
+        "output": [
+          {
+            "id": "msg_06492e607f6f19ed00696e4437c6d4819ca083958f2fe2c99a",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "𝗞𝗮𝗻𝗻𝘀𝘁 𝗗𝘂 𝗱𝗶𝗿 𝗲𝗶𝗻 𝗟𝗲𝗯𝗲𝗻 𝗼𝗵𝗻𝗲 𝗞𝗜-𝗔𝗴𝗲𝗻𝘁𝗲𝗻 𝗶𝗺 𝗠𝗮𝗿𝗸𝗲𝘁𝗶𝗻𝗴 𝗻𝗼𝗰𝗵 𝘃𝗼𝗿𝘀𝘁𝗲𝗹𝗹𝗲𝗻? 🚀\n\nFlashback zu 2025: Ich erinnere mich, wie ich in einem Meeting saß, als mich der Gedanke durchzuckte – KI im B2B-Marketing? Ja, bitte! Wir erkannten plötzlich: Über 59% der PRler nennen KI ihre Top-Priorität! Halleluja! 🙃\n\nAber Moment, wie sieht es mit den Unternehmensstrategien aus? Sorry to say, da gibt es noch Luft nach oben! Der Bundesverband Industrie Kommunikation (bvik) zeigt, dass 69% der Unternehmen glauben, „künstliche Mitarbeiter“ werden in den nächsten zwei Jahren zur STANDARD-Ressource. 🙌 Klingt nach Galopp in die richtige Richtung!\n\nLasst uns kurz strategisch werden. Unternehmen tun sich schwer mit klaren Governance-Regeln. Das bedeutet, die intelligente Kommunikation braucht immer noch ihre solide Sales-Infrastruktur! Worauf warten wir? JETZT ist die Zeit, kommunikative KI-Signale zu setzen.\n\nIch sags euch, KI-Agenten sind keine isolierten Tools mehr! Sie entfalten sich zu vernetzten Kommunikationsökosystemen. Sie arbeiten mit Brand- und QA-Agenten und bringen unsere Product-Strategien auf ein höheres Level. Kapiert ihr, was das heißt? Die Zukunft ist JETZT und sie ist voller Möglichkeiten! 💫\n\nSorry to say, für KMUs und Agenturen, die nicht am Ball bleiben – das könnte ein Abschied auf Raten sein. BITTE nicht nachlassen! Fragen wir uns: Wie kann unsere Kommunikation besser, schneller, effizienter werden? Der Schlüssel liegt darin, dass KI uns helfen sollte, nicht überholen!\n\nAlso, Hände hoch, wer jetzt bereit ist, die KI-Revolution zu gestalten? Seid mutig, seid laut – denn laut sind wir doch am liebsten, oder? 🤣\n\nTragt euch auf eure To-Do-Liste: Nutzt KI-Agenten als strategische Ressource und verändert die Spielregeln des Marketings. Galopp voran und der Erfolg wird euch nicht entkommen! ✨🐎\n\nLasst uns darüber sprechen. Was denkt ihr? Welche Rolle spielt KI bereits in eurem Marketing? Kommentiert und lasst uns gemeinsam wachsen! 🫶"
+              }
+            ],
+            "role": "assistant"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca0fb5f738ed236788b4b6b3930d71bac167c4dc944920461ec2e75b751beaa8"
+  }
+}

@@ -1,0 +1,474 @@
+2026-01-20 22:51:26 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 22:51:26 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 22:52:26 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 22:54:22 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 22:54:22 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 22:55:50 | INFO     | src.orchestrator:run_initial_setup:53 - === INITIAL SETUP for Christine ===
+2026-01-20 22:55:50 | INFO     | src.orchestrator:run_initial_setup:62 - Step 1/5: Creating customer record
+2026-01-20 22:55:50 | INFO     | src.database.client:create_customer:31 - Created customer: 26166946-83c8-44cc-8d0e-bc8b9704ee14
+2026-01-20 22:55:50 | INFO     | src.orchestrator:run_initial_setup:71 - Customer created: 26166946-83c8-44cc-8d0e-bc8b9704ee14
+2026-01-20 22:55:50 | INFO     | src.orchestrator:run_initial_setup:74 - Step 2/5: Scraping LinkedIn profile and posts
+2026-01-20 22:55:50 | INFO     | src.scraper.apify_scraper:scrape_profile:27 - Starting to scrape LinkedIn profile: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-20 22:55:51 | ERROR    | src.tui.app:start_setup:137 - Setup failed: Actor with this name was not found
+2026-01-20 22:56:04 | INFO     | src.orchestrator:run_initial_setup:53 - === INITIAL SETUP for Christina ===
+2026-01-20 22:56:04 | WARNING  | src.orchestrator:run_initial_setup:58 - Customer already exists: 26166946-83c8-44cc-8d0e-bc8b9704ee14
+2026-01-20 22:56:04 | INFO     | src.tui.app:start_setup:134 - Setup completed for customer: 26166946-83c8-44cc-8d0e-bc8b9704ee14
+2026-01-20 22:57:01 | INFO     | src.orchestrator:research_new_topics:157 - === RESEARCHING NEW TOPICS for customer 26166946-83c8-44cc-8d0e-bc8b9704ee14 ===
+2026-01-20 22:57:01 | ERROR    | src.tui.app:start_research:214 - Research failed: Profile analysis not found. Run initial setup first.
+2026-01-20 22:58:07 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:07:09 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:07:09 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:11:04 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hildebrandt ===
+2026-01-20 23:11:04 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-20 23:11:04 | INFO     | src.database.client:create_customer:31 - Created customer: 7f86ac3d-0242-49d7-8b9f-a77305beaf21
+2026-01-20 23:11:04 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: 7f86ac3d-0242-49d7-8b9f-a77305beaf21
+2026-01-20 23:11:04 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-20 23:11:04 | ERROR    | src.tui.app:start_setup:173 - Setup failed: Object of type UUID is not JSON serializable
+Traceback (most recent call last):
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/main.py", line 46, in <module>
+    main()
+    └ <function main at 0x7dd42b75a660>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/main.py", line 35, in main
+    run_app()
+    └ <function run_app at 0x7dd42b7ccae0>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/tui/app.py", line 497, in run_app
+    app.run()
+    │   └ <function App.run at 0x7dd42afe31a0>
+    └ LinkedInWorkflowApp(title='LinkedIn Post Creation System', classes={'-dark-mode'}, pseudo_classes={'dark', 'focus'})
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/app.py", line 1960, in run
+    asyncio.run(run_app())
+    │       │   └ <function App.run.<locals>.run_app at 0x7dd4295bf420>
+    │       └ <function run at 0x7dd42c51d620>
+    └ <module 'asyncio' from '/usr/lib/python3.12/asyncio/__init__.py'>
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           │      │   └ <coroutine object App.run.<locals>.run_app at 0x7dd42971a560>
+           │      └ <function Runner.run at 0x7dd42b9fb6a0>
+           └ <asyncio.runners.Runner object at 0x7dd4295d75c0>
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<App.run.<locals>.run_app() running at /home/ruben/PycharmProjects/LinkedInWorkflow/.venv/li...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x7dd42b9f9300>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7dd4295d75c0>
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 674, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7dd42b9f9260>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 641, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7dd42b9fb060>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 1987, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7dd42b935580>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 513, in _process_messages
+    await self._process_messages_loop()
+          │    └ <function MessagePump._process_messages_loop at 0x7dd42b021760>
+          └ NewCustomerScreen()
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 606, in _process_messages_loop
+    await self._dispatch_message(message)
+          │    │                 └ Pressed()
+          │    └ <function MessagePump._dispatch_message at 0x7dd42b0218a0>
+          └ NewCustomerScreen()
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 682, in _dispatch_message
+    await self._on_message(message)
+          │    │           └ Pressed()
+          │    └ <function MessagePump._on_message at 0x7dd42b021a80>
+          └ NewCustomerScreen()
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 770, in _on_message
+    await invoke(method, message)
+          │      │       └ Pressed()
+          │      └ <bound method NewCustomerScreen.on_button_pressed of NewCustomerScreen()>
+          └ <function invoke at 0x7dd42b33a2a0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/_callback.py", line 93, in invoke
+    return await _invoke(callback, *params)
+                 │       │          └ (Pressed(),)
+                 │       └ <bound method NewCustomerScreen.on_button_pressed of NewCustomerScreen()>
+                 └ <function _invoke at 0x7dd42b33a200>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/_callback.py", line 55, in _invoke
+    result = await result
+                   └ <coroutine object NewCustomerScreen.on_button_pressed at 0x7dd429ed06c0>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/tui/app.py", line 120, in on_button_pressed
+    await self.start_setup()
+          │    └ <function NewCustomerScreen.start_setup at 0x7dd4295a7920>
+          └ NewCustomerScreen()
+
+> File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/tui/app.py", line 163, in start_setup
+    customer = await orchestrator.run_initial_setup(
+                     │            └ <function WorkflowOrchestrator.run_initial_setup at 0x7dd42ad74ea0>
+                     └ <src.orchestrator.WorkflowOrchestrator object at 0x7dd42b2863f0>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/orchestrator.py", line 87, in run_initial_setup
+    await db.save_linkedin_profile(linkedin_profile)
+          │  │                     └ LinkedInProfile(id=None, customer_id=UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21'), scraped_at=None, profile_data={'persona': ...
+          │  └ <function DatabaseClient.save_linkedin_profile at 0x7dd429d3a700>
+          └ <src.database.client.DatabaseClient object at 0x7dd429d49520>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/database/client.py", line 71, in save_linkedin_profile
+    result = self.client.table("linkedin_profiles").insert(data).execute()
+             │    │      │                                 └ {'customer_id': UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21'), 'profile_data': {'persona': 'Christina Hildebrandt, Co-Founder ...
+             │    │      └ <function SyncClient.table at 0x7dd429eeccc0>
+             │    └ <supabase._sync.client.SyncClient object at 0x7dd429d49370>
+             └ <src.database.client.DatabaseClient object at 0x7dd429d49520>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/postgrest/_sync/request_builder.py", line 58, in execute
+    r = self.session.request(
+        │    │       └ <function Client.request at 0x7dd42a869d00>
+        │    └ <postgrest.utils.SyncClient object at 0x7dd423fca3f0>
+        └ <postgrest._sync.request_builder.SyncQueryRequestBuilder object at 0x7dd423ec1df0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_client.py", line 824, in request
+    request = self.build_request(
+              │    └ <function BaseClient.build_request at 0x7dd42a869260>
+              └ <postgrest.utils.SyncClient object at 0x7dd423fca3f0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_client.py", line 358, in build_request
+    return Request(
+           └ <class 'httpx.Request'>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_models.py", line 342, in __init__
+    headers, stream = encode_request(
+    │                 └ <function encode_request at 0x7dd42acff240>
+    └ Headers({'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.27.2'...
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_content.py", line 214, in encode_request
+    return encode_json(json)
+           │           └ {'customer_id': UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21'), 'profile_data': {'persona': 'Christina Hildebrandt, Co-Founder ...
+           └ <function encode_json at 0x7dd42acff1a0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_content.py", line 177, in encode_json
+    body = json_dumps(json).encode("utf-8")
+           │          └ {'customer_id': UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21'), 'profile_data': {'persona': 'Christina Hildebrandt, Co-Founder ...
+           └ <function dumps at 0x7dd42b75aa20>
+  File "/usr/lib/python3.12/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           │                │      └ {'customer_id': UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21'), 'profile_data': {'persona': 'Christina Hildebrandt, Co-Founder ...
+           │                └ <function JSONEncoder.encode at 0x7dd42b75b4c0>
+           └ <json.encoder.JSONEncoder object at 0x7dd42b73b950>
+  File "/usr/lib/python3.12/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             │    │          └ {'customer_id': UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21'), 'profile_data': {'persona': 'Christina Hildebrandt, Co-Founder ...
+             │    └ <function JSONEncoder.iterencode at 0x7dd42b75b560>
+             └ <json.encoder.JSONEncoder object at 0x7dd42b73b950>
+  File "/usr/lib/python3.12/json/encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           │           └ {'customer_id': UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21'), 'profile_data': {'persona': 'Christina Hildebrandt, Co-Founder ...
+           └ <_json.Encoder object at 0x7dd428345c00>
+  File "/usr/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                                      │ │         └ <member '__name__' of 'getset_descriptor' objects>
+                                      │ └ <attribute '__class__' of 'object' objects>
+                                      └ UUID('7f86ac3d-0242-49d7-8b9f-a77305beaf21')
+
+TypeError: Object of type UUID is not JSON serializable
+2026-01-20 23:13:16 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:14:12 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:14:12 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:16:41 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hindebrandt ===
+2026-01-20 23:16:41 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-20 23:16:41 | INFO     | src.database.client:create_customer:31 - Created customer: 827eb408-535a-4400-bfb8-3a2f2f7d2142
+2026-01-20 23:16:41 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: 827eb408-535a-4400-bfb8-3a2f2f7d2142
+2026-01-20 23:16:41 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-20 23:16:42 | INFO     | src.database.client:save_linkedin_profile:76 - Saved LinkedIn profile for customer: 827eb408-535a-4400-bfb8-3a2f2f7d2142
+2026-01-20 23:16:42 | INFO     | src.orchestrator:run_initial_setup:88 - LinkedIn profile saved
+2026-01-20 23:16:42 | INFO     | src.orchestrator:run_initial_setup:91 - Step 3/5: Scraping LinkedIn posts
+2026-01-20 23:16:42 | INFO     | src.scraper.apify_scraper:scrape_posts:28 - Scraping posts from: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-20 23:16:48 | INFO     | src.scraper.apify_scraper:scrape_posts:47 - Successfully scraped 100 posts
+2026-01-20 23:16:48 | ERROR    | src.orchestrator:run_initial_setup:111 - Failed to scrape posts: Object of type datetime is not JSON serializable
+2026-01-20 23:16:48 | INFO     | src.orchestrator:run_initial_setup:115 - Step 4/5: Analyzing profile with AI
+2026-01-20 23:16:48 | INFO     | src.agents.profile_analyzer:process:34 - Analyzing profile for: Christina Hindebrandt
+2026-01-20 23:16:48 | INFO     | src.agents.base:call_openai:51 - [ProfileAnalyzer] Calling OpenAI (gpt-4o)
+2026-01-20 23:16:56 | INFO     | src.agents.profile_analyzer:process:61 - Profile analysis completed successfully
+2026-01-20 23:16:57 | INFO     | src.database.client:save_profile_analysis:170 - Saved profile analysis for customer: 827eb408-535a-4400-bfb8-3a2f2f7d2142
+2026-01-20 23:16:57 | INFO     | src.orchestrator:run_initial_setup:134 - Profile analysis saved
+2026-01-20 23:16:57 | INFO     | src.orchestrator:run_initial_setup:140 - Step 5/5: Extracting topics from posts
+2026-01-20 23:16:57 | INFO     | src.orchestrator:run_initial_setup:153 - No posts to extract topics from
+2026-01-20 23:16:57 | INFO     | src.orchestrator:run_initial_setup:155 - Step 5/5: Initial setup complete!
+2026-01-20 23:16:57 | INFO     | src.tui.app:start_setup:170 - Setup completed for customer: 827eb408-535a-4400-bfb8-3a2f2f7d2142
+2026-01-20 23:19:21 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:19:23 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:19:23 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:21:56 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hildebrandt ===
+2026-01-20 23:21:57 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-20 23:21:57 | INFO     | src.database.client:create_customer:31 - Created customer: da324a66-1bc3-4a72-b90c-51b2afda0428
+2026-01-20 23:21:57 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: da324a66-1bc3-4a72-b90c-51b2afda0428
+2026-01-20 23:21:57 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-20 23:21:57 | INFO     | src.database.client:save_linkedin_profile:76 - Saved LinkedIn profile for customer: da324a66-1bc3-4a72-b90c-51b2afda0428
+2026-01-20 23:21:57 | INFO     | src.orchestrator:run_initial_setup:88 - LinkedIn profile saved
+2026-01-20 23:21:57 | INFO     | src.orchestrator:run_initial_setup:91 - Step 3/5: Scraping LinkedIn posts
+2026-01-20 23:21:57 | INFO     | src.scraper.apify_scraper:scrape_posts:28 - Scraping posts from: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-20 23:22:03 | INFO     | src.scraper.apify_scraper:scrape_posts:47 - Successfully scraped 100 posts
+2026-01-20 23:22:04 | INFO     | src.database.client:save_linkedin_posts:107 - Saved 100 LinkedIn posts
+2026-01-20 23:22:04 | INFO     | src.orchestrator:run_initial_setup:106 - Saved 100 posts
+2026-01-20 23:22:04 | INFO     | src.orchestrator:run_initial_setup:115 - Step 4/5: Analyzing profile with AI
+2026-01-20 23:22:04 | INFO     | src.agents.profile_analyzer:process:34 - Analyzing profile for: Christina Hildebrandt
+2026-01-20 23:22:04 | INFO     | src.agents.base:call_openai:51 - [ProfileAnalyzer] Calling OpenAI (gpt-4o)
+2026-01-20 23:22:14 | INFO     | src.agents.profile_analyzer:process:61 - Profile analysis completed successfully
+2026-01-20 23:22:15 | INFO     | src.database.client:save_profile_analysis:176 - Saved profile analysis for customer: da324a66-1bc3-4a72-b90c-51b2afda0428
+2026-01-20 23:22:15 | INFO     | src.orchestrator:run_initial_setup:134 - Profile analysis saved
+2026-01-20 23:22:15 | INFO     | src.orchestrator:run_initial_setup:140 - Step 5/5: Extracting topics from posts
+2026-01-20 23:22:15 | INFO     | src.agents.topic_extractor:process:28 - Extracting topics from 100 posts
+2026-01-20 23:22:15 | INFO     | src.agents.base:call_openai:51 - [TopicExtractor] Calling OpenAI (gpt-4o)
+2026-01-20 23:22:25 | ERROR    | src.orchestrator:run_initial_setup:151 - Topic extraction failed: 1 validation error for Topic
+extracted_from_post_id
+  UUID input should be a string, bytes or UUID object [type=uuid_type, input_value=1, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.5/v/uuid_type
+2026-01-20 23:22:25 | INFO     | src.orchestrator:run_initial_setup:155 - Step 5/5: Initial setup complete!
+2026-01-20 23:22:25 | INFO     | src.tui.app:start_setup:170 - Setup completed for customer: da324a66-1bc3-4a72-b90c-51b2afda0428
+2026-01-20 23:25:58 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:26:50 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:26:50 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:29:08 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hildebrandt ===
+2026-01-20 23:29:08 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-20 23:29:09 | INFO     | src.database.client:create_customer:31 - Created customer: 20c609e2-f3dd-46c0-9e14-25236e378ed2
+2026-01-20 23:29:09 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: 20c609e2-f3dd-46c0-9e14-25236e378ed2
+2026-01-20 23:29:09 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-20 23:29:09 | INFO     | src.database.client:save_linkedin_profile:76 - Saved LinkedIn profile for customer: 20c609e2-f3dd-46c0-9e14-25236e378ed2
+2026-01-20 23:29:09 | INFO     | src.orchestrator:run_initial_setup:88 - LinkedIn profile saved
+2026-01-20 23:29:09 | INFO     | src.orchestrator:run_initial_setup:91 - Step 3/5: Scraping LinkedIn posts
+2026-01-20 23:29:09 | INFO     | src.scraper.apify_scraper:scrape_posts:28 - Scraping posts from: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-20 23:29:09 | INFO     | src.scraper.apify_scraper:scrape_posts:33 - Extracted username: christinahildebrandt
+2026-01-20 23:29:09 | ERROR    | src.scraper.apify_scraper:scrape_posts:59 - Error scraping posts: Input is not valid: Field input.total_posts must be integer
+2026-01-20 23:29:09 | ERROR    | src.orchestrator:run_initial_setup:111 - Failed to scrape posts: Input is not valid: Field input.total_posts must be integer
+2026-01-20 23:29:09 | INFO     | src.orchestrator:run_initial_setup:115 - Step 4/5: Analyzing profile with AI
+2026-01-20 23:29:09 | INFO     | src.agents.profile_analyzer:process:34 - Analyzing profile for: Christina Hildebrandt
+2026-01-20 23:29:09 | INFO     | src.agents.base:call_openai:51 - [ProfileAnalyzer] Calling OpenAI (gpt-4o)
+2026-01-20 23:29:18 | INFO     | src.agents.profile_analyzer:process:61 - Profile analysis completed successfully
+2026-01-20 23:29:19 | INFO     | src.database.client:save_profile_analysis:176 - Saved profile analysis for customer: 20c609e2-f3dd-46c0-9e14-25236e378ed2
+2026-01-20 23:29:19 | INFO     | src.orchestrator:run_initial_setup:134 - Profile analysis saved
+2026-01-20 23:29:19 | INFO     | src.orchestrator:run_initial_setup:140 - Step 5/5: Extracting topics from posts
+2026-01-20 23:29:19 | INFO     | src.orchestrator:run_initial_setup:153 - No posts to extract topics from
+2026-01-20 23:29:19 | INFO     | src.orchestrator:run_initial_setup:155 - Step 5/5: Initial setup complete!
+2026-01-20 23:29:19 | INFO     | src.tui.app:start_setup:170 - Setup completed for customer: 20c609e2-f3dd-46c0-9e14-25236e378ed2
+2026-01-20 23:30:11 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:30:13 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:30:13 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:30:18 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:30:21 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:30:21 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:31:46 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:31:46 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:34:05 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hildebrandt ===
+2026-01-20 23:34:05 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-20 23:34:05 | INFO     | src.database.client:create_customer:31 - Created customer: 25e904e8-5264-43a2-90f7-70d187be16ff
+2026-01-20 23:34:05 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: 25e904e8-5264-43a2-90f7-70d187be16ff
+2026-01-20 23:34:05 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-20 23:34:06 | INFO     | src.database.client:save_linkedin_profile:76 - Saved LinkedIn profile for customer: 25e904e8-5264-43a2-90f7-70d187be16ff
+2026-01-20 23:34:06 | INFO     | src.orchestrator:run_initial_setup:88 - LinkedIn profile saved
+2026-01-20 23:34:06 | INFO     | src.orchestrator:run_initial_setup:91 - Step 3/5: Scraping LinkedIn posts
+2026-01-20 23:34:06 | INFO     | src.scraper.apify_scraper:scrape_posts:28 - Scraping posts from: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-20 23:34:06 | INFO     | src.scraper.apify_scraper:scrape_posts:33 - Extracted username: christinahildebrandt
+2026-01-20 23:34:13 | INFO     | src.scraper.apify_scraper:scrape_posts:53 - Successfully scraped 50 posts
+2026-01-20 23:34:13 | ERROR    | src.orchestrator:run_initial_setup:111 - Failed to scrape posts: {'code': '23505', 'details': 'Key (customer_id, post_url)=(25e904e8-5264-43a2-90f7-70d187be16ff, https://www.linkedin.com/posts/christinahildebrandt_ki-wird-unternehmen-killen-die-kommunizieren-activity-7394994099478478848-WUx8?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAGNHX_QBiuJDfO3xSa2ZtEm6rqJxglqL6Yw) already exists.', 'hint': None, 'message': 'duplicate key value violates unique constraint "linkedin_posts_customer_id_post_url_key"'}
+2026-01-20 23:34:13 | INFO     | src.orchestrator:run_initial_setup:115 - Step 4/5: Analyzing profile with AI
+2026-01-20 23:34:13 | INFO     | src.agents.profile_analyzer:process:34 - Analyzing profile for: Christina Hildebrandt
+2026-01-20 23:34:13 | INFO     | src.agents.base:call_openai:51 - [ProfileAnalyzer] Calling OpenAI (gpt-4o)
+2026-01-20 23:34:23 | INFO     | src.agents.profile_analyzer:process:61 - Profile analysis completed successfully
+2026-01-20 23:34:24 | INFO     | src.database.client:save_profile_analysis:176 - Saved profile analysis for customer: 25e904e8-5264-43a2-90f7-70d187be16ff
+2026-01-20 23:34:24 | INFO     | src.orchestrator:run_initial_setup:134 - Profile analysis saved
+2026-01-20 23:34:24 | INFO     | src.orchestrator:run_initial_setup:140 - Step 5/5: Extracting topics from posts
+2026-01-20 23:34:24 | INFO     | src.orchestrator:run_initial_setup:153 - No posts to extract topics from
+2026-01-20 23:34:24 | INFO     | src.orchestrator:run_initial_setup:155 - Step 5/5: Initial setup complete!
+2026-01-20 23:34:24 | INFO     | src.tui.app:start_setup:170 - Setup completed for customer: 25e904e8-5264-43a2-90f7-70d187be16ff
+2026-01-20 23:37:42 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:37:45 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:37:45 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:37:48 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:37:51 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:37:51 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:39:43 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hildebrandt ===
+2026-01-20 23:39:43 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-20 23:39:44 | INFO     | src.database.client:create_customer:31 - Created customer: 5354f5b3-768e-458f-9eb3-077e70698eea
+2026-01-20 23:39:44 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: 5354f5b3-768e-458f-9eb3-077e70698eea
+2026-01-20 23:39:44 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-20 23:39:44 | INFO     | src.database.client:save_linkedin_profile:76 - Saved LinkedIn profile for customer: 5354f5b3-768e-458f-9eb3-077e70698eea
+2026-01-20 23:39:44 | INFO     | src.orchestrator:run_initial_setup:88 - LinkedIn profile saved
+2026-01-20 23:39:44 | INFO     | src.orchestrator:run_initial_setup:91 - Step 3/5: Scraping LinkedIn posts
+2026-01-20 23:39:44 | INFO     | src.scraper.apify_scraper:scrape_posts:28 - Scraping posts from: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-20 23:39:44 | INFO     | src.scraper.apify_scraper:scrape_posts:33 - Extracted username: christinahildebrandt
+2026-01-20 23:39:50 | INFO     | src.scraper.apify_scraper:scrape_posts:53 - Successfully scraped 50 posts
+2026-01-20 23:39:50 | ERROR    | src.orchestrator:run_initial_setup:111 - Failed to scrape posts: {'code': '21000', 'details': None, 'hint': 'Ensure that no rows proposed for insertion within the same command have duplicate constrained values.', 'message': 'ON CONFLICT DO UPDATE command cannot affect row a second time'}
+2026-01-20 23:39:50 | INFO     | src.orchestrator:run_initial_setup:115 - Step 4/5: Analyzing profile with AI
+2026-01-20 23:39:50 | INFO     | src.agents.profile_analyzer:process:34 - Analyzing profile for: Christina Hildebrandt
+2026-01-20 23:39:50 | INFO     | src.agents.base:call_openai:51 - [ProfileAnalyzer] Calling OpenAI (gpt-4o)
+2026-01-20 23:40:01 | INFO     | src.agents.profile_analyzer:process:61 - Profile analysis completed successfully
+2026-01-20 23:40:01 | INFO     | src.database.client:save_profile_analysis:181 - Saved profile analysis for customer: 5354f5b3-768e-458f-9eb3-077e70698eea
+2026-01-20 23:40:01 | INFO     | src.orchestrator:run_initial_setup:134 - Profile analysis saved
+2026-01-20 23:40:01 | INFO     | src.orchestrator:run_initial_setup:140 - Step 5/5: Extracting topics from posts
+2026-01-20 23:40:01 | INFO     | src.orchestrator:run_initial_setup:153 - No posts to extract topics from
+2026-01-20 23:40:01 | INFO     | src.orchestrator:run_initial_setup:155 - Step 5/5: Initial setup complete!
+2026-01-20 23:40:01 | INFO     | src.tui.app:start_setup:170 - Setup completed for customer: 5354f5b3-768e-458f-9eb3-077e70698eea
+2026-01-20 23:41:24 | INFO     | __main__:main:42 - Application shutdown
+2026-01-20 23:41:25 | INFO     | __main__:setup_logging:23 - Logging configured
+2026-01-20 23:41:25 | INFO     | __main__:main:31 - Starting LinkedIn Workflow System
+2026-01-20 23:42:42 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hildebrandt ===
+2026-01-20 23:42:42 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-20 23:42:42 | INFO     | src.database.client:create_customer:31 - Created customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-20 23:42:42 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-20 23:42:42 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-20 23:42:42 | INFO     | src.database.client:save_linkedin_profile:76 - Saved LinkedIn profile for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-20 23:42:42 | INFO     | src.orchestrator:run_initial_setup:88 - LinkedIn profile saved
+2026-01-20 23:42:42 | INFO     | src.orchestrator:run_initial_setup:91 - Step 3/5: Scraping LinkedIn posts
+2026-01-20 23:42:42 | INFO     | src.scraper.apify_scraper:scrape_posts:28 - Scraping posts from: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-20 23:42:42 | INFO     | src.scraper.apify_scraper:scrape_posts:33 - Extracted username: christinahildebrandt
+2026-01-20 23:42:50 | INFO     | src.scraper.apify_scraper:scrape_posts:53 - Successfully scraped 50 posts
+2026-01-20 23:42:50 | WARNING  | src.database.client:save_linkedin_posts:104 - Removed 1 duplicate posts from batch
+2026-01-20 23:42:50 | INFO     | src.database.client:save_linkedin_posts:129 - Saved 49 LinkedIn posts
+2026-01-20 23:42:50 | INFO     | src.orchestrator:run_initial_setup:106 - Saved 50 posts
+2026-01-20 23:42:50 | INFO     | src.orchestrator:run_initial_setup:115 - Step 4/5: Analyzing profile with AI
+2026-01-20 23:42:50 | INFO     | src.agents.profile_analyzer:process:34 - Analyzing profile for: Christina Hildebrandt
+2026-01-20 23:42:50 | INFO     | src.agents.base:call_openai:51 - [ProfileAnalyzer] Calling OpenAI (gpt-4o)
+2026-01-20 23:43:31 | INFO     | src.agents.profile_analyzer:process:61 - Profile analysis completed successfully
+2026-01-20 23:43:31 | INFO     | src.database.client:save_profile_analysis:198 - Saved profile analysis for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-20 23:43:31 | INFO     | src.orchestrator:run_initial_setup:134 - Profile analysis saved
+2026-01-20 23:43:31 | INFO     | src.orchestrator:run_initial_setup:140 - Step 5/5: Extracting topics from posts
+2026-01-20 23:43:31 | INFO     | src.agents.topic_extractor:process:28 - Extracting topics from 50 posts
+2026-01-20 23:43:31 | INFO     | src.agents.base:call_openai:51 - [TopicExtractor] Calling OpenAI (gpt-4o)
+2026-01-20 23:43:43 | ERROR    | src.orchestrator:run_initial_setup:151 - Topic extraction failed: 1 validation error for Topic
+extracted_from_post_id
+  UUID input should be a string, bytes or UUID object [type=uuid_type, input_value=5, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.5/v/uuid_type
+2026-01-20 23:43:43 | INFO     | src.orchestrator:run_initial_setup:155 - Step 5/5: Initial setup complete!
+2026-01-20 23:43:43 | INFO     | src.tui.app:start_setup:170 - Setup completed for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-20 23:44:46 | INFO     | src.orchestrator:research_new_topics:168 - === RESEARCHING NEW TOPICS for customer a7028b8c-8af2-4a3a-a810-02cd751657a3 ===
+2026-01-20 23:44:46 | INFO     | src.orchestrator:research_new_topics:183 - Running research with Perplexity
+2026-01-20 23:44:46 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-20 23:44:46 | INFO     | src.agents.base:call_perplexity:91 - [Researcher] Calling Perplexity (sonar)
+2026-01-20 23:45:00 | INFO     | src.agents.researcher:process:62 - Research completed with 7 topic suggestions
+2026-01-20 23:45:00 | INFO     | src.database.client:save_research_result:220 - Saved research result for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-20 23:45:00 | INFO     | src.orchestrator:research_new_topics:199 - Research completed with 7 suggestions
+2026-01-20 23:46:54 | INFO     | src.orchestrator:create_post:220 - === CREATING POST for topic: LinkedIn-KI als Workflow-Co-Pilot: Von Content bis Conversion 2026 ===
+2026-01-20 23:46:55 | INFO     | src.orchestrator:create_post:237 - --- Iteration 1/10 ---
+2026-01-20 23:46:55 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: LinkedIn-KI als Workflow-Co-Pilot: Von Content bis Conversion 2026
+2026-01-20 23:46:55 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:47:05 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:47:05 | INFO     | src.orchestrator:create_post:257 - Writer produced version 1
+2026-01-20 23:47:05 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:47:05 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:47:13 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:47:13 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:47:13 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:47:13 | INFO     | src.orchestrator:create_post:237 - --- Iteration 2/10 ---
+2026-01-20 23:47:13 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:47:13 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:47:22 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:47:22 | INFO     | src.orchestrator:create_post:257 - Writer produced version 2
+2026-01-20 23:47:22 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:47:22 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:47:30 | INFO     | src.agents.critic:process:50 - Post APPROVED
+2026-01-20 23:47:30 | INFO     | src.orchestrator:create_post:270 - Critic score: 92/100 | Approved: True
+2026-01-20 23:47:30 | INFO     | src.orchestrator:create_post:273 - 🎉 Post approved!
+2026-01-20 23:47:31 | INFO     | src.database.client:save_generated_post:244 - Saved generated post: b2047c6b-a5e9-4538-a355-43ee0daeedab
+2026-01-20 23:47:31 | INFO     | src.orchestrator:create_post:292 - Post creation complete after 2 iterations
+2026-01-20 23:48:42 | INFO     | src.orchestrator:create_post:220 - === CREATING POST for topic: LinkedIn-KI als Workflow-Co-Pilot: Von Content bis Conversion 2026 ===
+2026-01-20 23:48:42 | INFO     | src.orchestrator:create_post:237 - --- Iteration 1/10 ---
+2026-01-20 23:48:42 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: LinkedIn-KI als Workflow-Co-Pilot: Von Content bis Conversion 2026
+2026-01-20 23:48:42 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:48:52 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:48:52 | INFO     | src.orchestrator:create_post:257 - Writer produced version 1
+2026-01-20 23:48:52 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:48:52 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:48:59 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:48:59 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:48:59 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:48:59 | INFO     | src.orchestrator:create_post:237 - --- Iteration 2/10 ---
+2026-01-20 23:48:59 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:48:59 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:06 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:49:06 | INFO     | src.orchestrator:create_post:257 - Writer produced version 2
+2026-01-20 23:49:06 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:49:06 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:13 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:49:13 | INFO     | src.orchestrator:create_post:270 - Critic score: 84/100 | Approved: False
+2026-01-20 23:49:13 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:49:13 | INFO     | src.orchestrator:create_post:237 - --- Iteration 3/10 ---
+2026-01-20 23:49:13 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:49:13 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:21 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:49:21 | INFO     | src.orchestrator:create_post:257 - Writer produced version 3
+2026-01-20 23:49:21 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:49:21 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:27 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:49:27 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:49:27 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:49:27 | INFO     | src.orchestrator:create_post:237 - --- Iteration 4/10 ---
+2026-01-20 23:49:27 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:49:27 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:33 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:49:33 | INFO     | src.orchestrator:create_post:257 - Writer produced version 4
+2026-01-20 23:49:33 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:49:33 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:38 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:49:38 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:49:38 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:49:38 | INFO     | src.orchestrator:create_post:237 - --- Iteration 5/10 ---
+2026-01-20 23:49:38 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:49:38 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:44 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:49:44 | INFO     | src.orchestrator:create_post:257 - Writer produced version 5
+2026-01-20 23:49:44 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:49:44 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:49:49 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:49:49 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:49:49 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:49:49 | INFO     | src.orchestrator:create_post:237 - --- Iteration 6/10 ---
+2026-01-20 23:49:49 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:49:49 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:02 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:50:02 | INFO     | src.orchestrator:create_post:257 - Writer produced version 6
+2026-01-20 23:50:02 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:50:02 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:09 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:50:09 | INFO     | src.orchestrator:create_post:270 - Critic score: 78/100 | Approved: False
+2026-01-20 23:50:09 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:50:09 | INFO     | src.orchestrator:create_post:237 - --- Iteration 7/10 ---
+2026-01-20 23:50:09 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:50:09 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:20 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:50:20 | INFO     | src.orchestrator:create_post:257 - Writer produced version 7
+2026-01-20 23:50:20 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:50:20 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:27 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:50:27 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:50:27 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:50:27 | INFO     | src.orchestrator:create_post:237 - --- Iteration 8/10 ---
+2026-01-20 23:50:27 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:50:27 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:33 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:50:33 | INFO     | src.orchestrator:create_post:257 - Writer produced version 8
+2026-01-20 23:50:33 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:50:33 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:42 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:50:42 | INFO     | src.orchestrator:create_post:270 - Critic score: 78/100 | Approved: False
+2026-01-20 23:50:42 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:50:42 | INFO     | src.orchestrator:create_post:237 - --- Iteration 9/10 ---
+2026-01-20 23:50:42 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:50:42 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:49 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:50:49 | INFO     | src.orchestrator:create_post:257 - Writer produced version 9
+2026-01-20 23:50:49 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:50:49 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:50:54 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:50:54 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:50:54 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-20 23:50:54 | INFO     | src.orchestrator:create_post:237 - --- Iteration 10/10 ---
+2026-01-20 23:50:54 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-20 23:50:54 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-20 23:51:02 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-20 23:51:02 | INFO     | src.orchestrator:create_post:257 - Writer produced version 10
+2026-01-20 23:51:02 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-20 23:51:02 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-20 23:51:10 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-20 23:51:10 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-20 23:51:11 | INFO     | src.database.client:save_generated_post:244 - Saved generated post: 6eb9c50e-160d-4e97-8412-e38c03ecb3b4
+2026-01-20 23:51:11 | INFO     | src.orchestrator:create_post:292 - Post creation complete after 10 iterations

@@ -1,0 +1,62 @@
+2026-01-21 00:48:53.878 | INFO     | __main__:main:62 - === TOPIC EXTRACTION MAINTENANCE SCRIPT ===
+
+2026-01-21 00:48:54.344 | INFO     | __main__:main:71 - Found 1 customers
+
+2026-01-21 00:48:54.345 | INFO     | __main__:extract_and_save_topics_for_customer:20 - Processing customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 00:48:54.409 | INFO     | __main__:extract_and_save_topics_for_customer:28 - Customer: Christina Hildebrandt
+2026-01-21 00:48:54.726 | INFO     | __main__:extract_and_save_topics_for_customer:32 - Found 49 posts
+2026-01-21 00:48:54.726 | INFO     | __main__:extract_and_save_topics_for_customer:38 - Extracting topics from posts...
+2026-01-21 00:48:54.740 | INFO     | src.agents.base:__init__:23 - Initialized TopicExtractor agent
+2026-01-21 00:48:54.741 | INFO     | src.agents.topic_extractor:process:28 - Extracting topics from 49 posts
+2026-01-21 00:48:54.741 | INFO     | src.agents.base:call_openai:51 - [TopicExtractor] Calling OpenAI (gpt-4o)
+2026-01-21 00:49:14.212 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index cfde077e-b872-448d-a364-425fef8059b2 to post ID
+2026-01-21 00:49:14.212 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 6dbf266f-4a2d-4dd6-b8a4-2ac6a66cd2f1 to post ID
+2026-01-21 00:49:14.213 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 31ac0267-74a6-4639-9530-15b2087937d0 to post ID
+2026-01-21 00:49:14.213 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index ae2c6d33-d233-48d0-85a8-ef5b58fdce91 to post ID
+2026-01-21 00:49:14.213 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 20e3b0632-8cf0-4d04-b2e5-103c8b6eac93 to post ID
+2026-01-21 00:49:14.213 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 43b1e40e-a421-4423-b936-c8757ad6486c to post ID
+2026-01-21 00:49:14.213 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 2f6e6e86-24d5-46ee-88f8-b5f3a712de89 to post ID
+2026-01-21 00:49:14.213 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 8586e4db-925d-41a0-aa6b-d906f4f202db to post ID
+2026-01-21 00:49:14.213 | INFO     | src.agents.topic_extractor:process:83 - Extracted 8 topics
+2026-01-21 00:49:14.214 | ERROR    | src.database.client:save_topics:163 - Error saving topics: [Errno -3] Temporary failure in name resolution
+2026-01-21 00:49:14.215 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Re-Humanisierung von KI-generierten Inhalten
+2026-01-21 00:49:14.216 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Strategische Nutzung von LinkedIn
+2026-01-21 00:49:14.217 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Effektive Markenkommunikation
+2026-01-21 00:49:14.217 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Gründung und Unternehmertum im mittleren Alter
+2026-01-21 00:49:14.218 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Kommunikation als strategisches Werkzeug
+2026-01-21 00:49:14.219 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Herausforderungen der modernen PR
+2026-01-21 00:49:14.220 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Persönliche Entwicklung und Lebensabschnitte
+2026-01-21 00:49:14.222 | WARNING  | src.database.client:save_topics:171 - Skipped duplicate topic: Age Diversity und Arbeitsmarkt
+2026-01-21 00:49:14.222 | INFO     | src.database.client:save_topics:172 - Saved 0 topics individually
+2026-01-21 00:49:14.222 | INFO     | __main__:extract_and_save_topics_for_customer:50 - ✓ Saved 0 extracted topics
+2026-01-21 00:49:14.222 | INFO     | __main__:extract_and_save_topics_for_customer:57 - Finished processing customer: Christina Hildebrandt
+
+2026-01-21 00:49:14.222 | INFO     | __main__:main:80 - 
+=== MAINTENANCE COMPLETE ===
+2026-01-21 00:58:36.026 | INFO     | __main__:main:62 - === TOPIC EXTRACTION MAINTENANCE SCRIPT ===
+
+2026-01-21 00:58:36.256 | INFO     | __main__:main:71 - Found 1 customers
+
+2026-01-21 00:58:36.256 | INFO     | __main__:extract_and_save_topics_for_customer:20 - Processing customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 00:58:36.311 | INFO     | __main__:extract_and_save_topics_for_customer:28 - Customer: Christina Hildebrandt
+2026-01-21 00:58:36.477 | INFO     | __main__:extract_and_save_topics_for_customer:32 - Found 49 posts
+2026-01-21 00:58:36.477 | INFO     | __main__:extract_and_save_topics_for_customer:38 - Extracting topics from posts...
+2026-01-21 00:58:36.492 | INFO     | src.agents.base:__init__:23 - Initialized TopicExtractor agent
+2026-01-21 00:58:36.492 | INFO     | src.agents.topic_extractor:process:28 - Extracting topics from 49 posts
+2026-01-21 00:58:36.493 | INFO     | src.agents.base:call_openai:51 - [TopicExtractor] Calling OpenAI (gpt-4o)
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index cfde077e-b872-448d-a364-425fef8059b2 to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 6dbf266f-4a2d-4dd6-b8a4-2ac6a66cd2f1 to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 31ac0267-74a6-4639-9530-15b2087937d0 to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 6e3b0632-8cf0-4d04-b2e5-103c8b6eac93 to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index ae2c6d33-d233-48d0-85a8-ef5b58fdce91 to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 32a766fb-b52a-4469-8cf9-c4c82e38ebe9 to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 8586e4db-925d-41a0-aa6b-d906f4f202db to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index befbb66b-a256-4723-a859-1b2de044dcb6 to post ID
+2026-01-21 00:58:48.718 | WARNING  | src.agents.topic_extractor:process:71 - Could not map post index 23b8b8c-deda-425b-b112-7a6066f2a410 to post ID
+2026-01-21 00:58:48.718 | INFO     | src.agents.topic_extractor:process:83 - Extracted 9 topics
+2026-01-21 00:58:48.844 | INFO     | src.database.client:save_topics:160 - Saved 9 topics to database
+2026-01-21 00:58:48.844 | INFO     | __main__:extract_and_save_topics_for_customer:50 - ✓ Saved 9 extracted topics
+2026-01-21 00:58:48.844 | INFO     | __main__:extract_and_save_topics_for_customer:57 - Finished processing customer: Christina Hildebrandt
+
+2026-01-21 00:58:48.845 | INFO     | __main__:main:80 - 
+=== MAINTENANCE COMPLETE ===

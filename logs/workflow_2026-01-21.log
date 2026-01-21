@@ -1,0 +1,603 @@
+2026-01-21 00:05:16 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:05:16 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:05:24 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:05:27 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:05:27 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:05:32 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:06:56 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:06:56 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:09:11 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:09:11 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:09:50 | INFO     | src.orchestrator:create_post:237 - === CREATING POST for topic: LinkedIn-KI als Workflow-Co-Pilot: Von Content bis Conversion 2026 ===
+2026-01-21 00:09:56 | ERROR    | src.tui.app:create_post:490 - Post creation failed: [Errno 104] Connection reset by peer
+Traceback (most recent call last):
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 72, in map_httpcore_exceptions
+    yield
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 236, in handle_request
+    resp = self._pool.handle_request(req)
+           │    │     │              └ <Request [b'GET']>
+           │    │     └ <function ConnectionPool.handle_request at 0x716046277e20>
+           │    └ <ConnectionPool [Requests: 0 active, 0 queued | Connections: 0 active, 0 idle]>
+           └ <httpx.HTTPTransport object at 0x71604441b560>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               │          └ <function HTTPConnection.handle_request at 0x716046276fc0>
+               └ <HTTPConnection [CONNECTION FAILED]>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             │    │        └ <Request [b'GET']>
+             │    └ <function HTTPConnection._connect at 0x716046277060>
+             └ <HTTPConnection [CONNECTION FAILED]>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpcore/_sync/connection.py", line 156, in _connect
+    stream = stream.start_tls(**kwargs)
+             │      │           └ {'ssl_context': <ssl.SSLContext object at 0x716044273f50>, 'server_hostname': 'kklihrpizzxamrsrwzrv.supabase.co', 'timeout': ...
+             │      └ <function SyncStream.start_tls at 0x71604652bba0>
+             └ <httpcore._backends.sync.SyncStream object at 0x716044452720>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpcore/_backends/sync.py", line 154, in start_tls
+    with map_exceptions(exc_map):
+         │              └ {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+         └ <function map_exceptions at 0x71604652a480>
+  File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+    │    │   │     └ ConnectionResetError(104, 'Connection reset by peer')
+    │    │   └ <method 'throw' of 'generator' objects>
+    │    └ <generator object map_exceptions at 0x7160443d73d0>
+    └ <contextlib._GeneratorContextManager object at 0x716044452e40>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+          └ <class 'httpcore.ConnectError'>
+
+httpcore.ConnectError: [Errno 104] Connection reset by peer
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/main.py", line 50, in <module>
+    main()
+    └ <function main at 0x71604705a660>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/main.py", line 39, in main
+    run_app()
+    └ <function run_app at 0x7160470c4360>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/tui/app.py", line 671, in run_app
+    app.run()
+    │   └ <function App.run at 0x716046933380>
+    └ LinkedInWorkflowApp(title='LinkedIn Post Creation System', classes={'-dark-mode'}, pseudo_classes={'focus', 'dark'})
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/app.py", line 1960, in run
+    asyncio.run(run_app())
+    │       │   └ <function App.run.<locals>.run_app at 0x716044ed3560>
+    │       └ <function run at 0x716047b19620>
+    └ <module 'asyncio' from '/usr/lib/python3.12/asyncio/__init__.py'>
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           │      │   └ <coroutine object App.run.<locals>.run_app at 0x71604503a680>
+           │      └ <function Runner.run at 0x71604784f6a0>
+           └ <asyncio.runners.Runner object at 0x7160452cc740>
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<App.run.<locals>.run_app() running at /home/ruben/PycharmProjects/LinkedInWorkflow/.venv/li...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x71604784d300>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7160452cc740>
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 674, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x71604784d260>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 641, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x71604784f060>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 1987, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x716047789580>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 513, in _process_messages
+    await self._process_messages_loop()
+          │    └ <function MessagePump._process_messages_loop at 0x716046969940>
+          └ CreatePostScreen()
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 606, in _process_messages_loop
+    await self._dispatch_message(message)
+          │    │                 └ Pressed()
+          │    └ <function MessagePump._dispatch_message at 0x716046969a80>
+          └ CreatePostScreen()
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 682, in _dispatch_message
+    await self._on_message(message)
+          │    │           └ Pressed()
+          │    └ <function MessagePump._on_message at 0x716046969c60>
+          └ CreatePostScreen()
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/message_pump.py", line 770, in _on_message
+    await invoke(method, message)
+          │      │       └ Pressed()
+          │      └ <bound method CreatePostScreen.on_button_pressed of CreatePostScreen()>
+          └ <function invoke at 0x716046c7a480>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/_callback.py", line 93, in invoke
+    return await _invoke(callback, *params)
+                 │       │          └ (Pressed(),)
+                 │       └ <bound method CreatePostScreen.on_button_pressed of CreatePostScreen()>
+                 └ <function _invoke at 0x716046c7a3e0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/textual/_callback.py", line 55, in _invoke
+    result = await result
+                   └ <coroutine object CreatePostScreen.on_button_pressed at 0x71604432f2e0>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/tui/app.py", line 450, in on_button_pressed
+    await self.create_post(self._customers[0].id, self._topics[0])
+          │    │           │    │                 │    └ [{'fact': 'LinkedIn hat 2025 seine KI-Funktionen massiv ausgebaut und integriert sie 2026 direkt in Workflows – z. B. für Pro...
+          │    │           │    │                 └ CreatePostScreen()
+          │    │           │    └ [Customer(id=UUID('a7028b8c-8af2-4a3a-a810-02cd751657a3'), created_at=datetime.datetime(2026, 1, 20, 22, 42, 42, 467914, tzin...
+          │    │           └ CreatePostScreen()
+          │    └ <function CreatePostScreen.create_post at 0x716044ed0220>
+          └ CreatePostScreen()
+
+> File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/tui/app.py", line 467, in create_post
+    result = await orchestrator.create_post(
+                   │            └ <function WorkflowOrchestrator.create_post at 0x716044e82840>
+                   └ <src.orchestrator.WorkflowOrchestrator object at 0x7160457c3710>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/orchestrator.py", line 240, in create_post
+    profile_analysis = await db.get_profile_analysis(customer_id)
+                             │  │                    └ UUID('a7028b8c-8af2-4a3a-a810-02cd751657a3')
+                             │  └ <function DatabaseClient.get_profile_analysis at 0x716045656d40>
+                             └ <src.database.client.DatabaseClient object at 0x71604566db20>
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/src/database/client.py", line 223, in get_profile_analysis
+    ).execute()
+
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/postgrest/_sync/request_builder.py", line 58, in execute
+    r = self.session.request(
+        │    │       └ <function Client.request at 0x7160461b5da0>
+        │    └ <postgrest.utils.SyncClient object at 0x71604441baa0>
+        └ <postgrest._sync.request_builder.SyncSelectRequestBuilder object at 0x7160444529f0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_client.py", line 837, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           │    │    │             │                      └ <httpx._client.UseClientDefault object at 0x716046a8e3f0>
+           │    │    │             └ <httpx._client.UseClientDefault object at 0x716046a8e3f0>
+           │    │    └ <Request('GET', 'https://kklihrpizzxamrsrwzrv.supabase.co/rest/v1/profile_analyses?select=%2A&customer_id=eq.a7028b8c-8af2-4a...
+           │    └ <function Client.send at 0x7160461b5f80>
+           └ <postgrest.utils.SyncClient object at 0x71604441baa0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_client.py", line 926, in send
+    response = self._send_handling_auth(
+               │    └ <function Client._send_handling_auth at 0x7160461b6020>
+               └ <postgrest.utils.SyncClient object at 0x71604441baa0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_client.py", line 954, in _send_handling_auth
+    response = self._send_handling_redirects(
+               │    └ <function Client._send_handling_redirects at 0x7160461b60c0>
+               └ <postgrest.utils.SyncClient object at 0x71604441baa0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_client.py", line 991, in _send_handling_redirects
+    response = self._send_single_request(request)
+               │    │                    └ <Request('GET', 'https://kklihrpizzxamrsrwzrv.supabase.co/rest/v1/profile_analyses?select=%2A&customer_id=eq.a7028b8c-8af2-4a...
+               │    └ <function Client._send_single_request at 0x7160461b6160>
+               └ <postgrest.utils.SyncClient object at 0x71604441baa0>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1027, in _send_single_request
+    response = transport.handle_request(request)
+               │         │              └ <Request('GET', 'https://kklihrpizzxamrsrwzrv.supabase.co/rest/v1/profile_analyses?select=%2A&customer_id=eq.a7028b8c-8af2-4a...
+               │         └ <function HTTPTransport.handle_request at 0x7160461a7740>
+               └ <httpx.HTTPTransport object at 0x71604441b560>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 235, in handle_request
+    with map_httpcore_exceptions():
+         └ <function map_httpcore_exceptions at 0x71604650b7e0>
+  File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+    │    │   │     └ ConnectError(ConnectionResetError(104, 'Connection reset by peer'))
+    │    │   └ <method 'throw' of 'generator' objects>
+    │    └ <generator object map_httpcore_exceptions at 0x716044f06340>
+  └ <contextlib._GeneratorContextManager object at 0x716044453050>
+  File "/home/ruben/PycharmProjects/LinkedInWorkflow/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 89, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+          │          └ '[Errno 104] Connection reset by peer'
+          └ <class 'httpx.ConnectError'>
+
+httpx.ConnectError: [Errno 104] Connection reset by peer
+2026-01-21 00:10:24 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:11:03 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:11:03 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:11:06 | INFO     | src.orchestrator:research_new_topics:168 - === RESEARCHING NEW TOPICS for customer a7028b8c-8af2-4a3a-a810-02cd751657a3 ===
+2026-01-21 00:11:07 | INFO     | src.orchestrator:research_new_topics:183 - Running research with Perplexity
+2026-01-21 00:11:07 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-21 00:11:07 | INFO     | src.agents.base:call_perplexity:91 - [Researcher] Calling Perplexity (sonar)
+2026-01-21 00:11:38 | INFO     | src.agents.researcher:process:62 - Research completed with 0 topic suggestions
+2026-01-21 00:11:38 | INFO     | src.database.client:save_research_result:238 - Saved research result for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 00:11:38 | INFO     | src.orchestrator:research_new_topics:199 - Research completed with 0 suggestions
+2026-01-21 00:11:38 | INFO     | src.orchestrator:research_new_topics:202 - Saving researched topics to topics table
+2026-01-21 00:16:56 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:16:59 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:16:59 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:17:13 | INFO     | src.orchestrator:research_new_topics:168 - === RESEARCHING NEW TOPICS for customer a7028b8c-8af2-4a3a-a810-02cd751657a3 ===
+2026-01-21 00:17:14 | INFO     | src.orchestrator:research_new_topics:183 - Running research with Perplexity
+2026-01-21 00:17:14 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-21 00:17:14 | INFO     | src.agents.base:call_openai:51 - [Researcher] Calling OpenAI (gpt-4o)
+2026-01-21 00:17:32 | INFO     | src.agents.researcher:process:70 - Research completed with 5 topic suggestions
+2026-01-21 00:17:33 | INFO     | src.database.client:save_research_result:238 - Saved research result for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 00:17:33 | INFO     | src.orchestrator:research_new_topics:199 - Research completed with 5 suggestions
+2026-01-21 00:17:33 | INFO     | src.orchestrator:research_new_topics:202 - Saving researched topics to topics table
+2026-01-21 00:17:33 | INFO     | src.database.client:save_topics:160 - Saved 5 topics to database
+2026-01-21 00:17:33 | INFO     | src.orchestrator:research_new_topics:216 - Saved 5 researched topics to database
+2026-01-21 00:18:15 | INFO     | src.orchestrator:create_post:237 - === CREATING POST for topic: KI-gestützte PR-Strategien: Neue Studie zeigt Wirkung auf Markenwahrnehmung ===
+2026-01-21 00:18:15 | INFO     | src.orchestrator:create_post:254 - --- Iteration 1/10 ---
+2026-01-21 00:18:15 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: KI-gestützte PR-Strategien: Neue Studie zeigt Wirkung auf Markenwahrnehmung
+2026-01-21 00:18:15 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:18:23 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:18:23 | INFO     | src.orchestrator:create_post:274 - Writer produced version 1
+2026-01-21 00:18:23 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:18:23 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:18:37 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-21 00:18:37 | INFO     | src.orchestrator:create_post:287 - Critic score: 82/100 | Approved: False
+2026-01-21 00:18:37 | INFO     | src.orchestrator:create_post:294 - Post needs revision, continuing...
+2026-01-21 00:18:37 | INFO     | src.orchestrator:create_post:254 - --- Iteration 2/10 ---
+2026-01-21 00:18:37 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-21 00:18:37 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:18:45 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:18:45 | INFO     | src.orchestrator:create_post:274 - Writer produced version 2
+2026-01-21 00:18:45 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:18:45 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:18:53 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-21 00:18:53 | INFO     | src.orchestrator:create_post:287 - Critic score: 85/100 | Approved: False
+2026-01-21 00:18:53 | INFO     | src.orchestrator:create_post:294 - Post needs revision, continuing...
+2026-01-21 00:18:53 | INFO     | src.orchestrator:create_post:254 - --- Iteration 3/10 ---
+2026-01-21 00:18:53 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-21 00:18:53 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:19:01 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:19:01 | INFO     | src.orchestrator:create_post:274 - Writer produced version 3
+2026-01-21 00:19:01 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:19:01 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:19:09 | INFO     | src.agents.critic:process:50 - Post APPROVED
+2026-01-21 00:19:09 | INFO     | src.orchestrator:create_post:287 - Critic score: 92/100 | Approved: True
+2026-01-21 00:19:09 | INFO     | src.orchestrator:create_post:290 - 🎉 Post approved!
+2026-01-21 00:19:09 | INFO     | src.database.client:save_generated_post:262 - Saved generated post: dfcdeb02-27e4-4f0b-a9a3-3aacc55977c5
+2026-01-21 00:19:09 | INFO     | src.orchestrator:create_post:309 - Post creation complete after 3 iterations
+2026-01-21 00:22:38 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:23:49 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:23:49 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:24:19 | INFO     | src.orchestrator:research_new_topics:168 - === RESEARCHING NEW TOPICS for customer a7028b8c-8af2-4a3a-a810-02cd751657a3 ===
+2026-01-21 00:24:19 | INFO     | src.orchestrator:research_new_topics:183 - Running research with Perplexity
+2026-01-21 00:24:19 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-21 00:24:19 | INFO     | src.agents.base:call_openai:51 - [Researcher] Calling OpenAI (gpt-4o)
+2026-01-21 00:24:37 | INFO     | src.agents.researcher:process:70 - Research completed with 6 topic suggestions
+2026-01-21 00:24:37 | INFO     | src.database.client:save_research_result:238 - Saved research result for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 00:24:37 | INFO     | src.orchestrator:research_new_topics:199 - Research completed with 6 suggestions
+2026-01-21 00:30:00 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:30:03 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:30:03 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:31:07 | INFO     | src.orchestrator:research_new_topics:168 - === RESEARCHING NEW TOPICS for customer a7028b8c-8af2-4a3a-a810-02cd751657a3 ===
+2026-01-21 00:31:08 | INFO     | src.orchestrator:research_new_topics:183 - Running research with Perplexity
+2026-01-21 00:31:08 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-21 00:31:08 | INFO     | src.agents.base:call_openai:51 - [Researcher] Calling OpenAI (gpt-4o)
+2026-01-21 00:31:24 | INFO     | src.agents.researcher:process:70 - Research completed with 6 topic suggestions
+2026-01-21 00:31:25 | INFO     | src.database.client:save_research_result:238 - Saved research result for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 00:31:25 | INFO     | src.orchestrator:research_new_topics:199 - Research completed with 6 suggestions
+2026-01-21 00:33:26 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:33:28 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:33:28 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:34:51 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:35:30 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:35:30 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:39:24 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:39:26 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:39:26 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:39:42 | INFO     | src.orchestrator:create_post:220 - === CREATING POST for topic: Crisis Communication in der digitalen Welt: Neue Herausforderungen und Lösungen ===
+2026-01-21 00:39:42 | INFO     | src.orchestrator:create_post:237 - --- Iteration 1/10 ---
+2026-01-21 00:39:42 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: Crisis Communication in der digitalen Welt: Neue Herausforderungen und Lösungen
+2026-01-21 00:39:42 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:39:53 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:39:53 | INFO     | src.orchestrator:create_post:257 - Writer produced version 1
+2026-01-21 00:39:53 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:39:53 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:39:59 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-21 00:39:59 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-21 00:39:59 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-21 00:39:59 | INFO     | src.orchestrator:create_post:237 - --- Iteration 2/10 ---
+2026-01-21 00:39:59 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-21 00:39:59 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:40:08 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:40:08 | INFO     | src.orchestrator:create_post:257 - Writer produced version 2
+2026-01-21 00:40:08 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:40:08 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:40:15 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-21 00:40:15 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-21 00:40:15 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-21 00:40:15 | INFO     | src.orchestrator:create_post:237 - --- Iteration 3/10 ---
+2026-01-21 00:40:15 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-21 00:40:15 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:40:21 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:40:21 | INFO     | src.orchestrator:create_post:257 - Writer produced version 3
+2026-01-21 00:40:21 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:40:21 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:40:26 | INFO     | src.agents.critic:process:50 - Post APPROVED
+2026-01-21 00:40:26 | INFO     | src.orchestrator:create_post:270 - Critic score: 92/100 | Approved: True
+2026-01-21 00:40:26 | INFO     | src.orchestrator:create_post:273 - 🎉 Post approved!
+2026-01-21 00:40:26 | INFO     | src.database.client:save_generated_post:269 - Saved generated post: 1e2770ea-9770-4a5d-a09e-7394a63bda8e
+2026-01-21 00:40:26 | INFO     | src.orchestrator:create_post:292 - Post creation complete after 3 iterations
+2026-01-21 00:41:27 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:41:39 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:41:39 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:41:53 | INFO     | src.orchestrator:create_post:220 - === CREATING POST for topic: Hybrid-Events als neuer Standard in der PR ===
+2026-01-21 00:41:53 | INFO     | src.orchestrator:create_post:237 - --- Iteration 1/10 ---
+2026-01-21 00:41:53 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: Hybrid-Events als neuer Standard in der PR
+2026-01-21 00:41:53 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:42:01 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:42:01 | INFO     | src.orchestrator:create_post:257 - Writer produced version 1
+2026-01-21 00:42:01 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:42:01 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:42:11 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-21 00:42:11 | INFO     | src.orchestrator:create_post:270 - Critic score: 85/100 | Approved: False
+2026-01-21 00:42:11 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-21 00:42:11 | INFO     | src.orchestrator:create_post:237 - --- Iteration 2/10 ---
+2026-01-21 00:42:11 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-21 00:42:11 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:42:16 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:42:16 | INFO     | src.orchestrator:create_post:257 - Writer produced version 2
+2026-01-21 00:42:16 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:42:16 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:42:24 | INFO     | src.agents.critic:process:50 - Post NEEDS REVISION
+2026-01-21 00:42:24 | INFO     | src.orchestrator:create_post:270 - Critic score: 82/100 | Approved: False
+2026-01-21 00:42:24 | INFO     | src.orchestrator:create_post:277 - Post needs revision, continuing...
+2026-01-21 00:42:24 | INFO     | src.orchestrator:create_post:237 - --- Iteration 3/10 ---
+2026-01-21 00:42:24 | INFO     | src.agents.writer:process:35 - Revising post based on critic feedback (iteration)
+2026-01-21 00:42:24 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:42:30 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:42:30 | INFO     | src.orchestrator:create_post:257 - Writer produced version 3
+2026-01-21 00:42:30 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:42:30 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:42:35 | INFO     | src.agents.critic:process:50 - Post APPROVED
+2026-01-21 00:42:35 | INFO     | src.orchestrator:create_post:270 - Critic score: 92/100 | Approved: True
+2026-01-21 00:42:35 | INFO     | src.orchestrator:create_post:273 - 🎉 Post approved!
+2026-01-21 00:42:36 | INFO     | src.database.client:save_generated_post:269 - Saved generated post: bb862d6f-f1db-4811-8327-712739aef2d3
+2026-01-21 00:42:36 | INFO     | src.orchestrator:create_post:292 - Post creation complete after 3 iterations
+2026-01-21 00:45:56 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:45:56 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:50:34 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:50:36 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:50:36 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:55:32 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:55:32 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:55:49 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 00:55:51 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 00:55:51 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 00:56:03 | INFO     | src.orchestrator:research_new_topics:168 - === RESEARCHING NEW TOPICS for customer a7028b8c-8af2-4a3a-a810-02cd751657a3 ===
+2026-01-21 00:56:03 | INFO     | src.orchestrator:research_new_topics:183 - Running research with Perplexity
+2026-01-21 00:56:03 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-21 00:56:03 | INFO     | src.agents.base:call_openai:51 - [Researcher] Calling OpenAI (gpt-4o)
+2026-01-21 00:56:23 | INFO     | src.agents.researcher:process:70 - Research completed with 5 topic suggestions
+2026-01-21 00:56:24 | INFO     | src.database.client:save_research_result:238 - Saved research result for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 00:56:24 | INFO     | src.orchestrator:research_new_topics:199 - Research completed with 5 suggestions
+2026-01-21 00:56:52 | INFO     | src.orchestrator:create_post:220 - === CREATING POST for topic: Voice Search Optimization: Der nächste Schritt in der digitalen PR ===
+2026-01-21 00:56:52 | INFO     | src.orchestrator:create_post:237 - --- Iteration 1/10 ---
+2026-01-21 00:56:52 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: Voice Search Optimization: Der nächste Schritt in der digitalen PR
+2026-01-21 00:56:52 | INFO     | src.agents.base:call_openai:51 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 00:57:03 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 00:57:03 | INFO     | src.orchestrator:create_post:257 - Writer produced version 1
+2026-01-21 00:57:03 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 00:57:03 | INFO     | src.agents.base:call_openai:51 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 00:57:12 | INFO     | src.agents.critic:process:50 - Post APPROVED
+2026-01-21 00:57:12 | INFO     | src.orchestrator:create_post:270 - Critic score: 92/100 | Approved: True
+2026-01-21 00:57:12 | INFO     | src.orchestrator:create_post:273 - 🎉 Post approved!
+2026-01-21 00:57:13 | INFO     | src.database.client:save_generated_post:269 - Saved generated post: 2180a47e-49f8-4d69-88b5-0ca944b4d02a
+2026-01-21 00:57:13 | INFO     | src.orchestrator:create_post:292 - Post creation complete after 1 iterations
+2026-01-21 10:14:01 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 10:14:01 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 10:14:17 | INFO     | src.orchestrator:create_post:220 - === CREATING POST for topic: Remote-Arbeit und PR: Chancen und Herausforderungen für KMUs ===
+2026-01-21 10:14:18 | INFO     | src.orchestrator:create_post:237 - --- Iteration 1/10 ---
+2026-01-21 10:14:18 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: Remote-Arbeit und PR: Chancen und Herausforderungen für KMUs
+2026-01-21 10:14:18 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 10:14:28 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 10:14:28 | INFO     | src.orchestrator:create_post:257 - Writer produced version 1
+2026-01-21 10:14:28 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 10:14:28 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 10:14:35 | INFO     | src.agents.critic:process:50 - Post APPROVED
+2026-01-21 10:14:35 | INFO     | src.orchestrator:create_post:270 - Critic score: 92/100 | Approved: True
+2026-01-21 10:14:35 | INFO     | src.orchestrator:create_post:273 - 🎉 Post approved!
+2026-01-21 10:14:36 | INFO     | src.database.client:save_generated_post:313 - Saved generated post: 3f0428ac-dc17-49f5-ba77-c9a35eec1f85
+2026-01-21 10:14:36 | INFO     | src.orchestrator:create_post:292 - Post creation complete after 1 iterations
+2026-01-21 10:19:43 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 10:19:43 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 10:20:01 | INFO     | src.orchestrator:create_post:235 - === CREATING POST for topic: Zurück ins Büro: Warum einige Unternehmen den Remote-Trend rückgängig machen ===
+2026-01-21 10:20:01 | ERROR    | src.tui.app:on_worker_state_changed:648 - Post creation failed: The `call_from_thread` method must run in a different thread from the app
+NoneType: None
+2026-01-21 10:20:01 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 10:22:40 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 10:22:40 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 10:22:52 | INFO     | src.orchestrator:create_post:235 - === CREATING POST for topic: Die Rolle von Social Listening in der modernen PR-Arbeit ===
+2026-01-21 10:22:52 | INFO     | src.orchestrator:create_post:257 - --- Iteration 1/10 ---
+2026-01-21 10:22:52 | INFO     | src.agents.writer:process:37 - Writing initial post for topic: Die Rolle von Social Listening in der modernen PR-Arbeit
+2026-01-21 10:22:52 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 10:23:01 | INFO     | src.agents.writer:process:49 - Post written successfully
+2026-01-21 10:23:01 | INFO     | src.orchestrator:create_post:279 - Writer produced version 1
+2026-01-21 10:23:01 | INFO     | src.agents.critic:process:33 - Reviewing post for quality and authenticity
+2026-01-21 10:23:01 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 10:23:05 | INFO     | src.agents.critic:process:50 - Post APPROVED
+2026-01-21 10:23:05 | INFO     | src.orchestrator:create_post:293 - Critic score: 92/100 | Approved: True
+2026-01-21 10:23:05 | INFO     | src.orchestrator:create_post:297 - Post approved!
+2026-01-21 10:23:06 | INFO     | src.database.client:save_generated_post:313 - Saved generated post: 1e25975a-36c8-4073-9a57-66e2b4305e68
+2026-01-21 10:23:06 | INFO     | src.orchestrator:create_post:318 - Post creation complete after 1 iterations
+2026-01-21 10:23:47 | INFO     | src.orchestrator:research_new_topics:173 - === RESEARCHING NEW TOPICS for customer a7028b8c-8af2-4a3a-a810-02cd751657a3 ===
+2026-01-21 10:23:47 | INFO     | src.orchestrator:research_new_topics:195 - Running research with AI
+2026-01-21 10:23:47 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-21 10:23:47 | INFO     | src.agents.base:call_openai:52 - [Researcher] Calling OpenAI (gpt-4o)
+2026-01-21 10:23:59 | INFO     | src.agents.researcher:process:70 - Research completed with 5 topic suggestions
+2026-01-21 10:24:00 | INFO     | src.database.client:save_research_result:276 - Saved research result for customer: a7028b8c-8af2-4a3a-a810-02cd751657a3
+2026-01-21 10:24:00 | INFO     | src.orchestrator:research_new_topics:212 - Research completed with 5 suggestions
+2026-01-21 10:25:10 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 10:25:12 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 10:25:12 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 10:25:35 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 10:25:38 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 10:25:38 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 11:11:27 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 11:11:31 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 11:11:31 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 11:13:04 | INFO     | src.orchestrator:run_initial_setup:54 - === INITIAL SETUP for Christina Hildebrandt ===
+2026-01-21 11:13:06 | INFO     | src.orchestrator:run_initial_setup:63 - Step 1/5: Creating customer record
+2026-01-21 11:13:06 | INFO     | src.database.client:create_customer:34 - Created customer: ca64d064-3871-41d7-8c6a-34471fb2a9ee
+2026-01-21 11:13:06 | INFO     | src.orchestrator:run_initial_setup:72 - Customer created: ca64d064-3871-41d7-8c6a-34471fb2a9ee
+2026-01-21 11:13:06 | INFO     | src.orchestrator:run_initial_setup:75 - Step 2/5: Creating LinkedIn profile from provided data
+2026-01-21 11:13:07 | INFO     | src.database.client:save_linkedin_profile:91 - Saved LinkedIn profile for customer: ca64d064-3871-41d7-8c6a-34471fb2a9ee
+2026-01-21 11:13:07 | INFO     | src.orchestrator:run_initial_setup:88 - LinkedIn profile saved
+2026-01-21 11:13:07 | INFO     | src.orchestrator:run_initial_setup:91 - Step 3/5: Scraping LinkedIn posts
+2026-01-21 11:13:07 | INFO     | src.scraper.apify_scraper:scrape_posts:29 - Scraping posts from: https://www.linkedin.com/in/christinahildebrandt/
+2026-01-21 11:13:07 | INFO     | src.scraper.apify_scraper:scrape_posts:34 - Extracted username: christinahildebrandt
+2026-01-21 11:13:19 | INFO     | src.scraper.apify_scraper:scrape_posts:59 - Successfully scraped 50 posts
+2026-01-21 11:13:19 | WARNING  | src.database.client:save_linkedin_posts:121 - Removed 1 duplicate posts from batch
+2026-01-21 11:13:19 | INFO     | src.database.client:save_linkedin_posts:148 - Saved 49 LinkedIn posts
+2026-01-21 11:13:19 | INFO     | src.orchestrator:run_initial_setup:106 - Saved 50 posts
+2026-01-21 11:13:19 | INFO     | src.orchestrator:run_initial_setup:115 - Step 4/5: Analyzing profile with AI
+2026-01-21 11:13:19 | INFO     | src.agents.profile_analyzer:process:34 - Analyzing profile for: Christina Hildebrandt
+2026-01-21 11:13:19 | INFO     | src.agents.base:call_openai:52 - [ProfileAnalyzer] Calling OpenAI (gpt-4o)
+2026-01-21 11:14:02 | INFO     | src.agents.profile_analyzer:process:64 - Profile analysis completed successfully
+2026-01-21 11:14:02 | INFO     | src.database.client:save_profile_analysis:250 - Saved profile analysis for customer: ca64d064-3871-41d7-8c6a-34471fb2a9ee
+2026-01-21 11:14:02 | INFO     | src.orchestrator:run_initial_setup:134 - Profile analysis saved
+2026-01-21 11:14:02 | INFO     | src.orchestrator:run_initial_setup:140 - Step 5/5: Extracting topics from posts
+2026-01-21 11:14:02 | INFO     | src.agents.topic_extractor:process:28 - Extracting topics from 50 posts
+2026-01-21 11:14:02 | INFO     | src.agents.base:call_openai:52 - [TopicExtractor] Calling OpenAI (gpt-4o)
+2026-01-21 11:14:12 | INFO     | src.agents.topic_extractor:process:83 - Extracted 8 topics
+2026-01-21 11:14:13 | INFO     | src.database.client:save_topics:183 - Saved 8 topics to database
+2026-01-21 11:14:13 | INFO     | src.orchestrator:run_initial_setup:149 - Extracted and saved 8 topics
+2026-01-21 11:14:13 | INFO     | src.orchestrator:run_initial_setup:155 - Step 5/5: Initial setup complete!
+2026-01-21 11:14:13 | INFO     | src.tui.app:on_worker_state_changed:226 - Setup completed for customer: ca64d064-3871-41d7-8c6a-34471fb2a9ee
+2026-01-21 11:14:45 | INFO     | src.orchestrator:research_new_topics:173 - === RESEARCHING NEW TOPICS for customer ca64d064-3871-41d7-8c6a-34471fb2a9ee ===
+2026-01-21 11:14:46 | INFO     | src.orchestrator:research_new_topics:195 - Running research with AI
+2026-01-21 11:14:46 | INFO     | src.agents.researcher:process:33 - Starting research for new content topics
+2026-01-21 11:14:46 | INFO     | src.agents.researcher:process:49 - Step 1: Researching with Perplexity (live internet data)
+2026-01-21 11:14:46 | INFO     | src.agents.base:call_perplexity:96 - [Researcher] Calling Perplexity (sonar-pro)
+2026-01-21 11:15:09 | INFO     | src.agents.researcher:process:65 - Step 2: Structuring results with OpenAI
+2026-01-21 11:15:09 | INFO     | src.agents.base:call_openai:52 - [Researcher] Calling OpenAI (gpt-4o)
+2026-01-21 11:15:23 | INFO     | src.agents.researcher:process:93 - Research completed with 5 topic suggestions
+2026-01-21 11:15:23 | INFO     | src.database.client:save_research_result:276 - Saved research result for customer: ca64d064-3871-41d7-8c6a-34471fb2a9ee
+2026-01-21 11:15:23 | INFO     | src.orchestrator:research_new_topics:212 - Research completed with 5 suggestions
+2026-01-21 11:15:49 | INFO     | src.orchestrator:create_post:235 - === CREATING POST for topic: Der CEO-Effekt: Personal Branding schlägt Corporate Accounts um das 8-Fache ===
+2026-01-21 11:15:50 | INFO     | src.orchestrator:create_post:253 - Loaded 49 example posts for style reference
+2026-01-21 11:15:50 | INFO     | src.orchestrator:create_post:265 - --- Iteration 1/10 ---
+2026-01-21 11:15:50 | INFO     | src.agents.writer:process:40 - Writing initial post for topic: Der CEO-Effekt: Personal Branding schlägt Corporate Accounts um das 8-Fache
+2026-01-21 11:15:50 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:15:50 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:15:58 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:15:58 | INFO     | src.orchestrator:create_post:289 - Writer produced version 1
+2026-01-21 11:15:58 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:15:58 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:16:10 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:16:10 | INFO     | src.orchestrator:create_post:304 - Critic score: 78/100 | Approved: False
+2026-01-21 11:16:10 | INFO     | src.orchestrator:create_post:314 - Post needs revision, continuing...
+2026-01-21 11:16:10 | INFO     | src.orchestrator:create_post:265 - --- Iteration 2/10 ---
+2026-01-21 11:16:10 | INFO     | src.agents.writer:process:38 - Revising post based on critic feedback (iteration)
+2026-01-21 11:16:10 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:16:10 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:16:25 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:16:25 | INFO     | src.orchestrator:create_post:289 - Writer produced version 2
+2026-01-21 11:16:25 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:16:25 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:16:34 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:16:34 | INFO     | src.orchestrator:create_post:304 - Critic score: 78/100 | Approved: False
+2026-01-21 11:16:34 | INFO     | src.orchestrator:create_post:314 - Post needs revision, continuing...
+2026-01-21 11:16:34 | INFO     | src.orchestrator:create_post:265 - --- Iteration 3/10 ---
+2026-01-21 11:16:34 | INFO     | src.agents.writer:process:38 - Revising post based on critic feedback (iteration)
+2026-01-21 11:16:34 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:16:34 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:16:39 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:16:39 | INFO     | src.orchestrator:create_post:289 - Writer produced version 3
+2026-01-21 11:16:39 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:16:39 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:17:06 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:17:06 | INFO     | src.orchestrator:create_post:304 - Critic score: 78/100 | Approved: False
+2026-01-21 11:17:06 | INFO     | src.orchestrator:create_post:314 - Post needs revision, continuing...
+2026-01-21 11:17:06 | INFO     | src.orchestrator:create_post:265 - --- Iteration 4/10 ---
+2026-01-21 11:17:06 | INFO     | src.agents.writer:process:38 - Revising post based on critic feedback (iteration)
+2026-01-21 11:17:06 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:17:06 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:17:13 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:17:13 | INFO     | src.orchestrator:create_post:289 - Writer produced version 4
+2026-01-21 11:17:13 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:17:13 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:17:38 | ERROR    | src.tui.app:on_worker_state_changed:659 - Post creation failed: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4o in organization org-jwwCJGpu07dYACFMDO9BG8JO on tokens per min (TPM): Limit 30000, Used 13262, Requested 16877. Please try again in 278ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+NoneType: None
+2026-01-21 11:17:39 | INFO     | __main__:main:46 - Application shutdown
+2026-01-21 11:20:12 | INFO     | __main__:setup_logging:27 - Logging configured (file only)
+2026-01-21 11:20:12 | INFO     | __main__:main:35 - Starting LinkedIn Workflow System
+2026-01-21 11:20:21 | INFO     | src.orchestrator:create_post:235 - === CREATING POST for topic: Micro-Communities statt Massenreichweite – Nischen werden zum Wettbewerbsvorteil ===
+2026-01-21 11:20:22 | INFO     | src.orchestrator:create_post:253 - Loaded 49 example posts for style reference
+2026-01-21 11:20:22 | INFO     | src.orchestrator:create_post:265 - --- Iteration 1/3 ---
+2026-01-21 11:20:22 | INFO     | src.agents.writer:process:40 - Writing initial post for topic: Micro-Communities statt Massenreichweite – Nischen werden zum Wettbewerbsvorteil
+2026-01-21 11:20:22 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:20:22 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:20:32 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:20:32 | INFO     | src.orchestrator:create_post:289 - Writer produced version 1
+2026-01-21 11:20:32 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:20:32 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:20:43 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:20:43 | INFO     | src.orchestrator:create_post:304 - Critic score: 78/100 | Approved: False
+2026-01-21 11:20:43 | INFO     | src.orchestrator:create_post:314 - Post needs revision, continuing...
+2026-01-21 11:20:43 | INFO     | src.orchestrator:create_post:265 - --- Iteration 2/3 ---
+2026-01-21 11:20:43 | INFO     | src.agents.writer:process:38 - Revising post based on critic feedback (iteration)
+2026-01-21 11:20:43 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:20:43 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:20:46 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:20:46 | INFO     | src.orchestrator:create_post:289 - Writer produced version 2
+2026-01-21 11:20:46 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:20:46 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:20:54 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:20:54 | INFO     | src.orchestrator:create_post:304 - Critic score: 78/100 | Approved: False
+2026-01-21 11:20:54 | INFO     | src.orchestrator:create_post:314 - Post needs revision, continuing...
+2026-01-21 11:20:54 | INFO     | src.orchestrator:create_post:265 - --- Iteration 3/3 ---
+2026-01-21 11:20:54 | INFO     | src.agents.writer:process:38 - Revising post based on critic feedback (iteration)
+2026-01-21 11:20:54 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:20:54 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:21:01 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:21:01 | INFO     | src.orchestrator:create_post:289 - Writer produced version 3
+2026-01-21 11:21:01 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:21:01 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:21:38 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:21:38 | INFO     | src.orchestrator:create_post:304 - Critic score: 78/100 | Approved: False
+2026-01-21 11:21:39 | INFO     | src.database.client:save_generated_post:313 - Saved generated post: 4cbf6f1d-8634-4e44-bc5e-2cbf2cd3f61e
+2026-01-21 11:21:39 | INFO     | src.orchestrator:create_post:329 - Post creation complete after 3 iterations
+2026-01-21 11:27:26 | INFO     | src.orchestrator:create_post:235 - === CREATING POST for topic: DMs als neuer Conversion-Kanal – Shift vom öffentlichen ins private ===
+2026-01-21 11:27:28 | INFO     | src.orchestrator:create_post:253 - Loaded 49 example posts for style reference
+2026-01-21 11:27:28 | INFO     | src.orchestrator:create_post:265 - --- Iteration 1/3 ---
+2026-01-21 11:27:28 | INFO     | src.agents.writer:process:40 - Writing initial post for topic: DMs als neuer Conversion-Kanal – Shift vom öffentlichen ins private
+2026-01-21 11:27:28 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:27:28 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:27:35 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:27:35 | INFO     | src.orchestrator:create_post:289 - Writer produced version 1
+2026-01-21 11:27:35 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:27:35 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:27:43 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:27:43 | INFO     | src.orchestrator:create_post:304 - Critic score: 68/100 | Approved: False
+2026-01-21 11:27:43 | INFO     | src.orchestrator:create_post:314 - Post needs revision, continuing...
+2026-01-21 11:27:43 | INFO     | src.orchestrator:create_post:265 - --- Iteration 2/3 ---
+2026-01-21 11:27:43 | INFO     | src.agents.writer:process:38 - Revising post based on critic feedback (iteration)
+2026-01-21 11:27:43 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:27:43 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:27:49 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:27:49 | INFO     | src.orchestrator:create_post:289 - Writer produced version 2
+2026-01-21 11:27:49 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:27:49 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:28:01 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:28:01 | INFO     | src.orchestrator:create_post:304 - Critic score: 68/100 | Approved: False
+2026-01-21 11:28:01 | INFO     | src.orchestrator:create_post:314 - Post needs revision, continuing...
+2026-01-21 11:28:01 | INFO     | src.orchestrator:create_post:265 - --- Iteration 3/3 ---
+2026-01-21 11:28:01 | INFO     | src.agents.writer:process:38 - Revising post based on critic feedback (iteration)
+2026-01-21 11:28:01 | INFO     | src.agents.writer:process:47 - Using 3 example posts as style reference
+2026-01-21 11:28:01 | INFO     | src.agents.base:call_openai:52 - [Writer] Calling OpenAI (gpt-4o)
+2026-01-21 11:28:04 | INFO     | src.agents.writer:process:60 - Post written successfully
+2026-01-21 11:28:04 | INFO     | src.orchestrator:create_post:289 - Writer produced version 3
+2026-01-21 11:28:04 | INFO     | src.agents.critic:process:35 - Reviewing post for quality and authenticity
+2026-01-21 11:28:04 | INFO     | src.agents.base:call_openai:52 - [Critic] Calling OpenAI (gpt-4o)
+2026-01-21 11:29:04 | INFO     | src.agents.critic:process:52 - Post NEEDS REVISION
+2026-01-21 11:29:04 | INFO     | src.orchestrator:create_post:304 - Critic score: 72/100 | Approved: False
+2026-01-21 11:29:05 | INFO     | src.database.client:save_generated_post:313 - Saved generated post: 6693f85d-ad8f-433b-944d-72b22bdb506e
+2026-01-21 11:29:05 | INFO     | src.orchestrator:create_post:329 - Post creation complete after 3 iterations
+2026-01-21 11:43:45 | INFO     | __main__:main:46 - Application shutdown

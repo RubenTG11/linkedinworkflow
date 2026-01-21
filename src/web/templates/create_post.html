@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Post erstellen - LinkedIn Posts{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2">Post erstellen</h1>
+    <p class="text-gray-400">Generiere einen neuen LinkedIn Post mit AI</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Left: Form -->
+    <div>
+        <form id="createPostForm" class="bg-gray-800 rounded-xl border border-gray-700 p-6 space-y-6">
+            <!-- Customer Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Kunde auswählen</label>
+                <select name="customer_id" id="customerSelect" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                    <option value="">-- Kunde wählen --</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}">{{ customer.name }} - {{ customer.company_name or 'Kein Unternehmen' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Topic Selection -->
+            <div id="topicSelectionArea" class="hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Topic auswählen</label>
+                <div id="topicsList" class="space-y-2 max-h-64 overflow-y-auto">
+                    <p class="text-gray-500">Lade Topics...</p>
+                </div>
+            </div>
+
+            <!-- Custom Topic -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <span>Oder eigenes Topic eingeben</span>
+                </label>
+                <div class="space-y-3">
+                    <input type="text" id="customTopicTitle" placeholder="Topic Titel" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                    <textarea id="customTopicFact" rows="3" placeholder="Fakt / Kernaussage zum Topic..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none"></textarea>
+                    <input type="text" id="customTopicSource" placeholder="Quelle (optional)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Progress Area -->
+            <div id="progressArea" class="hidden">
+                <div class="bg-gray-700/50 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="progressMessage" class="text-gray-300">Starte Post-Erstellung...</span>
+                        <span id="progressPercent" class="text-gray-400">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-600 rounded-full h-2">
+                        <div id="progressBar" class="bg-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="iterationInfo" class="mt-2 text-sm text-gray-400"></div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Post generieren
+            </button>
+        </form>
+
+        {% if not customers %}
+        <div class="mt-4 bg-yellow-900/30 border border-yellow-600 rounded-lg p-4">
+            <p class="text-yellow-300">Noch keine Kunden vorhanden. <a href="/customers/new" class="underline">Erstelle zuerst einen Kunden</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right: Result -->
+    <div>
+        <div id="resultArea" class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Generierter Post</h3>
+            <div id="postResult">
+                <p class="text-gray-400">Wähle einen Kunden und ein Topic, dann klicke auf "Post generieren"...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('createPostForm');
+const customerSelect = document.getElementById('customerSelect');
+const topicSelectionArea = document.getElementById('topicSelectionArea');
+const topicsList = document.getElementById('topicsList');
+const submitBtn = document.getElementById('submitBtn');
+const progressArea = document.getElementById('progressArea');
+const progressBar = document.getElementById('progressBar');
+const progressMessage = document.getElementById('progressMessage');
+const progressPercent = document.getElementById('progressPercent');
+const iterationInfo = document.getElementById('iterationInfo');
+const postResult = document.getElementById('postResult');
+
+let selectedTopic = null;
+
+// Load topics when customer is selected
+customerSelect.addEventListener('change', async () => {
+    const customerId = customerSelect.value;
+    if (!customerId) {
+        topicSelectionArea.classList.add('hidden');
+        return;
+    }
+
+    topicSelectionArea.classList.remove('hidden');
+    topicsList.innerHTML = '<p class="text-gray-500">Lade Topics...</p>';
+
+    try {
+        const response = await fetch(`/api/customers/${customerId}/topics`);
+        const data = await response.json();
+
+        if (data.topics && data.topics.length > 0) {
+            topicsList.innerHTML = data.topics.map((topic, i) => `
+                <label class="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors">
+                    <input type="radio" name="topic" value="${i}" class="mt-1 text-purple-500" data-topic='${JSON.stringify(topic)}'>
+                    <div class="flex-1">
+                        <span class="inline-block px-2 py-0.5 text-xs font-medium bg-blue-600/30 text-blue-300 rounded mb-1">${topic.category || 'Topic'}</span>
+                        <p class="font-medium text-white">${topic.title}</p>
+                        <p class="text-sm text-gray-400 mt-1">${topic.fact ? topic.fact.substring(0, 100) + '...' : ''}</p>
+                    </div>
+                </label>
+            `).join('');
+
+            // Add event listeners to radio buttons
+            document.querySelectorAll('input[name="topic"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    selectedTopic = JSON.parse(radio.dataset.topic);
+                    // Clear custom topic fields
+                    document.getElementById('customTopicTitle').value = '';
+                    document.getElementById('customTopicFact').value = '';
+                    document.getElementById('customTopicSource').value = '';
+                });
+            });
+        } else {
+            topicsList.innerHTML = '<p class="text-gray-500">Keine Topics gefunden. Führe zuerst eine Recherche durch oder gib ein eigenes Topic ein.</p>';
+        }
+    } catch (error) {
+        topicsList.innerHTML = `<p class="text-red-400">Fehler beim Laden: ${error.message}</p>`;
+    }
+});
+
+// Clear selected topic when custom topic is entered
+['customTopicTitle', 'customTopicFact', 'customTopicSource'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+        selectedTopic = null;
+        document.querySelectorAll('input[name="topic"]').forEach(radio => radio.checked = false);
+    });
+});
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const customerId = customerSelect.value;
+    if (!customerId) {
+        alert('Bitte wähle einen Kunden aus.');
+        return;
+    }
+
+    // Get topic (either selected or custom)
+    let topic;
+    const customTitle = document.getElementById('customTopicTitle').value.trim();
+    const customFact = document.getElementById('customTopicFact').value.trim();
+
+    if (customTitle && customFact) {
+        topic = {
+            title: customTitle,
+            fact: customFact,
+            source: document.getElementById('customTopicSource').value.trim() || null,
+            category: 'Custom'
+        };
+    } else if (selectedTopic) {
+        topic = selectedTopic;
+    } else {
+        alert('Bitte wähle ein Topic aus oder gib ein eigenes ein.');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generiert...';
+    progressArea.classList.remove('hidden');
+    postResult.innerHTML = '<p class="text-gray-400">Post wird generiert...</p>';
+
+    const formData = new FormData();
+    formData.append('customer_id', customerId);
+    formData.append('topic_json', JSON.stringify(topic));
+
+    try {
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        const taskId = data.task_id;
+        const pollInterval = setInterval(async () => {
+            const statusResponse = await fetch(`/api/tasks/${taskId}`);
+            const status = await statusResponse.json();
+
+            progressBar.style.width = `${status.progress}%`;
+            progressPercent.textContent = `${status.progress}%`;
+            progressMessage.textContent = status.message;
+
+            if (status.iteration !== undefined) {
+                iterationInfo.textContent = `Iteration ${status.iteration}/${status.max_iterations}`;
+            }
+
+            if (status.status === 'completed') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Post generieren';
+
+                const result = status.result;
+                postResult.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="px-2 py-1 rounded ${result.approved ? 'bg-green-600/30 text-green-300' : 'bg-yellow-600/30 text-yellow-300'}">
+                                ${result.approved ? 'Approved' : 'Review needed'}
+                            </span>
+                            <span class="text-gray-400">Score: ${result.final_score}/100</span>
+                            <span class="text-gray-400">Iterations: ${result.iterations}</span>
+                        </div>
+                        <div class="bg-gray-700/50 rounded-lg p-4">
+                            <pre class="whitespace-pre-wrap text-gray-200 font-sans">${result.final_post}</pre>
+                        </div>
+                        <button onclick="copyPost()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white transition-colors">
+                            In Zwischenablage kopieren
+                        </button>
+                    </div>
+                `;
+            } else if (status.status === 'error') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Post generieren';
+                postResult.innerHTML = `<p class="text-red-400">Fehler: ${status.message}</p>`;
+            }
+        }, 1000);
+    } catch (error) {
+        progressArea.classList.add('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Post generieren';
+        postResult.innerHTML = `<p class="text-red-400">Fehler: ${error.message}</p>`;
+    }
+});
+
+function copyPost() {
+    const postText = document.querySelector('#postResult pre').textContent;
+    navigator.clipboard.writeText(postText).then(() => {
+        alert('Post in Zwischenablage kopiert!');
+    });
+}
+</script>
+{% endblock %}
