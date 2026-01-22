@@ -5,6 +5,8 @@ from src.agents.topic_extractor import TopicExtractorAgent
 from src.agents.researcher import ResearchAgent
 from src.agents.writer import WriterAgent
 from src.agents.critic import CriticAgent
+from src.agents.post_classifier import PostClassifierAgent
+from src.agents.post_type_analyzer import PostTypeAnalyzerAgent
 
 __all__ = [
     "BaseAgent",
@@ -13,4 +15,6 @@ __all__ = [
     "ResearchAgent",
     "WriterAgent",
     "CriticAgent",
+    "PostClassifierAgent",
+    "PostTypeAnalyzerAgent",
 ]

@@ -3,27 +3,45 @@
 
 {% block head %}
 <style>
-    .version-tab.active {
-        background-color: #ffc700;
-        color: #2d3838;
+    .post-card {
+        background: linear-gradient(135deg, rgba(61, 72, 72, 0.3) 0%, rgba(45, 56, 56, 0.4) 100%);
+        border: 1px solid rgba(61, 72, 72, 0.6);
+        transition: all 0.2s ease;
     }
-    .version-content {
-        display: none;
+    .post-card:hover {
+        border-color: rgba(255, 199, 0, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-    .version-content.active {
-        display: block;
+    .customer-header {
+        background: linear-gradient(90deg, rgba(255, 199, 0, 0.1) 0%, transparent 100%);
     }
-    .feedback-category {
-        border-left: 3px solid #ffc700;
-        padding-left: 12px;
+    .score-ring {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.75rem;
     }
+    .score-high { background: rgba(34, 197, 94, 0.2); border: 2px solid rgba(34, 197, 94, 0.5); color: #86efac; }
+    .score-medium { background: rgba(234, 179, 8, 0.2); border: 2px solid rgba(234, 179, 8, 0.5); color: #fde047; }
+    .score-low { background: rgba(239, 68, 68, 0.2); border: 2px solid rgba(239, 68, 68, 0.5); color: #fca5a5; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-white mb-2">Alle Posts</h1>
-    <p class="text-gray-400">{{ total_posts }} generierte Posts</p>
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <h1 class="text-3xl font-bold text-white mb-2">Alle Posts</h1>
+        <p class="text-gray-400">{{ total_posts }} generierte Posts</p>
+    </div>
+    <a href="/create" class="px-4 py-2.5 btn-primary rounded-lg font-medium flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        Neuer Post
+    </a>
 </div>
 
 {% if error %}
@@ -38,160 +56,77 @@
     {% if item.posts %}
     <div class="card-bg rounded-xl border overflow-hidden">
         <!-- Customer Header -->
-        <div class="px-6 py-4 border-b border-brand-bg-light flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-brand-highlight rounded-full flex items-center justify-center">
-                    <span class="text-brand-bg-dark font-semibold">{{ item.customer.name[0] | upper }}</span>
+        <div class="customer-header px-6 py-4 border-b border-brand-bg-light">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-brand-highlight rounded-xl flex items-center justify-center shadow-lg">
+                        <span class="text-brand-bg-dark font-bold text-lg">{{ item.customer.name[0] | upper }}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white text-lg">{{ item.customer.name }}</h3>
+                        <p class="text-sm text-gray-400">{{ item.customer.company_name or 'Kein Unternehmen' }}</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-semibold text-white">{{ item.customer.name }}</h3>
-                    <p class="text-sm text-gray-400">{{ item.customer.company_name or 'Kein Unternehmen' }}</p>
+                <div class="flex items-center gap-4">
+                    <span class="px-4 py-1.5 bg-brand-bg rounded-full text-sm text-gray-300 font-medium">
+                        {{ item.post_count }} Post{{ 's' if item.post_count != 1 else '' }}
+                    </span>
                 </div>
             </div>
-            <span class="px-3 py-1 bg-brand-bg rounded-full text-sm text-gray-300">{{ item.post_count }} Posts</span>
         </div>
 
-        <!-- Posts -->
-        <div class="divide-y divide-brand-bg-light">
-            {% for post in item.posts %}
-            <div class="p-6" id="post-{{ post.id }}">
-                <!-- Post Header -->
-                <div class="flex items-start justify-between gap-4 mb-4">
-                    <div>
-                        <h4 class="font-medium text-white text-lg">{{ post.topic_title or 'Untitled' }}</h4>
-                        <div class="flex items-center gap-3 mt-1 text-sm text-gray-400">
-                            <span>{{ post.created_at.strftime('%d.%m.%Y %H:%M') if post.created_at else 'N/A' }}</span>
-                            <span>•</span>
-                            <span>{{ post.iterations }} Iteration{{ 's' if post.iterations != 1 else '' }}</span>
-                            <span>•</span>
-                            <span class="px-2 py-0.5 rounded {{ 'bg-green-600/30 text-green-300' if post.status == 'approved' else 'bg-yellow-600/30 text-yellow-300' }}">
-                                {{ post.status | capitalize }}
-                            </span>
+        <!-- Posts Grid -->
+        <div class="p-4">
+            <div class="grid gap-3">
+                {% for post in item.posts %}
+                <a href="/posts/{{ post.id }}" class="post-card rounded-xl p-4 block group">
+                    <div class="flex items-center gap-4">
+                        <!-- Score Circle -->
+                        {% if post.critic_feedback and post.critic_feedback | length > 0 %}
+                        {% set score = post.critic_feedback[-1].overall_score %}
+                        <div class="score-ring flex-shrink-0 {{ 'score-high' if score >= 85 else 'score-medium' if score >= 70 else 'score-low' }}">
+                            {{ score }}
                         </div>
-                    </div>
-                    <button onclick="copyToClipboard(this, '{{ post.id }}')" data-content="{{ post.post_content | e }}" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-bg-light rounded-lg text-sm text-gray-300 transition-colors flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                        Kopieren
-                    </button>
-                </div>
-
-                <!-- Version Tabs -->
-                {% if post.writer_versions and post.writer_versions | length > 1 %}
-                <div class="flex flex-wrap gap-2 mb-4">
-                    <button onclick="showVersion('{{ post.id }}', 'final')" class="version-tab active px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-bg text-gray-300 hover:bg-brand-bg-light transition-colors" data-post="{{ post.id }}" data-version="final">
-                        Final
-                    </button>
-                    {% for i in range(post.writer_versions | length) %}
-                    <button onclick="showVersion('{{ post.id }}', '{{ i }}')" class="version-tab px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-bg text-gray-300 hover:bg-brand-bg-light transition-colors" data-post="{{ post.id }}" data-version="{{ i }}">
-                        V{{ i + 1 }}
-                    </button>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <!-- Final Version (Default) -->
-                <div class="version-content active" data-post="{{ post.id }}" data-version="final">
-                    <div class="bg-brand-bg/30 rounded-lg p-4">
-                        <pre class="whitespace-pre-wrap text-gray-200 font-sans text-sm post-content">{{ post.post_content }}</pre>
-                    </div>
-
-                    {% if post.critic_feedback and post.critic_feedback | length > 0 %}
-                    {% set final_feedback = post.critic_feedback[-1] %}
-                    <div class="mt-4 bg-brand-bg/20 rounded-lg p-4 border border-brand-bg-light">
-                        <div class="flex items-center justify-between mb-3">
-                            <h5 class="font-medium text-white flex items-center gap-2">
-                                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Finales Critic Feedback
-                            </h5>
-                            <span class="px-3 py-1 rounded-full text-sm font-bold {{ 'bg-green-600/30 text-green-300' if final_feedback.overall_score >= 80 else 'bg-yellow-600/30 text-yellow-300' if final_feedback.overall_score >= 60 else 'bg-red-600/30 text-red-300' }}">
-                                Score: {{ final_feedback.overall_score }}/100
-                            </span>
+                        {% else %}
+                        <div class="score-ring flex-shrink-0 bg-brand-bg-dark border-2 border-brand-bg-light text-gray-500">
+                            —
                         </div>
-                        <p class="text-gray-300 text-sm">{{ final_feedback.feedback }}</p>
-                    </div>
-                    {% endif %}
-                </div>
+                        {% endif %}
 
-                <!-- Individual Versions with Feedback -->
-                {% if post.writer_versions %}
-                {% for i in range(post.writer_versions | length) %}
-                <div class="version-content" data-post="{{ post.id }}" data-version="{{ i }}">
-                    <!-- Version Content -->
-                    <div class="bg-brand-bg/30 rounded-lg p-4 mb-4">
-                        <div class="flex items-center gap-2 mb-3 text-sm text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            Writer Version {{ i + 1 }}
-                        </div>
-                        <pre class="whitespace-pre-wrap text-gray-200 font-sans text-sm post-content">{{ post.writer_versions[i] }}</pre>
-                    </div>
-
-                    <!-- Critic Feedback for this version -->
-                    {% if post.critic_feedback and i < post.critic_feedback | length %}
-                    {% set feedback = post.critic_feedback[i] %}
-                    <div class="bg-brand-bg/20 rounded-lg p-4 border border-brand-bg-light">
-                        <div class="flex items-center justify-between mb-4">
-                            <h5 class="font-medium text-white flex items-center gap-2">
-                                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                                Critic Feedback (Iteration {{ i + 1 }})
-                            </h5>
-                            <div class="flex items-center gap-3">
-                                <span class="px-3 py-1 rounded-full text-sm font-bold {{ 'bg-green-600/30 text-green-300' if feedback.overall_score >= 80 else 'bg-yellow-600/30 text-yellow-300' if feedback.overall_score >= 60 else 'bg-red-600/30 text-red-300' }}">
-                                    {{ feedback.overall_score }}/100
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-3">
+                                <h4 class="font-medium text-white group-hover:text-brand-highlight transition-colors truncate">
+                                    {{ post.topic_title or 'Untitled' }}
+                                </h4>
+                                <span class="flex-shrink-0 px-2 py-0.5 text-xs rounded font-medium {{ 'bg-green-600/20 text-green-400 border border-green-600/30' if post.status == 'approved' else 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30' }}">
+                                    {{ post.status | capitalize }}
                                 </span>
-                                {% if feedback.approved %}
-                                <span class="px-2 py-1 bg-green-600/30 text-green-300 rounded text-xs">Approved</span>
-                                {% endif %}
+                            </div>
+                            <div class="flex items-center gap-4 mt-1.5 text-sm text-gray-500">
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    {{ post.created_at.strftime('%d.%m.%Y') if post.created_at else 'N/A' }}
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ post.created_at.strftime('%H:%M') if post.created_at else '' }}
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                    {{ post.iterations }} Iteration{{ 's' if post.iterations != 1 else '' }}
+                                </span>
                             </div>
                         </div>
 
-                        <!-- General Feedback -->
-                        <div class="mb-4">
-                            <p class="text-gray-300 text-sm">{{ feedback.feedback }}</p>
-                        </div>
-
-                        <!-- Strengths & Improvements -->
-                        <div class="grid md:grid-cols-2 gap-4">
-                            {% if feedback.strengths %}
-                            <div>
-                                <h6 class="text-sm font-medium text-green-400 mb-2 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                    Stärken
-                                </h6>
-                                <ul class="space-y-1">
-                                    {% for strength in feedback.strengths %}
-                                    <li class="text-gray-300 text-sm flex items-start gap-2">
-                                        <span class="text-green-400 mt-1">•</span>
-                                        {{ strength }}
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
-
-                            {% if feedback.improvements %}
-                            <div>
-                                <h6 class="text-sm font-medium text-yellow-400 mb-2 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                    Verbesserungen
-                                </h6>
-                                <ul class="space-y-1">
-                                    {% for improvement in feedback.improvements %}
-                                    <li class="text-gray-300 text-sm flex items-start gap-2">
-                                        <span class="text-yellow-400 mt-1">•</span>
-                                        {{ improvement }}
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
-                        </div>
+                        <!-- Arrow -->
+                        <svg class="w-5 h-5 text-gray-600 group-hover:text-brand-highlight transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
                     </div>
-                    {% endif %}
-                </div>
+                </a>
                 {% endfor %}
-                {% endif %}
             </div>
-            {% endfor %}
         </div>
     </div>
     {% endif %}
@@ -199,54 +134,15 @@
 </div>
 {% else %}
 <div class="card-bg rounded-xl border p-12 text-center">
-    <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    <div class="w-20 h-20 bg-brand-bg rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    </div>
     <h3 class="text-xl font-semibold text-white mb-2">Noch keine Posts</h3>
-    <p class="text-gray-400 mb-6">Erstelle deinen ersten Post, um ihn hier zu sehen.</p>
+    <p class="text-gray-400 mb-6 max-w-md mx-auto">Erstelle deinen ersten LinkedIn Post mit KI-Unterstützung.</p>
     <a href="/create" class="inline-flex items-center gap-2 px-6 py-3 btn-primary font-medium rounded-lg transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
         Post erstellen
     </a>
 </div>
 {% endif %}
-{% endblock %}
-
-{% block scripts %}
-<script>
-function showVersion(postId, version) {
-    // Update tabs
-    document.querySelectorAll(`.version-tab[data-post="${postId}"]`).forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.dataset.version === version) {
-            tab.classList.add('active');
-        }
-    });
-
-    // Update content
-    document.querySelectorAll(`.version-content[data-post="${postId}"]`).forEach(content => {
-        content.classList.remove('active');
-        if (content.dataset.version === version) {
-            content.classList.add('active');
-        }
-    });
-}
-
-function copyToClipboard(button, postId) {
-    // Get the currently active version's content
-    const activeContent = document.querySelector(`.version-content[data-post="${postId}"].active .post-content`);
-    const content = activeContent ? activeContent.textContent : button.dataset.content;
-
-    // Decode HTML entities
-    const textarea = document.createElement('textarea');
-    textarea.innerHTML = content;
-    const decodedContent = textarea.value;
-
-    navigator.clipboard.writeText(decodedContent).then(() => {
-        const originalText = button.innerHTML;
-        button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Kopiert!';
-        setTimeout(() => {
-            button.innerHTML = originalText;
-        }, 2000);
-    });
-}
-</script>
 {% endblock %}

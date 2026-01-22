@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Customers/Clients Table
 CREATE TABLE IF NOT EXISTS customers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY wKEY DEFAULT uuid_generate_v4(),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
@@ -150,6 +150,57 @@ CREATE INDEX idx_research_results_customer_id ON research_results(customer_id);
 CREATE INDEX idx_generated_posts_customer_id ON generated_posts(customer_id);
 CREATE INDEX idx_generated_posts_status ON generated_posts(status);
 
+-- Post Types Table (for categorizing posts by type)
+CREATE TABLE IF NOT EXISTS post_types (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+    -- Type Definition
+    name TEXT NOT NULL,
+    description TEXT,
+    identifying_hashtags TEXT[] DEFAULT '{}',
+    identifying_keywords TEXT[] DEFAULT '{}',
+    semantic_properties JSONB DEFAULT '{}'::JSONB,
+
+    -- Analysis Results (generated after classification)
+    analysis JSONB,
+    analysis_generated_at TIMESTAMP WITH TIME ZONE,
+    analyzed_post_count INTEGER DEFAULT 0,
+
+    -- Status
+    is_active BOOLEAN DEFAULT TRUE,
+
+    UNIQUE(customer_id, name)
+);
+
+-- Add post_type_id to linkedin_posts
+ALTER TABLE linkedin_posts
+    ADD COLUMN IF NOT EXISTS post_type_id UUID REFERENCES post_types(id) ON DELETE SET NULL,
+    ADD COLUMN IF NOT EXISTS classification_method TEXT,
+    ADD COLUMN IF NOT EXISTS classification_confidence FLOAT;
+
+-- Add target_post_type_id to topics
+ALTER TABLE topics
+    ADD COLUMN IF NOT EXISTS target_post_type_id UUID REFERENCES post_types(id) ON DELETE SET NULL;
+
+-- Add target_post_type_id to research_results
+ALTER TABLE research_results
+    ADD COLUMN IF NOT EXISTS target_post_type_id UUID REFERENCES post_types(id) ON DELETE SET NULL;
+
+-- Add post_type_id to generated_posts
+ALTER TABLE generated_posts
+    ADD COLUMN IF NOT EXISTS post_type_id UUID REFERENCES post_types(id) ON DELETE SET NULL;
+
+-- Create indexes for post_types
+CREATE INDEX IF NOT EXISTS idx_post_types_customer_id ON post_types(customer_id);
+CREATE INDEX IF NOT EXISTS idx_post_types_is_active ON post_types(is_active);
+CREATE INDEX IF NOT EXISTS idx_linkedin_posts_post_type_id ON linkedin_posts(post_type_id);
+CREATE INDEX IF NOT EXISTS idx_topics_target_post_type_id ON topics(target_post_type_id);
+CREATE INDEX IF NOT EXISTS idx_research_results_target_post_type_id ON research_results(target_post_type_id);
+CREATE INDEX IF NOT EXISTS idx_generated_posts_post_type_id ON generated_posts(post_type_id);
+
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -162,5 +213,12 @@ $$ LANGUAGE plpgsql;
 -- Add trigger to customers table
 CREATE TRIGGER update_customers_updated_at
     BEFORE UPDATE ON customers
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Add trigger to post_types table
+DROP TRIGGER IF EXISTS update_post_types_updated_at ON post_types;
+CREATE TRIGGER update_post_types_updated_at
+    BEFORE UPDATE ON post_types
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();

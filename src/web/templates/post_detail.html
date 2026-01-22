@@ -1,0 +1,696 @@
+{% extends "base.html" %}
+{% block title %}{{ post.topic_title }} - Post Details{% endblock %}
+
+{% block head %}
+<style>
+    .section-card {
+        background: rgba(61, 72, 72, 0.3);
+        border: 1px solid rgba(61, 72, 72, 0.6);
+    }
+    .title-truncate {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .reference-post {
+        background: linear-gradient(135deg, rgba(61, 72, 72, 0.4) 0%, rgba(45, 56, 56, 0.6) 100%);
+        border: 1px solid rgba(255, 199, 0, 0.15);
+        position: relative;
+    }
+    .reference-post::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #ffc700 0%, rgba(255, 199, 0, 0.3) 100%);
+        border-radius: 3px 0 0 3px;
+    }
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .profile-item {
+        background: rgba(45, 56, 56, 0.5);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid rgba(61, 72, 72, 0.8);
+    }
+    .stat-bar {
+        height: 6px;
+        background: rgba(45, 56, 56, 0.8);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .stat-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffc700 0%, #ffdb4d 100%);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb & Header -->
+<div class="mb-6">
+    <a href="/posts" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-highlight transition-colors mb-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Zurück zu allen Posts
+    </a>
+    <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold text-white mb-2 title-truncate" title="{{ post.topic_title or 'Untitled Post' }}">
+                {{ post.topic_title or 'Untitled Post' }}
+            </h1>
+            <div class="flex items-center gap-3 text-sm text-gray-400 flex-wrap">
+                <span class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    {{ customer.name }}
+                </span>
+                <span class="text-gray-600">|</span>
+                <span>{{ post.created_at.strftime('%d.%m.%Y um %H:%M Uhr') if post.created_at else 'N/A' }}</span>
+                <span class="text-gray-600">|</span>
+                <span>{{ post.iterations }} Iteration{{ 's' if post.iterations != 1 else '' }}</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+            <span class="px-3 py-1.5 rounded-lg text-sm font-medium {{ 'bg-green-600/30 text-green-300 border border-green-600/50' if post.status == 'approved' else 'bg-yellow-600/30 text-yellow-300 border border-yellow-600/50' }}">
+                {{ post.status | capitalize }}
+            </span>
+            {% if final_feedback %}
+            <span class="px-3 py-1.5 rounded-lg text-sm font-bold {{ 'bg-green-600/30 text-green-300' if final_feedback.overall_score >= 85 else 'bg-yellow-600/30 text-yellow-300' if final_feedback.overall_score >= 70 else 'bg-red-600/30 text-red-300' }}">
+                Score: {{ final_feedback.overall_score }}/100
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <!-- Main Content (2 cols) -->
+    <div class="xl:col-span-2 space-y-6">
+        <!-- Final Post -->
+        <div class="section-card rounded-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Finaler Post
+                </h2>
+                <button onclick="copyToClipboard()" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-bg-light rounded-lg text-sm text-gray-300 transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Kopieren
+                </button>
+            </div>
+            <div class="bg-brand-bg/50 rounded-lg p-5">
+                <pre id="finalPostContent" class="whitespace-pre-wrap text-gray-200 font-sans text-sm leading-relaxed">{{ post.post_content }}</pre>
+            </div>
+        </div>
+
+        <!-- Iteration History with Pagination -->
+        {% if post.writer_versions and post.writer_versions | length > 0 %}
+        <div class="section-card rounded-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Iterationen
+                </h2>
+                <!-- Pagination Controls -->
+                <div class="flex items-center gap-2">
+                    <button id="prevVersion" onclick="changeVersion(-1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <span class="text-sm text-gray-400">
+                        <span id="currentVersionNum">1</span> / {{ post.writer_versions | length }}
+                    </span>
+                    <button id="nextVersion" onclick="changeVersion(1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Version Content Container -->
+            {% for i in range(post.writer_versions | length) %}
+            <div class="version-panel {% if i == 0 %}block{% else %}hidden{% endif %}" data-version="{{ i }}">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="px-3 py-1 bg-brand-highlight/20 text-brand-highlight rounded-lg text-sm font-medium">Version {{ i + 1 }}</span>
+                    {% if post.critic_feedback and i < post.critic_feedback | length %}
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-1 rounded text-xs font-medium {{ 'bg-green-600/30 text-green-300' if post.critic_feedback[i].overall_score >= 85 else 'bg-yellow-600/30 text-yellow-300' }}">
+                            Score: {{ post.critic_feedback[i].overall_score }}/100
+                        </span>
+                        {% if post.critic_feedback[i].approved %}
+                        <span class="px-2 py-1 bg-green-600/30 text-green-300 rounded text-xs">Approved</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="bg-brand-bg/30 rounded-lg p-4 mb-4">
+                    <pre class="whitespace-pre-wrap text-gray-300 font-sans text-sm">{{ post.writer_versions[i] }}</pre>
+                </div>
+
+                {% if post.critic_feedback and i < post.critic_feedback | length %}
+                {% set fb = post.critic_feedback[i] %}
+                <div class="bg-brand-bg/20 rounded-lg p-4 border border-brand-bg-light">
+                    <h4 class="text-sm font-medium text-white mb-2 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                        Critic Feedback
+                    </h4>
+                    <p class="text-sm text-gray-400 mb-3">{{ fb.feedback }}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        {% if fb.strengths %}
+                        <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
+                            <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
+                            <ul class="space-y-1 text-sm text-gray-400">
+                                {% for s in fb.strengths %}
+                                <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">+</span> {{ s }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% if fb.improvements %}
+                        <div class="bg-yellow-900/10 rounded-lg p-3 border border-yellow-600/20">
+                            <span class="text-xs font-medium text-yellow-400 block mb-2">Verbesserungen</span>
+                            <ul class="space-y-1 text-sm text-gray-400">
+                                {% for imp in fb.improvements %}
+                                <li class="flex items-start gap-2"><span class="text-yellow-400 mt-0.5">-</span> {{ imp }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Reference Posts -->
+        {% if reference_posts %}
+        <div class="section-card rounded-xl p-6">
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                Referenz-Posts für KI
+                <span class="text-sm font-normal text-gray-500">({{ reference_posts | length }} Posts)</span>
+            </h2>
+            <p class="text-sm text-gray-500 mb-5">Diese echten LinkedIn-Posts wurden der KI als Stil-Referenz gegeben:</p>
+
+            <div class="space-y-4">
+                {% for ref_post in reference_posts[:6] %}
+                <div class="reference-post rounded-xl p-5">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <span class="px-2 py-0.5 bg-brand-highlight/10 text-brand-highlight text-xs font-medium rounded">
+                            Beispiel {{ loop.index }}
+                        </span>
+                        <span class="text-xs text-gray-500">{{ ref_post | length }} Zeichen</span>
+                    </div>
+                    <pre class="whitespace-pre-wrap text-gray-300 font-sans text-sm leading-relaxed">{{ ref_post[:500] }}{% if ref_post | length > 500 %}...{% endif %}</pre>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if reference_posts | length > 6 %}
+            <div class="mt-4 text-center">
+                <span class="text-sm text-gray-500">+ {{ reference_posts | length - 6 }} weitere Referenz-Posts</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Full Profile Analysis -->
+        {% if profile_analysis %}
+        <div class="section-card rounded-xl p-6">
+            <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Profil-Analyse
+            </h2>
+
+            <!-- Writing Style -->
+            {% if profile_analysis.writing_style %}
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Schreibstil</h3>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Perspektive</span>
+                        <span class="text-white font-medium">{{ profile_analysis.writing_style.perspective or 'N/A' }}</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Ansprache</span>
+                        <span class="text-white font-medium">{{ profile_analysis.writing_style.form_of_address or 'N/A' }}</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Tonalität</span>
+                        <span class="text-white font-medium">{{ profile_analysis.writing_style.tone or 'N/A' }}</span>
+                    </div>
+                    {% if profile_analysis.writing_style.average_word_count %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Ø Wortanzahl</span>
+                        <span class="text-white font-medium">{{ profile_analysis.writing_style.average_word_count }} Wörter</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Linguistic Fingerprint -->
+            {% if profile_analysis.linguistic_fingerprint %}
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Sprachlicher Fingerabdruck</h3>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Energie-Level</span>
+                        <div class="flex items-center gap-3">
+                            <div class="stat-bar flex-1">
+                                <div class="stat-bar-fill" style="width: {{ (profile_analysis.linguistic_fingerprint.energy_level or 5) * 10 }}%"></div>
+                            </div>
+                            <span class="text-white font-bold text-lg">{{ profile_analysis.linguistic_fingerprint.energy_level or 'N/A' }}<span class="text-gray-500 text-sm font-normal">/10</span></span>
+                        </div>
+                    </div>
+                    {% if profile_analysis.linguistic_fingerprint.formality_level %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Formalität</span>
+                        <div class="flex items-center gap-3">
+                            <div class="stat-bar flex-1">
+                                <div class="stat-bar-fill" style="width: {{ (profile_analysis.linguistic_fingerprint.formality_level or 5) * 10 }}%"></div>
+                            </div>
+                            <span class="text-white font-bold text-lg">{{ profile_analysis.linguistic_fingerprint.formality_level }}<span class="text-gray-500 text-sm font-normal">/10</span></span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if profile_analysis.linguistic_fingerprint.signature_phrases %}
+                <div class="mt-4">
+                    <span class="text-xs text-gray-500 block mb-2">Signature Phrases</span>
+                    <div class="flex flex-wrap gap-2">
+                        {% for phrase in profile_analysis.linguistic_fingerprint.signature_phrases %}
+                        <span class="px-3 py-1.5 bg-brand-bg rounded-lg text-sm text-gray-300 border border-brand-bg-light">{{ phrase }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Phrase Library -->
+            {% if profile_analysis.phrase_library %}
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Phrasen-Bibliothek</h3>
+                <div class="space-y-4">
+                    {% if profile_analysis.phrase_library.hook_phrases %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Hook-Phrasen</span>
+                        <div class="space-y-2">
+                            {% for hook in profile_analysis.phrase_library.hook_phrases[:4] %}
+                            <p class="text-sm text-gray-300 italic pl-3 border-l-2 border-brand-highlight/30">"{{ hook }}"</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if profile_analysis.phrase_library.emotional_expressions %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Emotionale Ausdrücke</span>
+                        <div class="flex flex-wrap gap-2">
+                            {% for expr in profile_analysis.phrase_library.emotional_expressions[:6] %}
+                            <span class="px-2 py-1 bg-yellow-900/20 text-yellow-300 text-xs rounded border border-yellow-600/20">{{ expr }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if profile_analysis.phrase_library.cta_phrases %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">CTA-Phrasen</span>
+                        <div class="space-y-2">
+                            {% for cta in profile_analysis.phrase_library.cta_phrases[:3] %}
+                            <p class="text-sm text-gray-300 italic pl-3 border-l-2 border-green-600/30">"{{ cta }}"</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tone Analysis -->
+            {% if profile_analysis.tone_analysis %}
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Ton-Analyse</h3>
+                <div class="profile-grid">
+                    {% if profile_analysis.tone_analysis.primary_tone %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Primärer Ton</span>
+                        <span class="text-white font-medium">{{ profile_analysis.tone_analysis.primary_tone }}</span>
+                    </div>
+                    {% endif %}
+                    {% if profile_analysis.tone_analysis.secondary_tones %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Sekundäre Töne</span>
+                        <span class="text-white font-medium">{{ profile_analysis.tone_analysis.secondary_tones | join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Audience Insights -->
+            {% if profile_analysis.audience_insights %}
+            <div>
+                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Zielgruppen-Insights</h3>
+                <div class="profile-grid">
+                    {% if profile_analysis.audience_insights.industry_context %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Branche</span>
+                        <span class="text-white font-medium">{{ profile_analysis.audience_insights.industry_context }}</span>
+                    </div>
+                    {% endif %}
+                    {% if profile_analysis.audience_insights.target_audience %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-1">Zielgruppe</span>
+                        <span class="text-white font-medium">{{ profile_analysis.audience_insights.target_audience }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if profile_analysis.audience_insights.pain_points_addressed %}
+                <div class="mt-4 profile-item">
+                    <span class="text-xs text-gray-500 block mb-2">Adressierte Pain Points</span>
+                    <div class="flex flex-wrap gap-2">
+                        {% for pain in profile_analysis.audience_insights.pain_points_addressed %}
+                        <span class="px-2 py-1 bg-red-900/20 text-red-300 text-xs rounded border border-red-600/20">{{ pain }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar (1 col) -->
+    <div class="space-y-6">
+        <!-- Score Breakdown -->
+        {% if final_feedback and final_feedback.scores %}
+        <div class="section-card rounded-xl p-6">
+            <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Score-Aufschlüsselung
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-400">Authentizität & Stil</span>
+                        <span class="text-white font-medium">{{ final_feedback.scores.authenticity_and_style }}/40</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.authenticity_and_style / 40 * 100) | int }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-400">Content-Qualität</span>
+                        <span class="text-white font-medium">{{ final_feedback.scores.content_quality }}/35</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.content_quality / 35 * 100) | int }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-400">Technische Umsetzung</span>
+                        <span class="text-white font-medium">{{ final_feedback.scores.technical_execution }}/25</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.technical_execution / 25 * 100) | int }}%"></div>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-brand-bg-light">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300 font-medium">Gesamt</span>
+                        <span class="text-brand-highlight font-bold text-lg">{{ final_feedback.overall_score }}/100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Final Feedback Summary -->
+        {% if final_feedback %}
+        <div class="section-card rounded-xl p-6">
+            <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                Finales Feedback
+            </h3>
+            <p class="text-sm text-gray-300 mb-4">{{ final_feedback.feedback }}</p>
+            {% if final_feedback.strengths %}
+            <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
+                <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
+                <ul class="space-y-1">
+                    {% for s in final_feedback.strengths %}
+                    <li class="text-sm text-gray-400 flex items-start gap-2"><span class="text-green-400">+</span> {{ s }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="section-card rounded-xl p-6">
+            <h3 class="font-semibold text-white mb-4">Aktionen</h3>
+            <div class="space-y-2">
+                <button onclick="copyToClipboard()" class="w-full px-4 py-2.5 bg-brand-highlight hover:bg-brand-highlight/90 text-brand-bg-dark font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Post kopieren
+                </button>
+                <button onclick="openEmailModal()" id="emailBtn" class="w-full px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Per E-Mail senden
+                </button>
+                <a href="/create?customer={{ customer.id }}" class="w-full px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Neuen Post erstellen
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Modal -->
+<div id="emailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-brand-bg-dark border border-brand-bg-light rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Post per E-Mail senden
+            </h3>
+            <button onclick="closeEmailModal()" class="text-gray-400 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div id="emailNotConfigured" class="hidden mb-4 p-4 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
+            <p class="text-yellow-300 text-sm flex items-start gap-2">
+                <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                E-Mail ist nicht konfiguriert. Bitte SMTP-Einstellungen in der .env Datei setzen.
+            </p>
+        </div>
+
+        <div id="emailForm">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Empfänger E-Mail</label>
+                <input type="email" id="emailRecipient" placeholder="empfaenger@example.com"
+                    class="w-full px-4 py-3 bg-brand-bg border border-brand-bg-light rounded-lg text-white placeholder-gray-500 focus:border-brand-highlight focus:outline-none transition-colors">
+            </div>
+
+            <div class="mb-6 p-3 bg-brand-bg/50 rounded-lg border border-brand-bg-light">
+                <p class="text-xs text-gray-400 mb-1">Post wird gesendet:</p>
+                <p class="text-sm text-white font-medium truncate">{{ post.topic_title }}</p>
+            </div>
+
+            <div id="emailError" class="hidden mb-4 p-3 bg-red-900/30 border border-red-600/50 rounded-lg">
+                <p class="text-red-300 text-sm" id="emailErrorText"></p>
+            </div>
+
+            <div id="emailSuccess" class="hidden mb-4 p-3 bg-green-900/30 border border-green-600/50 rounded-lg">
+                <p class="text-green-300 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    E-Mail wurde erfolgreich gesendet!
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeEmailModal()" class="flex-1 px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors">
+                    Abbrechen
+                </button>
+                <button onclick="sendEmail()" id="sendEmailBtn" class="flex-1 px-4 py-2.5 bg-brand-highlight hover:bg-brand-highlight/90 text-brand-bg-dark font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    Senden
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentVersion = 0;
+const totalVersions = {{ post.writer_versions | length if post.writer_versions else 0 }};
+const postId = "{{ post.id }}";
+let emailConfigured = false;
+
+function copyToClipboard() {
+    const content = document.getElementById('finalPostContent').textContent;
+    navigator.clipboard.writeText(content).then(() => {
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Kopiert!';
+        setTimeout(() => btn.innerHTML = originalHTML, 2000);
+    });
+}
+
+function changeVersion(delta) {
+    const newVersion = currentVersion + delta;
+    if (newVersion < 0 || newVersion >= totalVersions) return;
+
+    // Hide current
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.add('hidden');
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.remove('block');
+
+    // Show new
+    currentVersion = newVersion;
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.remove('hidden');
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.add('block');
+
+    // Update counter
+    document.getElementById('currentVersionNum').textContent = currentVersion + 1;
+
+    // Update button states
+    document.getElementById('prevVersion').disabled = currentVersion === 0;
+    document.getElementById('nextVersion').disabled = currentVersion === totalVersions - 1;
+}
+
+// Email functions
+async function checkEmailConfig() {
+    try {
+        const response = await fetch('/api/email/config');
+        const data = await response.json();
+        emailConfigured = data.configured;
+
+        if (data.default_recipient) {
+            document.getElementById('emailRecipient').value = data.default_recipient;
+        }
+
+        if (!emailConfigured) {
+            document.getElementById('emailNotConfigured').classList.remove('hidden');
+            document.getElementById('sendEmailBtn').disabled = true;
+            document.getElementById('sendEmailBtn').classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    } catch (error) {
+        console.error('Error checking email config:', error);
+    }
+}
+
+function openEmailModal() {
+    const modal = document.getElementById('emailModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.getElementById('emailError').classList.add('hidden');
+    document.getElementById('emailSuccess').classList.add('hidden');
+    checkEmailConfig();
+}
+
+function closeEmailModal() {
+    const modal = document.getElementById('emailModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+async function sendEmail() {
+    const recipient = document.getElementById('emailRecipient').value.trim();
+
+    if (!recipient) {
+        showEmailError('Bitte eine E-Mail-Adresse eingeben.');
+        return;
+    }
+
+    if (!recipient.includes('@')) {
+        showEmailError('Bitte eine gültige E-Mail-Adresse eingeben.');
+        return;
+    }
+
+    const btn = document.getElementById('sendEmailBtn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sende...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/email/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                recipient: recipient,
+                post_id: postId
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('emailError').classList.add('hidden');
+            document.getElementById('emailSuccess').classList.remove('hidden');
+            setTimeout(() => {
+                closeEmailModal();
+            }, 2000);
+        } else {
+            showEmailError(data.detail || 'Fehler beim Senden der E-Mail.');
+        }
+    } catch (error) {
+        showEmailError('Netzwerkfehler beim Senden.');
+    } finally {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+    }
+}
+
+function showEmailError(message) {
+    const errorEl = document.getElementById('emailError');
+    document.getElementById('emailErrorText').textContent = message;
+    errorEl.classList.remove('hidden');
+    document.getElementById('emailSuccess').classList.add('hidden');
+}
+
+// Close modal on backdrop click
+document.getElementById('emailModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('emailModal')) {
+        closeEmailModal();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeEmailModal();
+    }
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    if (totalVersions > 0) {
+        document.getElementById('prevVersion').disabled = true;
+        document.getElementById('nextVersion').disabled = totalVersions <= 1;
+    }
+});
+</script>
+{% endblock %}

@@ -25,7 +25,9 @@ class WriterAgent(BaseAgent):
         previous_version: Optional[str] = None,
         example_posts: Optional[List[str]] = None,
         critic_result: Optional[Dict[str, Any]] = None,
-        learned_lessons: Optional[Dict[str, Any]] = None
+        learned_lessons: Optional[Dict[str, Any]] = None,
+        post_type: Any = None,
+        post_type_analysis: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Write a LinkedIn post.
@@ -38,6 +40,8 @@ class WriterAgent(BaseAgent):
             example_posts: Optional list of real posts from the customer to use as style reference
             critic_result: Optional full critic result with specific_changes
             learned_lessons: Optional lessons learned from past critic feedback
+            post_type: Optional PostType object for type-specific writing
+            post_type_analysis: Optional analysis of the post type
 
         Returns:
             Written LinkedIn post
@@ -52,10 +56,14 @@ class WriterAgent(BaseAgent):
                 previous_version=previous_version,
                 example_posts=example_posts,
                 critic_result=critic_result,
-                learned_lessons=learned_lessons
+                learned_lessons=learned_lessons,
+                post_type=post_type,
+                post_type_analysis=post_type_analysis
             )
         else:
             logger.info(f"Writing initial post for topic: {topic.get('title', 'Unknown')}")
+            if post_type:
+                logger.info(f"Using post type: {post_type.name}")
 
             # Select example posts - use semantic matching if enabled
             selected_examples = self._select_example_posts(topic, example_posts, profile_analysis)
@@ -66,14 +74,18 @@ class WriterAgent(BaseAgent):
                     topic=topic,
                     profile_analysis=profile_analysis,
                     example_posts=selected_examples,
-                    learned_lessons=learned_lessons
+                    learned_lessons=learned_lessons,
+                    post_type=post_type,
+                    post_type_analysis=post_type_analysis
                 )
             else:
                 return await self._write_single_draft(
                     topic=topic,
                     profile_analysis=profile_analysis,
                     example_posts=selected_examples,
-                    learned_lessons=learned_lessons
+                    learned_lessons=learned_lessons,
+                    post_type=post_type,
+                    post_type_analysis=post_type_analysis
                 )
 
     def _select_example_posts(
@@ -198,7 +210,9 @@ class WriterAgent(BaseAgent):
         topic: Dict[str, Any],
         profile_analysis: Dict[str, Any],
         example_posts: List[str],
-        learned_lessons: Optional[Dict[str, Any]] = None
+        learned_lessons: Optional[Dict[str, Any]] = None,
+        post_type: Any = None,
+        post_type_analysis: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Generate multiple drafts and select the best one.
@@ -208,6 +222,8 @@ class WriterAgent(BaseAgent):
             profile_analysis: Profile analysis results
             example_posts: Example posts for style reference
             learned_lessons: Lessons learned from past feedback
+            post_type: Optional PostType object
+            post_type_analysis: Optional post type analysis
 
         Returns:
             Best selected draft
@@ -215,7 +231,7 @@ class WriterAgent(BaseAgent):
         num_drafts = min(max(settings.writer_multi_draft_count, 2), 5)  # Clamp between 2-5
         logger.info(f"Generating {num_drafts} drafts for selection")
 
-        system_prompt = self._get_system_prompt(profile_analysis, example_posts, learned_lessons)
+        system_prompt = self._get_system_prompt(profile_analysis, example_posts, learned_lessons, post_type, post_type_analysis)
 
         # Generate drafts in parallel with different temperatures/approaches
         draft_configs = [
@@ -428,7 +444,9 @@ Analysiere jeden Entwurf kurz und wähle den besten. Antworte im JSON-Format:
         previous_version: Optional[str] = None,
         example_posts: Optional[List[str]] = None,
         critic_result: Optional[Dict[str, Any]] = None,
-        learned_lessons: Optional[Dict[str, Any]] = None
+        learned_lessons: Optional[Dict[str, Any]] = None,
+        post_type: Any = None,
+        post_type_analysis: Optional[Dict[str, Any]] = None
     ) -> str:
         """Write a single draft (original behavior)."""
         # Select examples if not already selected
@@ -443,7 +461,7 @@ Analysiere jeden Entwurf kurz und wähle den besten. Antworte im JSON-Format:
             elif len(selected_examples) > 3:
                 selected_examples = random.sample(selected_examples, 3)
 
-        system_prompt = self._get_system_prompt(profile_analysis, selected_examples, learned_lessons)
+        system_prompt = self._get_system_prompt(profile_analysis, selected_examples, learned_lessons, post_type, post_type_analysis)
         user_prompt = self._get_user_prompt(topic, feedback, previous_version, critic_result)
 
         # Lower temperature for more consistent style matching
@@ -461,7 +479,9 @@ Analysiere jeden Entwurf kurz und wähle den besten. Antworte im JSON-Format:
         self,
         profile_analysis: Dict[str, Any],
         example_posts: List[str] = None,
-        learned_lessons: Optional[Dict[str, Any]] = None
+        learned_lessons: Optional[Dict[str, Any]] = None,
+        post_type: Any = None,
+        post_type_analysis: Optional[Dict[str, Any]] = None
     ) -> str:
         """Get system prompt for writer - orientiert an bewährten n8n-Prompts."""
         # Extract key profile information
@@ -573,6 +593,28 @@ Absatz-Übergänge:
 
             lessons_section += "\nBerücksichtige diese Punkte PROAKTIV beim Schreiben!"
 
+        # Build post type section
+        post_type_section = ""
+        if post_type:
+            post_type_section = f"""
+
+7. POST-TYP SPEZIFISCH: {post_type.name}
+{f"Beschreibung: {post_type.description}" if post_type.description else ""}
+"""
+            if post_type_analysis and post_type_analysis.get("sufficient_data"):
+                # Use the PostTypeAnalyzerAgent's helper method to generate the section
+                from src.agents.post_type_analyzer import PostTypeAnalyzerAgent
+                analyzer = PostTypeAnalyzerAgent()
+                type_guidelines = analyzer.get_writing_prompt_section(post_type_analysis)
+                if type_guidelines:
+                    post_type_section += f"""
+=== POST-TYP ANALYSE & RICHTLINIEN ===
+{type_guidelines}
+=== ENDE POST-TYP RICHTLINIEN ===
+
+WICHTIG: Dieser Post MUSS den Mustern und Richtlinien dieses Post-Typs folgen!
+"""
+
         return f"""ROLLE: Du bist ein erstklassiger Ghostwriter für LinkedIn. Deine Aufgabe ist es, einen Post zu schreiben, der exakt so klingt wie der digitale Zwilling der beschriebenen Person. Du passt dich zu 100% an das bereitgestellte Profil an.
 {examples_section}
 
@@ -627,7 +669,7 @@ Vermeide IMMER diese KI-typischen Muster:
 - Übertriebene Superlative ohne Substanz
 - Zu perfekte, glatte Formulierungen - echte Menschen schreiben mit Ecken und Kanten
 {lessons_section}
-
+{post_type_section}
 DEIN AUFTRAG: Schreibe den Post so, dass er für die Zielgruppe ({audience.get('target_audience', 'Professionals')}) einen klaren Mehrwert bietet und ihre Pain Points ({pain_points_str}) adressiert. Mach die Persönlichkeit des linguistischen Fingerabdrucks spürbar.
 
 Beginne DIREKT mit dem Hook. Keine einleitenden Sätze, kein "Hier ist der Post"."""

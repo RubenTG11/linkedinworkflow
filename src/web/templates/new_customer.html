@@ -53,6 +53,19 @@
             </div>
         </div>
 
+        <!-- Post Types -->
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white">Post-Typen</h3>
+                <button type="button" id="addPostTypeBtn" class="text-sm text-brand-highlight hover:underline">+ Post-Typ hinzufügen</button>
+            </div>
+            <p class="text-sm text-gray-400 mb-4">Definiere verschiedene Arten von Posts (z.B. "Thought Leader", "Case Study", "How-To"). Diese werden zur Kategorisierung und typ-spezifischen Analyse verwendet.</p>
+
+            <div id="postTypesContainer" class="space-y-4">
+                <!-- Post type entries will be added here -->
+            </div>
+        </div>
+
         <!-- Progress Area -->
         <div id="progressArea" class="hidden">
             <div class="bg-brand-bg rounded-lg p-4">
@@ -101,6 +114,99 @@ const resultArea = document.getElementById('resultArea');
 const progressBar = document.getElementById('progressBar');
 const progressMessage = document.getElementById('progressMessage');
 const progressPercent = document.getElementById('progressPercent');
+const postTypesContainer = document.getElementById('postTypesContainer');
+const addPostTypeBtn = document.getElementById('addPostTypeBtn');
+
+let postTypeIndex = 0;
+
+function createPostTypeEntry() {
+    const index = postTypeIndex++;
+    const entry = document.createElement('div');
+    entry.className = 'bg-brand-bg rounded-lg p-4 border border-brand-bg-light';
+    entry.id = `postType_${index}`;
+    entry.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+            <span class="text-sm font-medium text-gray-300">Post-Typ ${index + 1}</span>
+            <button type="button" onclick="removePostType(${index})" class="text-red-400 hover:text-red-300 text-sm">Entfernen</button>
+        </div>
+        <div class="grid gap-3">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Name *</label>
+                    <input type="text" data-pt-field="name" data-pt-index="${index}" required placeholder="z.B. Thought Leader" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Beschreibung</label>
+                    <input type="text" data-pt-field="description" data-pt-index="${index}" placeholder="Kurze Beschreibung" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Identifizierende Hashtags (kommagetrennt)</label>
+                <input type="text" data-pt-field="hashtags" data-pt-index="${index}" placeholder="#ThoughtLeader, #Insight, #Leadership" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Keywords (kommagetrennt)</label>
+                <input type="text" data-pt-field="keywords" data-pt-index="${index}" placeholder="Erfahrung, Learnings, Meinung" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+            </div>
+            <details class="mt-2">
+                <summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-300">Erweiterte Eigenschaften</summary>
+                <div class="mt-3 grid gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Zweck</label>
+                        <input type="text" data-pt-field="purpose" data-pt-index="${index}" placeholder="z.B. Expertise zeigen, Meinungsführerschaft etablieren" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Typische Tonalität</label>
+                        <input type="text" data-pt-field="tone" data-pt-index="${index}" placeholder="z.B. reflektiert, provokativ, inspirierend" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Zielgruppe</label>
+                        <input type="text" data-pt-field="target_audience" data-pt-index="${index}" placeholder="z.B. Führungskräfte, Entscheider" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                    </div>
+                </div>
+            </details>
+        </div>
+    `;
+    postTypesContainer.appendChild(entry);
+}
+
+function removePostType(index) {
+    const entry = document.getElementById(`postType_${index}`);
+    if (entry) {
+        entry.remove();
+    }
+}
+
+function collectPostTypes() {
+    const postTypes = [];
+    const entries = postTypesContainer.querySelectorAll('[id^="postType_"]');
+
+    entries.forEach(entry => {
+        const index = entry.id.split('_')[1];
+        const name = entry.querySelector(`[data-pt-field="name"][data-pt-index="${index}"]`)?.value?.trim();
+
+        if (name) {
+            const hashtagsRaw = entry.querySelector(`[data-pt-field="hashtags"][data-pt-index="${index}"]`)?.value || '';
+            const keywordsRaw = entry.querySelector(`[data-pt-field="keywords"][data-pt-index="${index}"]`)?.value || '';
+
+            postTypes.push({
+                name: name,
+                description: entry.querySelector(`[data-pt-field="description"][data-pt-index="${index}"]`)?.value?.trim() || null,
+                identifying_hashtags: hashtagsRaw.split(',').map(h => h.trim()).filter(h => h),
+                identifying_keywords: keywordsRaw.split(',').map(k => k.trim()).filter(k => k),
+                semantic_properties: {
+                    purpose: entry.querySelector(`[data-pt-field="purpose"][data-pt-index="${index}"]`)?.value?.trim() || null,
+                    typical_tone: entry.querySelector(`[data-pt-field="tone"][data-pt-index="${index}"]`)?.value?.trim() || null,
+                    target_audience: entry.querySelector(`[data-pt-field="target_audience"][data-pt-index="${index}"]`)?.value?.trim() || null
+                }
+            });
+        }
+    });
+
+    return postTypes;
+}
+
+addPostTypeBtn.addEventListener('click', createPostTypeEntry);
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -111,6 +217,12 @@ form.addEventListener('submit', async (e) => {
     resultArea.classList.add('hidden');
 
     const formData = new FormData(form);
+
+    // Add post types as JSON
+    const postTypes = collectPostTypes();
+    if (postTypes.length > 0) {
+        formData.append('post_types_json', JSON.stringify(postTypes));
+    }
 
     try {
         const response = await fetch('/api/customers', {
@@ -137,6 +249,8 @@ form.addEventListener('submit', async (e) => {
                 submitBtn.textContent = 'Setup starten';
                 submitBtn.disabled = false;
                 form.reset();
+                postTypesContainer.innerHTML = '';
+                postTypeIndex = 0;
             } else if (status.status === 'error') {
                 clearInterval(pollInterval);
                 progressArea.classList.add('hidden');

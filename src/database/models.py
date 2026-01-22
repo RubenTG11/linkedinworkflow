@@ -2,10 +2,15 @@
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
-class Customer(BaseModel):
+class DBModel(BaseModel):
+    """Base model for database entities with extra fields ignored."""
+    model_config = ConfigDict(extra='ignore')
+
+
+class Customer(DBModel):
     """Customer/Client model."""
     id: Optional[UUID] = None
     created_at: Optional[datetime] = None
@@ -17,7 +22,24 @@ class Customer(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
-class LinkedInProfile(BaseModel):
+class PostType(DBModel):
+    """Post type model for categorizing different types of posts."""
+    id: Optional[UUID] = None
+    customer_id: UUID
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    name: str
+    description: Optional[str] = None
+    identifying_hashtags: List[str] = Field(default_factory=list)
+    identifying_keywords: List[str] = Field(default_factory=list)
+    semantic_properties: Dict[str, Any] = Field(default_factory=dict)
+    analysis: Optional[Dict[str, Any]] = None
+    analysis_generated_at: Optional[datetime] = None
+    analyzed_post_count: int = 0
+    is_active: bool = True
+
+
+class LinkedInProfile(DBModel):
     """LinkedIn profile model."""
     id: Optional[UUID] = None
     customer_id: UUID
@@ -30,7 +52,7 @@ class LinkedInProfile(BaseModel):
     industry: Optional[str] = None
 
 
-class LinkedInPost(BaseModel):
+class LinkedInPost(DBModel):
     """LinkedIn post model."""
     id: Optional[UUID] = None
     customer_id: UUID
@@ -42,9 +64,13 @@ class LinkedInPost(BaseModel):
     comments: int = 0
     shares: int = 0
     raw_data: Optional[Dict[str, Any]] = None
+    # Post type classification fields
+    post_type_id: Optional[UUID] = None
+    classification_method: Optional[str] = None  # 'hashtag', 'keyword', 'semantic'
+    classification_confidence: Optional[float] = None
 
 
-class Topic(BaseModel):
+class Topic(DBModel):
     """Topic model."""
     id: Optional[UUID] = None
     customer_id: UUID
@@ -56,9 +82,10 @@ class Topic(BaseModel):
     extraction_confidence: Optional[float] = None
     is_used: bool = False
     used_at: Optional[datetime] = None
+    target_post_type_id: Optional[UUID] = None  # Target post type for this topic
 
 
-class ProfileAnalysis(BaseModel):
+class ProfileAnalysis(DBModel):
     """Profile analysis model."""
     id: Optional[UUID] = None
     customer_id: UUID
@@ -70,7 +97,7 @@ class ProfileAnalysis(BaseModel):
     full_analysis: Dict[str, Any]
 
 
-class ResearchResult(BaseModel):
+class ResearchResult(DBModel):
     """Research result model."""
     id: Optional[UUID] = None
     customer_id: UUID
@@ -79,9 +106,10 @@ class ResearchResult(BaseModel):
     results: Dict[str, Any]
     suggested_topics: List[Dict[str, Any]]
     source: str = "perplexity"
+    target_post_type_id: Optional[UUID] = None  # Target post type for this research
 
 
-class GeneratedPost(BaseModel):
+class GeneratedPost(DBModel):
     """Generated post model."""
     id: Optional[UUID] = None
     customer_id: UUID
@@ -95,3 +123,4 @@ class GeneratedPost(BaseModel):
     status: str = "draft"  # draft, approved, published, rejected
     approved_at: Optional[datetime] = None
     published_at: Optional[datetime] = None
+    post_type_id: Optional[UUID] = None  # Post type used for this generated post

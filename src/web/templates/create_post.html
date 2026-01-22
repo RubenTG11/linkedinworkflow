@@ -22,6 +22,15 @@
                 </select>
             </div>
 
+            <!-- Post Type Selection -->
+            <div id="postTypeSelectionArea" class="hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Post-Typ auswählen (optional)</label>
+                <div id="postTypeCards" class="flex flex-wrap gap-2 mb-2">
+                    <!-- Post type cards will be loaded here -->
+                </div>
+                <input type="hidden" id="selectedPostTypeId" value="">
+            </div>
+
             <!-- Topic Selection -->
             <div id="topicSelectionArea" class="hidden">
                 <label class="block text-sm font-medium text-gray-300 mb-2">Topic auswählen</label>
@@ -105,9 +114,14 @@ const iterationInfo = document.getElementById('iterationInfo');
 const postResult = document.getElementById('postResult');
 const liveVersions = document.getElementById('liveVersions');
 const versionsContainer = document.getElementById('versionsContainer');
+const postTypeSelectionArea = document.getElementById('postTypeSelectionArea');
+const postTypeCards = document.getElementById('postTypeCards');
+const selectedPostTypeIdInput = document.getElementById('selectedPostTypeId');
 
 let selectedTopic = null;
 let currentVersionIndex = 0;
+let currentPostTypes = [];
+let currentTopics = [];
 
 function renderVersions(versions, feedbackList) {
     if (!versions || versions.length === 0) {
@@ -199,59 +213,56 @@ function showVersion(index) {
     }
 }
 
-// Load topics when customer is selected
+// Load topics and post types when customer is selected
 customerSelect.addEventListener('change', async () => {
     const customerId = customerSelect.value;
+    selectedPostTypeIdInput.value = '';
+
     if (!customerId) {
         topicSelectionArea.classList.add('hidden');
+        postTypeSelectionArea.classList.add('hidden');
         return;
     }
 
     topicSelectionArea.classList.remove('hidden');
     topicsList.innerHTML = '<p class="text-gray-500">Lade Topics...</p>';
 
+    // Load post types
+    try {
+        const ptResponse = await fetch(`/api/customers/${customerId}/post-types`);
+        const ptData = await ptResponse.json();
+
+        if (ptData.post_types && ptData.post_types.length > 0) {
+            currentPostTypes = ptData.post_types;
+            postTypeSelectionArea.classList.remove('hidden');
+
+            postTypeCards.innerHTML = `
+                <button type="button" onclick="selectPostTypeForCreate('')" id="ptc_all"
+                    class="px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-highlight/20 border-brand-highlight text-white">
+                    Alle Typen
+                </button>
+            ` + ptData.post_types.map(pt => `
+                <button type="button" onclick="selectPostTypeForCreate('${pt.id}')" id="ptc_${pt.id}"
+                    class="px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white">
+                    ${pt.name}
+                    ${pt.has_analysis ? '<span class="ml-1 text-green-400 text-xs">*</span>' : ''}
+                </button>
+            `).join('');
+        } else {
+            postTypeSelectionArea.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Failed to load post types:', error);
+        postTypeSelectionArea.classList.add('hidden');
+    }
+
+    // Load topics
     try {
         const response = await fetch(`/api/customers/${customerId}/topics`);
         const data = await response.json();
 
         if (data.topics && data.topics.length > 0) {
-            // Show stats about available topics
-            let statsHtml = '';
-            if (data.used_count > 0) {
-                statsHtml = `<p class="text-xs text-gray-500 mb-3">${data.available_count} verfügbar · ${data.used_count} bereits verwendet</p>`;
-            }
-
-            topicsList.innerHTML = statsHtml + data.topics.map((topic, i) => `
-                <label class="flex items-start gap-3 p-3 bg-brand-bg/50 rounded-lg cursor-pointer hover:bg-brand-bg transition-colors border border-transparent hover:border-brand-highlight/30">
-                    <input type="radio" name="topic" value="${i}" class="mt-1 text-brand-highlight" data-topic='${JSON.stringify(topic)}'>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1 flex-wrap">
-                            <span class="inline-block px-2 py-0.5 text-xs font-medium bg-brand-highlight/20 text-brand-highlight rounded">${topic.category || 'Topic'}</span>
-                            ${topic.source ? `<span class="text-xs text-gray-500">📎 ${topic.source.substring(0, 30)}${topic.source.length > 30 ? '...' : ''}</span>` : ''}
-                        </div>
-                        <p class="font-medium text-white">${topic.title}</p>
-                        ${topic.angle ? `<p class="text-xs text-brand-highlight/80 mt-1">↳ ${topic.angle}</p>` : ''}
-                        ${topic.hook_idea ? `<p class="text-sm text-gray-300 mt-2 italic border-l-2 border-brand-highlight/30 pl-2">"${topic.hook_idea.substring(0, 120)}${topic.hook_idea.length > 120 ? '...' : ''}"</p>` : ''}
-                        ${topic.key_facts && topic.key_facts.length > 0 ? `
-                            <div class="mt-2 flex flex-wrap gap-1">
-                                ${topic.key_facts.slice(0, 2).map(f => `<span class="text-xs bg-brand-bg-dark px-2 py-0.5 rounded text-gray-400">📊 ${f.substring(0, 40)}${f.length > 40 ? '...' : ''}</span>`).join('')}
-                            </div>
-                        ` : (topic.fact ? `<p class="text-sm text-gray-400 mt-1">${topic.fact.substring(0, 100)}...</p>` : '')}
-                        ${topic.why_this_person ? `<p class="text-xs text-gray-500 mt-2">💡 ${topic.why_this_person.substring(0, 80)}${topic.why_this_person.length > 80 ? '...' : ''}</p>` : ''}
-                    </div>
-                </label>
-            `).join('');
-
-            // Add event listeners to radio buttons
-            document.querySelectorAll('input[name="topic"]').forEach(radio => {
-                radio.addEventListener('change', () => {
-                    selectedTopic = JSON.parse(radio.dataset.topic);
-                    // Clear custom topic fields
-                    document.getElementById('customTopicTitle').value = '';
-                    document.getElementById('customTopicFact').value = '';
-                    document.getElementById('customTopicSource').value = '';
-                });
-            });
+            renderTopicsList(data);
         } else {
             // No topics available - show helpful message
             let message = '';
@@ -282,6 +293,115 @@ customerSelect.addEventListener('change', async () => {
         document.querySelectorAll('input[name="topic"]').forEach(radio => radio.checked = false);
     });
 });
+
+function selectPostTypeForCreate(typeId) {
+    selectedPostTypeIdInput.value = typeId;
+
+    // Update card styles
+    document.querySelectorAll('[id^="ptc_"]').forEach(card => {
+        if (card.id === `ptc_${typeId}` || (typeId === '' && card.id === 'ptc_all')) {
+            card.className = 'px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-highlight/20 border-brand-highlight text-white';
+        } else {
+            card.className = 'px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white';
+        }
+    });
+
+    // Optionally reload topics filtered by post type
+    const customerId = customerSelect.value;
+    if (customerId) {
+        loadTopicsForPostType(customerId, typeId);
+    }
+}
+
+async function loadTopicsForPostType(customerId, postTypeId) {
+    topicsList.innerHTML = '<p class="text-gray-500">Lade Topics...</p>';
+
+    try {
+        let url = `/api/customers/${customerId}/topics`;
+        if (postTypeId) {
+            url += `?post_type_id=${postTypeId}`;
+        }
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.topics && data.topics.length > 0) {
+            renderTopicsList(data);
+        } else {
+            let message = '';
+            if (data.used_count > 0) {
+                message = `<div class="text-center py-4">
+                    <p class="text-gray-400 mb-2">Alle ${data.used_count} Topics wurden bereits verwendet.</p>
+                    <a href="/research" class="text-brand-highlight hover:underline">Neue Topics recherchieren</a>
+                    <p class="text-gray-500 text-sm mt-2">oder gib unten ein eigenes Topic ein.</p>
+                </div>`;
+            } else {
+                message = `<div class="text-center py-4">
+                    <p class="text-gray-400 mb-2">Keine Topics gefunden${postTypeId ? ' für diesen Post-Typ' : ''}.</p>
+                    <a href="/research" class="text-brand-highlight hover:underline">Recherche starten</a>
+                    <p class="text-gray-500 text-sm mt-2">oder gib unten ein eigenes Topic ein.</p>
+                </div>`;
+            }
+            topicsList.innerHTML = message;
+        }
+    } catch (error) {
+        topicsList.innerHTML = `<p class="text-red-400">Fehler beim Laden: ${error.message}</p>`;
+    }
+}
+
+function renderTopicsList(data) {
+    // Store topics in global array for safe access
+    currentTopics = data.topics;
+
+    // Reset selected topic when list is re-rendered
+    selectedTopic = null;
+
+    let statsHtml = '';
+    if (data.used_count > 0) {
+        statsHtml = `<p class="text-xs text-gray-500 mb-3">${data.available_count} verfügbar · ${data.used_count} bereits verwendet</p>`;
+    }
+
+    topicsList.innerHTML = statsHtml + data.topics.map((topic, i) => `
+        <label class="flex items-start gap-3 p-3 bg-brand-bg/50 rounded-lg cursor-pointer hover:bg-brand-bg transition-colors border border-transparent hover:border-brand-highlight/30">
+            <input type="radio" name="topic" value="${i}" class="mt-1 text-brand-highlight" data-topic-index="${i}">
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-brand-highlight/20 text-brand-highlight rounded">${escapeHtml(topic.category || 'Topic')}</span>
+                    ${topic.target_post_type_id ? `<span class="text-xs text-gray-500">Typ-spezifisch</span>` : ''}
+                    ${topic.source ? `<span class="text-xs text-gray-500">🔗 ${escapeHtml(topic.source.substring(0, 30))}${topic.source.length > 30 ? '...' : ''}</span>` : ''}
+                </div>
+                <p class="font-medium text-white">${escapeHtml(topic.title)}</p>
+                ${topic.angle ? `<p class="text-xs text-brand-highlight/80 mt-1">→ ${escapeHtml(topic.angle)}</p>` : ''}
+                ${topic.hook_idea ? `<p class="text-sm text-gray-300 mt-2 italic border-l-2 border-brand-highlight/30 pl-2">"${escapeHtml(topic.hook_idea.substring(0, 120))}${topic.hook_idea.length > 120 ? '...' : ''}"</p>` : ''}
+                ${topic.key_facts && topic.key_facts.length > 0 ? `
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        ${topic.key_facts.slice(0, 2).map(f => `<span class="text-xs bg-brand-bg-dark px-2 py-0.5 rounded text-gray-400">📊 ${escapeHtml(f.substring(0, 40))}${f.length > 40 ? '...' : ''}</span>`).join('')}
+                    </div>
+                ` : (topic.fact ? `<p class="text-sm text-gray-400 mt-1">${escapeHtml(topic.fact.substring(0, 100))}...</p>` : '')}
+                ${topic.why_this_person ? `<p class="text-xs text-gray-500 mt-2">💡 ${escapeHtml(topic.why_this_person.substring(0, 80))}${topic.why_this_person.length > 80 ? '...' : ''}</p>` : ''}
+            </div>
+        </label>
+    `).join('');
+
+    // Add event listeners to radio buttons
+    document.querySelectorAll('input[name="topic"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const index = parseInt(radio.dataset.topicIndex, 10);
+            selectedTopic = currentTopics[index];
+            // Clear custom topic fields
+            document.getElementById('customTopicTitle').value = '';
+            document.getElementById('customTopicFact').value = '';
+            document.getElementById('customTopicSource').value = '';
+        });
+    });
+}
+
+// Helper function to escape HTML special characters
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -319,6 +439,9 @@ form.addEventListener('submit', async (e) => {
     const formData = new FormData();
     formData.append('customer_id', customerId);
     formData.append('topic_json', JSON.stringify(topic));
+    if (selectedPostTypeIdInput.value) {
+        formData.append('post_type_id', selectedPostTypeIdInput.value);
+    }
 
     try {
         const response = await fetch('/api/posts', {

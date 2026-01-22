@@ -8,7 +8,7 @@ from loguru import logger
 from src.config import settings
 from src.database.models import (
     Customer, LinkedInProfile, LinkedInPost, Topic,
-    ProfileAnalysis, ResearchResult, GeneratedPost
+    ProfileAnalysis, ResearchResult, GeneratedPost, PostType
 )
 
 
@@ -157,6 +157,170 @@ class DatabaseClient:
         )
         return [LinkedInPost(**item) for item in result.data]
 
+    async def get_unclassified_posts(self, customer_id: UUID) -> List[LinkedInPost]:
+        """Get all LinkedIn posts without a post_type_id."""
+        result = await asyncio.to_thread(
+            lambda: self.client.table("linkedin_posts").select("*").eq(
+                "customer_id", str(customer_id)
+            ).is_("post_type_id", "null").execute()
+        )
+        return [LinkedInPost(**item) for item in result.data]
+
+    async def get_posts_by_type(self, customer_id: UUID, post_type_id: UUID) -> List[LinkedInPost]:
+        """Get all LinkedIn posts for a specific post type."""
+        result = await asyncio.to_thread(
+            lambda: self.client.table("linkedin_posts").select("*").eq(
+                "customer_id", str(customer_id)
+            ).eq("post_type_id", str(post_type_id)).order("post_date", desc=True).execute()
+        )
+        return [LinkedInPost(**item) for item in result.data]
+
+    async def update_post_classification(
+        self,
+        post_id: UUID,
+        post_type_id: UUID,
+        classification_method: str,
+        classification_confidence: float
+    ) -> None:
+        """Update a single post's classification."""
+        await asyncio.to_thread(
+            lambda: self.client.table("linkedin_posts").update({
+                "post_type_id": str(post_type_id),
+                "classification_method": classification_method,
+                "classification_confidence": classification_confidence
+            }).eq("id", str(post_id)).execute()
+        )
+        logger.debug(f"Updated classification for post {post_id}")
+
+    async def update_posts_classification_bulk(
+        self,
+        classifications: List[Dict[str, Any]]
+    ) -> int:
+        """
+        Bulk update post classifications.
+
+        Args:
+            classifications: List of dicts with post_id, post_type_id, classification_method, classification_confidence
+
+        Returns:
+            Number of posts updated
+        """
+        count = 0
+        for classification in classifications:
+            try:
+                await asyncio.to_thread(
+                    lambda c=classification: self.client.table("linkedin_posts").update({
+                        "post_type_id": str(c["post_type_id"]),
+                        "classification_method": c["classification_method"],
+                        "classification_confidence": c["classification_confidence"]
+                    }).eq("id", str(c["post_id"])).execute()
+                )
+                count += 1
+            except Exception as e:
+                logger.warning(f"Failed to update classification for post {classification['post_id']}: {e}")
+        logger.info(f"Bulk updated classifications for {count} posts")
+        return count
+
+    # ==================== POST TYPES ====================
+
+    async def create_post_type(self, post_type: PostType) -> PostType:
+        """Create a new post type."""
+        data = post_type.model_dump(exclude={"id", "created_at", "updated_at"}, exclude_none=True)
+        # Convert UUID to string
+        if "customer_id" in data:
+            data["customer_id"] = str(data["customer_id"])
+
+        result = await asyncio.to_thread(
+            lambda: self.client.table("post_types").insert(data).execute()
+        )
+        logger.info(f"Created post type: {result.data[0]['name']}")
+        return PostType(**result.data[0])
+
+    async def create_post_types_bulk(self, post_types: List[PostType]) -> List[PostType]:
+        """Create multiple post types at once."""
+        if not post_types:
+            return []
+
+        data = []
+        for pt in post_types:
+            pt_dict = pt.model_dump(exclude={"id", "created_at", "updated_at"}, exclude_none=True)
+            if "customer_id" in pt_dict:
+                pt_dict["customer_id"] = str(pt_dict["customer_id"])
+            data.append(pt_dict)
+
+        result = await asyncio.to_thread(
+            lambda: self.client.table("post_types").insert(data).execute()
+        )
+        logger.info(f"Created {len(result.data)} post types")
+        return [PostType(**item) for item in result.data]
+
+    async def get_post_types(self, customer_id: UUID, active_only: bool = True) -> List[PostType]:
+        """Get all post types for a customer."""
+        def _query():
+            query = self.client.table("post_types").select("*").eq("customer_id", str(customer_id))
+            if active_only:
+                query = query.eq("is_active", True)
+            return query.order("name").execute()
+
+        result = await asyncio.to_thread(_query)
+        return [PostType(**item) for item in result.data]
+
+    async def get_post_type(self, post_type_id: UUID) -> Optional[PostType]:
+        """Get a single post type by ID."""
+        result = await asyncio.to_thread(
+            lambda: self.client.table("post_types").select("*").eq(
+                "id", str(post_type_id)
+            ).execute()
+        )
+        if result.data:
+            return PostType(**result.data[0])
+        return None
+
+    async def update_post_type(self, post_type_id: UUID, updates: Dict[str, Any]) -> PostType:
+        """Update a post type."""
+        result = await asyncio.to_thread(
+            lambda: self.client.table("post_types").update(updates).eq(
+                "id", str(post_type_id)
+            ).execute()
+        )
+        logger.info(f"Updated post type: {post_type_id}")
+        return PostType(**result.data[0])
+
+    async def update_post_type_analysis(
+        self,
+        post_type_id: UUID,
+        analysis: Dict[str, Any],
+        analyzed_post_count: int
+    ) -> PostType:
+        """Update the analysis for a post type."""
+        from datetime import datetime
+        result = await asyncio.to_thread(
+            lambda: self.client.table("post_types").update({
+                "analysis": analysis,
+                "analysis_generated_at": datetime.now().isoformat(),
+                "analyzed_post_count": analyzed_post_count
+            }).eq("id", str(post_type_id)).execute()
+        )
+        logger.info(f"Updated analysis for post type: {post_type_id}")
+        return PostType(**result.data[0])
+
+    async def delete_post_type(self, post_type_id: UUID, soft: bool = True) -> None:
+        """Delete a post type (soft delete by default)."""
+        if soft:
+            await asyncio.to_thread(
+                lambda: self.client.table("post_types").update({
+                    "is_active": False
+                }).eq("id", str(post_type_id)).execute()
+            )
+            logger.info(f"Soft deleted post type: {post_type_id}")
+        else:
+            await asyncio.to_thread(
+                lambda: self.client.table("post_types").delete().eq(
+                    "id", str(post_type_id)
+                ).execute()
+            )
+            logger.info(f"Hard deleted post type: {post_type_id}")
+
     # ==================== TOPICS ====================
 
     async def save_topics(self, topics: List[Topic]) -> List[Topic]:
@@ -173,6 +337,8 @@ class DatabaseClient:
                 topic_dict["customer_id"] = str(topic_dict["customer_id"])
             if "extracted_from_post_id" in topic_dict and topic_dict["extracted_from_post_id"]:
                 topic_dict["extracted_from_post_id"] = str(topic_dict["extracted_from_post_id"])
+            if "target_post_type_id" in topic_dict and topic_dict["target_post_type_id"]:
+                topic_dict["target_post_type_id"] = str(topic_dict["target_post_type_id"])
             data.append(topic_dict)
 
         try:
@@ -197,12 +363,19 @@ class DatabaseClient:
             logger.info(f"Saved {len(saved)} topics individually")
             return saved
 
-    async def get_topics(self, customer_id: UUID, unused_only: bool = False) -> List[Topic]:
-        """Get topics for customer."""
+    async def get_topics(
+        self,
+        customer_id: UUID,
+        unused_only: bool = False,
+        post_type_id: Optional[UUID] = None
+    ) -> List[Topic]:
+        """Get topics for customer, optionally filtered by post type."""
         def _query():
             query = self.client.table("topics").select("*").eq("customer_id", str(customer_id))
             if unused_only:
                 query = query.eq("is_used", False)
+            if post_type_id:
+                query = query.eq("target_post_type_id", str(post_type_id))
             return query.order("created_at", desc=True).execute()
 
         result = await asyncio.to_thread(_query)
@@ -266,9 +439,11 @@ class DatabaseClient:
     async def save_research_result(self, research: ResearchResult) -> ResearchResult:
         """Save research result."""
         data = research.model_dump(exclude={"id", "created_at"}, exclude_none=True)
-        # Convert UUID to string for Supabase
+        # Convert UUIDs to string for Supabase
         if "customer_id" in data:
             data["customer_id"] = str(data["customer_id"])
+        if "target_post_type_id" in data and data["target_post_type_id"]:
+            data["target_post_type_id"] = str(data["target_post_type_id"])
 
         result = await asyncio.to_thread(
             lambda: self.client.table("research_results").insert(data).execute()
@@ -287,13 +462,21 @@ class DatabaseClient:
             return ResearchResult(**result.data[0])
         return None
 
-    async def get_all_research(self, customer_id: UUID) -> List[ResearchResult]:
-        """Get all research results for customer."""
-        result = await asyncio.to_thread(
-            lambda: self.client.table("research_results").select("*").eq(
+    async def get_all_research(
+        self,
+        customer_id: UUID,
+        post_type_id: Optional[UUID] = None
+    ) -> List[ResearchResult]:
+        """Get all research results for customer, optionally filtered by post type."""
+        def _query():
+            query = self.client.table("research_results").select("*").eq(
                 "customer_id", str(customer_id)
-            ).order("created_at", desc=True).execute()
-        )
+            )
+            if post_type_id:
+                query = query.eq("target_post_type_id", str(post_type_id))
+            return query.order("created_at", desc=True).execute()
+
+        result = await asyncio.to_thread(_query)
         return [ResearchResult(**item) for item in result.data]
 
     # ==================== GENERATED POSTS ====================
@@ -306,6 +489,8 @@ class DatabaseClient:
             data["customer_id"] = str(data["customer_id"])
         if "topic_id" in data and data["topic_id"]:
             data["topic_id"] = str(data["topic_id"])
+        if "post_type_id" in data and data["post_type_id"]:
+            data["post_type_id"] = str(data["post_type_id"])
 
         result = await asyncio.to_thread(
             lambda: self.client.table("generated_posts").insert(data).execute()
@@ -331,6 +516,17 @@ class DatabaseClient:
             ).order("created_at", desc=True).execute()
         )
         return [GeneratedPost(**item) for item in result.data]
+
+    async def get_generated_post(self, post_id: UUID) -> Optional[GeneratedPost]:
+        """Get a single generated post by ID."""
+        result = await asyncio.to_thread(
+            lambda: self.client.table("generated_posts").select("*").eq(
+                "id", str(post_id)
+            ).execute()
+        )
+        if result.data:
+            return GeneratedPost(**result.data[0])
+        return None
 
 
 # Global database client instance

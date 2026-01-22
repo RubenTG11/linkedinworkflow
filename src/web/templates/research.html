@@ -21,6 +21,16 @@
                 </select>
             </div>
 
+            <!-- Post Type Selection -->
+            <div id="postTypeArea" class="mb-6 hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Post-Typ (optional)</label>
+                <div id="postTypeCards" class="grid grid-cols-2 gap-2 mb-2">
+                    <!-- Post type cards will be loaded here -->
+                </div>
+                <p class="text-xs text-gray-500">Wähle einen Post-Typ für gezielte Recherche oder lasse leer für allgemeine Recherche.</p>
+                <input type="hidden" name="post_type_id" id="selectedPostTypeId" value="">
+            </div>
+
             <!-- Progress Area -->
             <div id="progressArea" class="hidden mb-6">
                 <div class="bg-brand-bg rounded-lg p-4">
@@ -68,11 +78,71 @@ const progressBar = document.getElementById('progressBar');
 const progressMessage = document.getElementById('progressMessage');
 const progressPercent = document.getElementById('progressPercent');
 const topicsList = document.getElementById('topicsList');
+const customerSelect = document.getElementById('customerSelect');
+const postTypeArea = document.getElementById('postTypeArea');
+const postTypeCards = document.getElementById('postTypeCards');
+const selectedPostTypeId = document.getElementById('selectedPostTypeId');
+
+let currentPostTypes = [];
+
+// Load post types when customer is selected
+customerSelect.addEventListener('change', async () => {
+    const customerId = customerSelect.value;
+    selectedPostTypeId.value = '';
+
+    if (!customerId) {
+        postTypeArea.classList.add('hidden');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/customers/${customerId}/post-types`);
+        const data = await response.json();
+
+        if (data.post_types && data.post_types.length > 0) {
+            currentPostTypes = data.post_types;
+            postTypeArea.classList.remove('hidden');
+
+            postTypeCards.innerHTML = `
+                <button type="button" onclick="selectPostType('')" id="pt_all"
+                    class="p-3 rounded-lg border text-left transition-colors bg-brand-highlight/20 border-brand-highlight text-white">
+                    <div class="font-medium text-sm">Alle Typen</div>
+                    <div class="text-xs text-gray-400 mt-1">Allgemeine Recherche</div>
+                </button>
+            ` + data.post_types.map(pt => `
+                <button type="button" onclick="selectPostType('${pt.id}')" id="pt_${pt.id}"
+                    class="p-3 rounded-lg border text-left transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white">
+                    <div class="font-medium text-sm">${pt.name}</div>
+                    <div class="text-xs text-gray-400 mt-1">${pt.analyzed_post_count || 0} Posts analysiert</div>
+                    ${pt.has_analysis ? '<span class="text-xs text-green-400">Analyse</span>' : ''}
+                </button>
+            `).join('');
+        } else {
+            postTypeArea.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Failed to load post types:', error);
+        postTypeArea.classList.add('hidden');
+    }
+});
+
+function selectPostType(typeId) {
+    selectedPostTypeId.value = typeId;
+
+    // Update card styles
+    document.querySelectorAll('[id^="pt_"]').forEach(card => {
+        if (card.id === `pt_${typeId}` || (typeId === '' && card.id === 'pt_all')) {
+            card.className = 'p-3 rounded-lg border text-left transition-colors bg-brand-highlight/20 border-brand-highlight text-white';
+        } else {
+            card.className = 'p-3 rounded-lg border text-left transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white';
+        }
+    });
+}
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const customerId = document.getElementById('customerSelect').value;
+    const customerId = customerSelect.value;
     if (!customerId) return;
 
     submitBtn.disabled = true;
@@ -81,6 +151,9 @@ form.addEventListener('submit', async (e) => {
 
     const formData = new FormData();
     formData.append('customer_id', customerId);
+    if (selectedPostTypeId.value) {
+        formData.append('post_type_id', selectedPostTypeId.value);
+    }
 
     try {
         const response = await fetch('/api/research', {
@@ -112,6 +185,8 @@ form.addEventListener('submit', async (e) => {
                                 <div class="flex-1">
                                     <span class="inline-block px-2 py-1 text-xs font-medium bg-brand-highlight/20 text-brand-highlight rounded mb-2">${topic.category || 'Topic'}</span>
                                     <h4 class="font-semibold text-white">${topic.title}</h4>
+                                    ${topic.angle ? `<p class="text-sm text-brand-highlight/80 mt-1">↳ ${topic.angle}</p>` : ''}
+                                    ${topic.hook_idea ? `<p class="text-sm text-gray-300 mt-2 italic border-l-2 border-brand-highlight/30 pl-2">"${topic.hook_idea.substring(0, 150)}..."</p>` : ''}
                                     <p class="text-gray-400 text-sm mt-2">${topic.fact ? topic.fact.substring(0, 200) + '...' : ''}</p>
                                     ${topic.source ? `<p class="text-gray-500 text-xs mt-2">Quelle: ${topic.source}</p>` : ''}
                                 </div>

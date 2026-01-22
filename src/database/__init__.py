@@ -8,6 +8,7 @@ from src.database.models import (
     ProfileAnalysis,
     ResearchResult,
     GeneratedPost,
+    PostType,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "ProfileAnalysis",
     "ResearchResult",
     "GeneratedPost",
+    "PostType",
 ]

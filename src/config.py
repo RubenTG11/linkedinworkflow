@@ -27,6 +27,14 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = "INFO"
 
+    # Email Settings
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from_name: str = "LinkedIn Post System"
+    email_default_recipient: str = ""
+
     # Writer Features (can be toggled to disable new features)
     writer_multi_draft_enabled: bool = True  # Generate multiple drafts and select best
     writer_multi_draft_count: int = 3  # Number of drafts to generate (2-5)

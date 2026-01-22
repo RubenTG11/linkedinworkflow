@@ -17,6 +17,7 @@ from loguru import logger
 from src.config import settings
 from src.database import db
 from src.orchestrator import orchestrator
+from src.email_service import email_service
 
 # Setup
 app = FastAPI(title="LinkedIn Post Creation System")
@@ -199,6 +200,49 @@ async def posts_page(request: Request):
         })
 
 
+@app.get("/posts/{post_id}", response_class=HTMLResponse)
+async def post_detail_page(request: Request, post_id: str):
+    """Detailed view of a single post."""
+    if not verify_auth(request):
+        return RedirectResponse(url="/login", status_code=302)
+    try:
+        post = await db.get_generated_post(UUID(post_id))
+        if not post:
+            return RedirectResponse(url="/posts", status_code=302)
+
+        # Get customer info
+        customer = await db.get_customer(post.customer_id)
+
+        # Get reference posts (LinkedIn posts used for style)
+        linkedin_posts = await db.get_linkedin_posts(post.customer_id)
+        reference_posts = [
+            p.post_text for p in linkedin_posts
+            if p.post_text and len(p.post_text) > 100
+        ][:10]  # Show top 10 as reference
+
+        # Get profile analysis
+        profile_analysis_record = await db.get_profile_analysis(post.customer_id)
+        profile_analysis = profile_analysis_record.full_analysis if profile_analysis_record else None
+
+        # Get final feedback
+        final_feedback = None
+        if post.critic_feedback and len(post.critic_feedback) > 0:
+            final_feedback = post.critic_feedback[-1]
+
+        return templates.TemplateResponse("post_detail.html", {
+            "request": request,
+            "page": "posts",
+            "post": post,
+            "customer": customer,
+            "reference_posts": reference_posts,
+            "profile_analysis": profile_analysis,
+            "final_feedback": final_feedback
+        })
+    except Exception as e:
+        logger.error(f"Error loading post detail: {e}")
+        return RedirectResponse(url="/posts", status_code=302)
+
+
 @app.get("/status", response_class=HTMLResponse)
 async def status_page(request: Request):
     """Customer status page."""
@@ -230,6 +274,19 @@ async def status_page(request: Request):
         })
 
 
+@app.get("/scraped-posts", response_class=HTMLResponse)
+async def scraped_posts_page(request: Request):
+    """Manage scraped LinkedIn posts - manual classification."""
+    if not verify_auth(request):
+        return RedirectResponse(url="/login", status_code=302)
+    customers = await db.list_customers()
+    return templates.TemplateResponse("scraped_posts.html", {
+        "request": request,
+        "page": "scraped_posts",
+        "customers": customers
+    })
+
+
 # ==================== API ENDPOINTS ====================
 
 @app.post("/api/customers")
@@ -241,7 +298,8 @@ async def create_customer(
     email: str = Form(None),
     persona: str = Form(None),
     form_of_address: str = Form(None),
-    style_guide: str = Form(None)
+    style_guide: str = Form(None),
+    post_types_json: str = Form(None)
 ):
     """Create a new customer and run initial setup."""
     task_id = f"setup_{name}_{asyncio.get_event_loop().time()}"
@@ -257,6 +315,14 @@ async def create_customer(
         "example_posts": []
     }
 
+    # Parse post types if provided
+    post_types_data = None
+    if post_types_json:
+        try:
+            post_types_data = json.loads(post_types_json)
+        except json.JSONDecodeError:
+            logger.warning("Failed to parse post_types_json")
+
     async def run_setup():
         try:
             progress_store[task_id] = {"status": "running", "message": "Erstelle Kunde...", "progress": 10}
@@ -267,7 +333,8 @@ async def create_customer(
             customer = await orchestrator.run_initial_setup(
                 linkedin_url=linkedin_url,
                 customer_name=name,
-                customer_data=customer_data
+                customer_data=customer_data,
+                post_types_data=post_types_data
             )
 
             progress_store[task_id] = {
@@ -290,11 +357,162 @@ async def get_task_status(task_id: str):
     return progress_store.get(task_id, {"status": "unknown", "message": "Task not found"})
 
 
+@app.get("/api/customers/{customer_id}/post-types")
+async def get_customer_post_types(customer_id: str):
+    """Get post types for a customer."""
+    try:
+        post_types = await db.get_post_types(UUID(customer_id))
+        return {
+            "post_types": [
+                {
+                    "id": str(pt.id),
+                    "name": pt.name,
+                    "description": pt.description,
+                    "identifying_hashtags": pt.identifying_hashtags,
+                    "identifying_keywords": pt.identifying_keywords,
+                    "semantic_properties": pt.semantic_properties,
+                    "has_analysis": pt.analysis is not None,
+                    "analyzed_post_count": pt.analyzed_post_count,
+                    "is_active": pt.is_active
+                }
+                for pt in post_types
+            ]
+        }
+    except Exception as e:
+        logger.error(f"Error loading post types: {e}")
+        return {"post_types": [], "error": str(e)}
+
+
+@app.get("/api/customers/{customer_id}/linkedin-posts")
+async def get_customer_linkedin_posts(customer_id: str):
+    """Get all scraped LinkedIn posts for a customer."""
+    try:
+        logger.info(f"Loading LinkedIn posts for customer: {customer_id}")
+        posts = await db.get_linkedin_posts(UUID(customer_id))
+        logger.info(f"Found {len(posts)} LinkedIn posts")
+
+        result_posts = []
+        for post in posts:
+            try:
+                result_posts.append({
+                    "id": str(post.id),
+                    "post_text": post.post_text,
+                    "post_url": post.post_url,
+                    "posted_at": post.post_date.isoformat() if post.post_date else None,
+                    "engagement_score": (post.likes or 0) + (post.comments or 0) + (post.shares or 0),
+                    "likes": post.likes,
+                    "comments": post.comments,
+                    "shares": post.shares,
+                    "post_type_id": str(post.post_type_id) if post.post_type_id else None,
+                    "classification_method": post.classification_method,
+                    "classification_confidence": post.classification_confidence
+                })
+            except Exception as post_error:
+                logger.error(f"Error processing post {post.id}: {post_error}")
+
+        return {
+            "posts": result_posts,
+            "total": len(result_posts)
+        }
+    except Exception as e:
+        logger.exception(f"Error loading LinkedIn posts: {e}")
+        return {"posts": [], "total": 0, "error": str(e)}
+
+
+class ClassifyPostRequest(BaseModel):
+    """Request model for classifying a post."""
+    post_type_id: Optional[str] = None
+
+
+@app.patch("/api/linkedin-posts/{post_id}/classify")
+async def classify_linkedin_post(post_id: str, request: ClassifyPostRequest):
+    """Manually classify a LinkedIn post to a post type."""
+    try:
+        if request.post_type_id:
+            await db.update_post_classification(
+                post_id=UUID(post_id),
+                post_type_id=UUID(request.post_type_id),
+                classification_method="manual",
+                classification_confidence=1.0
+            )
+        else:
+            # Remove classification - set to null
+            await asyncio.to_thread(
+                lambda: db.client.table("linkedin_posts").update({
+                    "post_type_id": None,
+                    "classification_method": None,
+                    "classification_confidence": None
+                }).eq("id", post_id).execute()
+            )
+
+        return {"success": True, "post_id": post_id}
+    except Exception as e:
+        logger.error(f"Error classifying post: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/customers/{customer_id}/classify-posts")
+async def classify_customer_posts(customer_id: str, background_tasks: BackgroundTasks):
+    """Trigger post classification for a customer."""
+    task_id = f"classify_{customer_id}_{asyncio.get_event_loop().time()}"
+    progress_store[task_id] = {"status": "starting", "message": "Starte Klassifizierung...", "progress": 0}
+
+    async def run_classification():
+        try:
+            progress_store[task_id] = {"status": "running", "message": "Klassifiziere Posts...", "progress": 50}
+            count = await orchestrator.classify_posts(UUID(customer_id))
+            progress_store[task_id] = {
+                "status": "completed",
+                "message": f"{count} Posts klassifiziert",
+                "progress": 100,
+                "classified_count": count
+            }
+        except Exception as e:
+            logger.exception(f"Classification failed: {e}")
+            progress_store[task_id] = {"status": "error", "message": str(e), "progress": 0}
+
+    background_tasks.add_task(run_classification)
+    return {"task_id": task_id}
+
+
+@app.post("/api/customers/{customer_id}/analyze-post-types")
+async def analyze_customer_post_types(customer_id: str, background_tasks: BackgroundTasks):
+    """Trigger post type analysis for a customer."""
+    task_id = f"analyze_{customer_id}_{asyncio.get_event_loop().time()}"
+    progress_store[task_id] = {"status": "starting", "message": "Starte Analyse...", "progress": 0}
+
+    async def run_analysis():
+        try:
+            progress_store[task_id] = {"status": "running", "message": "Analysiere Post-Typen...", "progress": 50}
+            results = await orchestrator.analyze_post_types(UUID(customer_id))
+            analyzed_count = sum(1 for r in results.values() if r.get("sufficient_data"))
+            progress_store[task_id] = {
+                "status": "completed",
+                "message": f"{analyzed_count} Post-Typen analysiert",
+                "progress": 100,
+                "results": results
+            }
+        except Exception as e:
+            logger.exception(f"Analysis failed: {e}")
+            progress_store[task_id] = {"status": "error", "message": str(e), "progress": 0}
+
+    background_tasks.add_task(run_analysis)
+    return {"task_id": task_id}
+
+
 @app.get("/api/customers/{customer_id}/topics")
-async def get_customer_topics(customer_id: str, include_used: bool = False):
+async def get_customer_topics(
+    customer_id: str,
+    include_used: bool = False,
+    post_type_id: str = None
+):
     """Get research topics for a customer, excluding already used ones by default."""
     try:
-        all_research = await db.get_all_research(UUID(customer_id))
+        # Filter research by post type if specified
+        if post_type_id:
+            all_research = await db.get_all_research(UUID(customer_id), UUID(post_type_id))
+        else:
+            all_research = await db.get_all_research(UUID(customer_id))
 
         # Get already used topic titles (from generated posts)
         used_topic_titles = set()
@@ -316,6 +534,7 @@ async def get_customer_topics(customer_id: str, include_used: bool = False):
                         continue
 
                     topic["research_id"] = str(research.id)
+                    topic["target_post_type_id"] = str(research.target_post_type_id) if research.target_post_type_id else None
                     all_topics.append(topic)
 
         return {
@@ -329,8 +548,12 @@ async def get_customer_topics(customer_id: str, include_used: bool = False):
 
 
 @app.post("/api/research")
-async def start_research(background_tasks: BackgroundTasks, customer_id: str = Form(...)):
-    """Start research for a customer."""
+async def start_research(
+    background_tasks: BackgroundTasks,
+    customer_id: str = Form(...),
+    post_type_id: str = Form(None)
+):
+    """Start research for a customer, optionally targeting a specific post type."""
     task_id = f"research_{customer_id}_{asyncio.get_event_loop().time()}"
     progress_store[task_id] = {"status": "starting", "message": "Starte Recherche...", "progress": 0}
 
@@ -345,7 +568,8 @@ async def start_research(background_tasks: BackgroundTasks, customer_id: str = F
 
             topics = await orchestrator.research_new_topics(
                 UUID(customer_id),
-                progress_callback=progress_callback
+                progress_callback=progress_callback,
+                post_type_id=UUID(post_type_id) if post_type_id else None
             )
 
             progress_store[task_id] = {
@@ -366,9 +590,10 @@ async def start_research(background_tasks: BackgroundTasks, customer_id: str = F
 async def create_post(
     background_tasks: BackgroundTasks,
     customer_id: str = Form(...),
-    topic_json: str = Form(...)
+    topic_json: str = Form(...),
+    post_type_id: str = Form(None)
 ):
-    """Create a new post."""
+    """Create a new post, optionally using a specific post type."""
     task_id = f"post_{customer_id}_{asyncio.get_event_loop().time()}"
     progress_store[task_id] = {"status": "starting", "message": "Starte Post-Erstellung...", "progress": 0}
 
@@ -394,7 +619,8 @@ async def create_post(
                 customer_id=UUID(customer_id),
                 topic=topic,
                 max_iterations=3,
-                progress_callback=progress_callback
+                progress_callback=progress_callback,
+                post_type_id=UUID(post_type_id) if post_type_id else None
             )
 
             progress_store[task_id] = {
@@ -437,6 +663,65 @@ async def get_all_posts():
             })
 
     return {"posts": all_posts, "total": len(all_posts)}
+
+
+class EmailRequest(BaseModel):
+    """Request model for sending email."""
+    recipient: str
+    post_id: str
+
+
+@app.get("/api/email/config")
+async def get_email_config(request: Request):
+    """Check if email is configured and get default recipient."""
+    if not verify_auth(request):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    return {
+        "configured": email_service.is_configured(),
+        "default_recipient": settings.email_default_recipient or ""
+    }
+
+
+@app.post("/api/email/send")
+async def send_post_email(request: Request, email_request: EmailRequest):
+    """Send a post via email."""
+    if not verify_auth(request):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    if not email_service.is_configured():
+        raise HTTPException(status_code=400, detail="E-Mail ist nicht konfiguriert. Bitte SMTP-Einstellungen in .env setzen.")
+
+    try:
+        post = await db.get_generated_post(UUID(email_request.post_id))
+        if not post:
+            raise HTTPException(status_code=404, detail="Post nicht gefunden")
+
+        customer = await db.get_customer(post.customer_id)
+
+        # Get final score
+        score = None
+        if post.critic_feedback and len(post.critic_feedback) > 0:
+            score = post.critic_feedback[-1].get("overall_score")
+
+        success = email_service.send_post(
+            recipient=email_request.recipient,
+            post_content=post.post_content,
+            topic_title=post.topic_title or "LinkedIn Post",
+            customer_name=customer.name if customer else "Unbekannt",
+            score=score
+        )
+
+        if success:
+            return {"success": True, "message": f"E-Mail wurde an {email_request.recipient} gesendet"}
+        else:
+            raise HTTPException(status_code=500, detail="E-Mail konnte nicht gesendet werden. Prüfe die SMTP-Einstellungen.")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sending email: {e}")
+        raise HTTPException(status_code=500, detail=f"Fehler beim Senden: {str(e)}")
 
 
 def run_web():

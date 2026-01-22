@@ -20,7 +20,9 @@ class ResearchAgent(BaseAgent):
         profile_analysis: Dict[str, Any],
         existing_topics: List[str],
         customer_data: Dict[str, Any],
-        example_posts: List[str] = None
+        example_posts: List[str] = None,
+        post_type: Any = None,
+        post_type_analysis: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """
         Research new content topics.
@@ -30,11 +32,15 @@ class ResearchAgent(BaseAgent):
             existing_topics: List of already covered topics
             customer_data: Customer data (contains persona, style_guide, etc.)
             example_posts: List of the person's actual posts for style reference
+            post_type: Optional PostType object for targeted research
+            post_type_analysis: Optional post type analysis for context
 
         Returns:
             Research results with suggested topics
         """
         logger.info("Starting research for new content topics")
+        if post_type:
+            logger.info(f"Targeting research for post type: {post_type.name}")
 
         # Extract key information from profile analysis
         audience_insights = profile_analysis.get("audience_insights", {})
@@ -82,7 +88,9 @@ class ResearchAgent(BaseAgent):
             persona=persona,
             content_pillars=content_pillars,
             example_posts=example_posts or [],
-            existing_topics=existing_topics
+            existing_topics=existing_topics,
+            post_type=post_type,
+            post_type_analysis=post_type_analysis
         )
 
         response = await self.call_openai(
@@ -369,7 +377,9 @@ QUALITÄTSKRITERIEN:
         persona: str,
         content_pillars: List[str],
         example_posts: List[str],
-        existing_topics: List[str]
+        existing_topics: List[str],
+        post_type: Any = None,
+        post_type_analysis: Dict[str, Any] = None
     ) -> str:
         """Transform raw research into personalized, concrete topic suggestions."""
 
@@ -388,7 +398,38 @@ QUALITÄTSKRITERIEN:
         # Build existing topics section (to avoid)
         existing_text = ", ".join(existing_topics[:15]) if existing_topics else "Keine"
 
+        # Build post type context section
+        post_type_section = ""
+        if post_type:
+            post_type_section = f"""
+
+=== ZIEL-POST-TYP: {post_type.name} ===
+{f"Beschreibung: {post_type.description}" if post_type.description else ""}
+{f"Typische Hashtags: {', '.join(post_type.identifying_hashtags[:5])}" if post_type.identifying_hashtags else ""}
+{f"Keywords: {', '.join(post_type.identifying_keywords[:10])}" if post_type.identifying_keywords else ""}
+"""
+            if post_type.semantic_properties:
+                props = post_type.semantic_properties
+                if props.get("purpose"):
+                    post_type_section += f"Zweck: {props['purpose']}\n"
+                if props.get("typical_tone"):
+                    post_type_section += f"Tonalität: {props['typical_tone']}\n"
+                if props.get("target_audience"):
+                    post_type_section += f"Zielgruppe: {props['target_audience']}\n"
+
+            if post_type_analysis and post_type_analysis.get("sufficient_data"):
+                post_type_section += "\n**Analyse-basierte Anforderungen:**\n"
+                if hooks := post_type_analysis.get("hooks"):
+                    post_type_section += f"- Hook-Typen: {', '.join(hooks.get('hook_types', [])[:3])}\n"
+                if content := post_type_analysis.get("content_focus"):
+                    post_type_section += f"- Hauptthemen: {', '.join(content.get('main_themes', [])[:3])}\n"
+                    if content.get("target_emotion"):
+                        post_type_section += f"- Ziel-Emotion: {content['target_emotion']}\n"
+
+            post_type_section += "\n**WICHTIG:** Alle Themenvorschläge müssen zu diesem Post-Typ passen!\n"
+
         return f"""AUFGABE: Transformiere die Recherche-Ergebnisse in KONKRETE, PERSONALISIERTE Themenvorschläge.
+{post_type_section}
 
 === RECHERCHE-ERGEBNISSE (Rohdaten) ===
 {raw_research}

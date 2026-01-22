@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+{% block title %}Gescrapte Posts - LinkedIn Posts{% endblock %}
+
+{% block head %}
+<style>
+    .post-card {
+        background: linear-gradient(135deg, rgba(61, 72, 72, 0.3) 0%, rgba(45, 56, 56, 0.4) 100%);
+        border: 1px solid rgba(61, 72, 72, 0.6);
+        transition: all 0.2s ease;
+    }
+    .post-card:hover {
+        border-color: rgba(255, 199, 0, 0.3);
+    }
+    .post-card.selected {
+        border-color: rgba(255, 199, 0, 0.6);
+        background: linear-gradient(135deg, rgba(255, 199, 0, 0.05) 0%, rgba(45, 56, 56, 0.4) 100%);
+    }
+    .type-badge {
+        transition: all 0.15s ease;
+    }
+    .type-badge:hover {
+        transform: scale(1.02);
+    }
+    .type-badge.active {
+        background-color: rgba(255, 199, 0, 0.2);
+        border-color: #ffc700;
+    }
+    .post-content-preview {
+        max-height: 150px;
+        overflow: hidden;
+        position: relative;
+    }
+    .post-content-preview::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: linear-gradient(transparent, rgba(45, 56, 56, 0.9));
+    }
+    .post-content-expanded {
+        max-height: none;
+    }
+    .post-content-expanded::after {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">Gescrapte Posts verwalten</h1>
+            <p class="text-gray-400">Posts manuell kategorisieren und Post-Typ-Analyse triggern</p>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Selection -->
+<div class="card-bg rounded-xl border p-6 mb-6">
+    <div class="flex flex-wrap items-end gap-4">
+        <div class="flex-1 min-w-64">
+            <label class="block text-sm font-medium text-gray-300 mb-2">Kunde auswählen</label>
+            <select id="customerSelect" class="w-full input-bg border rounded-lg px-4 py-3 text-white">
+                <option value="">-- Kunde wählen --</option>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}">{{ customer.name }} - {{ customer.company_name or 'Kein Unternehmen' }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <button id="classifyAllBtn" class="hidden px-4 py-3 bg-brand-bg hover:bg-brand-bg-light border border-brand-bg-light rounded-lg text-white transition-colors">
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Auto-Klassifizieren
+                </span>
+            </button>
+            <button id="analyzeTypesBtn" class="hidden px-4 py-3 btn-primary rounded-lg font-medium transition-colors">
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Post-Typen analysieren
+                </span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Area -->
+<div id="progressArea" class="hidden card-bg rounded-xl border p-6 mb-6">
+    <div class="flex items-center justify-between mb-2">
+        <span id="progressMessage" class="text-gray-300">Arbeite...</span>
+        <span id="progressPercent" class="text-gray-400">0%</span>
+    </div>
+    <div class="w-full bg-brand-bg-dark rounded-full h-2">
+        <div id="progressBar" class="bg-brand-highlight h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+    </div>
+</div>
+
+<!-- Stats & Post Types -->
+<div id="statsArea" class="hidden mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div class="card-bg rounded-xl border p-4">
+            <div class="text-2xl font-bold text-white" id="totalPostsCount">0</div>
+            <div class="text-sm text-gray-400">Gesamt Posts</div>
+        </div>
+        <div class="card-bg rounded-xl border p-4">
+            <div class="text-2xl font-bold text-green-400" id="classifiedCount">0</div>
+            <div class="text-sm text-gray-400">Klassifiziert</div>
+        </div>
+        <div class="card-bg rounded-xl border p-4">
+            <div class="text-2xl font-bold text-yellow-400" id="unclassifiedCount">0</div>
+            <div class="text-sm text-gray-400">Nicht klassifiziert</div>
+        </div>
+        <div class="card-bg rounded-xl border p-4">
+            <div class="text-2xl font-bold text-brand-highlight" id="postTypesCount">0</div>
+            <div class="text-sm text-gray-400">Post-Typen</div>
+        </div>
+    </div>
+
+    <!-- Post Type Filter -->
+    <div class="flex flex-wrap gap-2 mb-4">
+        <button onclick="filterByType(null)" id="filter_all" class="type-badge px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-highlight/20 border-brand-highlight text-white">
+            Alle
+        </button>
+        <button onclick="filterByType('unclassified')" id="filter_unclassified" class="type-badge px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white">
+            Nicht klassifiziert
+        </button>
+        <div id="postTypeFilters" class="contents">
+            <!-- Post type filter buttons will be added here -->
+        </div>
+    </div>
+</div>
+
+<!-- Posts List -->
+<div id="postsArea" class="hidden">
+    <div id="postsList" class="space-y-4">
+        <p class="text-gray-400">Lade Posts...</p>
+    </div>
+</div>
+
+<!-- Empty State -->
+<div id="emptyState" class="hidden card-bg rounded-xl border p-12 text-center">
+    <div class="w-20 h-20 bg-brand-bg rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+    </div>
+    <h3 class="text-xl font-semibold text-white mb-2">Keine gescrapten Posts</h3>
+    <p class="text-gray-400 mb-6 max-w-md mx-auto">Für diesen Kunden wurden noch keine LinkedIn Posts gescrapet.</p>
+</div>
+
+{% if not customers %}
+<div class="bg-yellow-900/30 border border-yellow-600 rounded-lg p-4">
+    <p class="text-yellow-300">Noch keine Kunden vorhanden. <a href="/customers/new" class="underline">Erstelle zuerst einen Kunden</a>.</p>
+</div>
+{% endif %}
+
+<!-- Post Detail Modal -->
+<div id="postModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="bg-brand-bg-dark rounded-xl border border-brand-bg-light max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div class="p-4 border-b border-brand-bg-light flex items-center justify-between bg-brand-bg">
+            <h3 class="text-lg font-semibold text-white">Post Details</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-white p-1 hover:bg-brand-bg-light rounded">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto flex-1">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const customerSelect = document.getElementById('customerSelect');
+const classifyAllBtn = document.getElementById('classifyAllBtn');
+const analyzeTypesBtn = document.getElementById('analyzeTypesBtn');
+const progressArea = document.getElementById('progressArea');
+const progressBar = document.getElementById('progressBar');
+const progressMessage = document.getElementById('progressMessage');
+const progressPercent = document.getElementById('progressPercent');
+const statsArea = document.getElementById('statsArea');
+const postsArea = document.getElementById('postsArea');
+const postsList = document.getElementById('postsList');
+const emptyState = document.getElementById('emptyState');
+const postTypeFilters = document.getElementById('postTypeFilters');
+const postModal = document.getElementById('postModal');
+const modalContent = document.getElementById('modalContent');
+
+let currentPosts = [];
+let currentPostTypes = [];
+let currentFilter = null;
+
+customerSelect.addEventListener('change', async () => {
+    const customerId = customerSelect.value;
+
+    if (!customerId) {
+        statsArea.classList.add('hidden');
+        postsArea.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        classifyAllBtn.classList.add('hidden');
+        analyzeTypesBtn.classList.add('hidden');
+        return;
+    }
+
+    await loadCustomerData(customerId);
+});
+
+async function loadCustomerData(customerId) {
+    // Load post types
+    try {
+        const ptResponse = await fetch(`/api/customers/${customerId}/post-types`);
+        const ptData = await ptResponse.json();
+        currentPostTypes = ptData.post_types || [];
+
+        // Update post type filters
+        postTypeFilters.innerHTML = currentPostTypes.map(pt => `
+            <button onclick="filterByType('${pt.id}')" id="filter_${pt.id}"
+                class="type-badge px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white">
+                ${escapeHtml(pt.name)}
+                <span class="ml-1 text-xs text-gray-400">(${pt.analyzed_post_count || 0})</span>
+                ${pt.has_analysis ? '<span class="ml-1 text-green-400">*</span>' : ''}
+            </button>
+        `).join('');
+
+        document.getElementById('postTypesCount').textContent = currentPostTypes.length;
+    } catch (error) {
+        console.error('Failed to load post types:', error);
+    }
+
+    // Load posts
+    try {
+        const response = await fetch(`/api/customers/${customerId}/linkedin-posts`);
+        const data = await response.json();
+
+        console.log('API Response:', data);
+
+        if (data.error) {
+            console.error('API Error:', data.error);
+            postsList.innerHTML = `<p class="text-red-400">API Fehler: ${escapeHtml(data.error)}</p>`;
+            postsArea.classList.remove('hidden');
+            return;
+        }
+
+        currentPosts = data.posts || [];
+        console.log(`Loaded ${currentPosts.length} posts`);
+
+        if (currentPosts.length === 0) {
+            statsArea.classList.add('hidden');
+            postsArea.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            classifyAllBtn.classList.add('hidden');
+            analyzeTypesBtn.classList.add('hidden');
+            return;
+        }
+
+        // Update stats
+        const classified = currentPosts.filter(p => p.post_type_id).length;
+        const unclassified = currentPosts.length - classified;
+
+        document.getElementById('totalPostsCount').textContent = currentPosts.length;
+        document.getElementById('classifiedCount').textContent = classified;
+        document.getElementById('unclassifiedCount').textContent = unclassified;
+
+        statsArea.classList.remove('hidden');
+        postsArea.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        classifyAllBtn.classList.remove('hidden');
+        analyzeTypesBtn.classList.remove('hidden');
+
+        currentFilter = null;
+        filterByType(null);
+
+    } catch (error) {
+        console.error('Failed to load posts:', error);
+        postsList.innerHTML = `<p class="text-red-400">Fehler beim Laden: ${error.message}</p>`;
+    }
+}
+
+function filterByType(typeId) {
+    currentFilter = typeId;
+
+    // Update filter button styles
+    document.querySelectorAll('.type-badge').forEach(btn => {
+        const btnId = btn.id.replace('filter_', '');
+        const isActive = (typeId === null && btnId === 'all') ||
+                        (typeId === 'unclassified' && btnId === 'unclassified') ||
+                        (btnId === typeId);
+
+        if (isActive) {
+            btn.classList.add('active', 'bg-brand-highlight/20', 'border-brand-highlight');
+            btn.classList.remove('bg-brand-bg', 'border-brand-bg-light');
+        } else {
+            btn.classList.remove('active', 'bg-brand-highlight/20', 'border-brand-highlight');
+            btn.classList.add('bg-brand-bg', 'border-brand-bg-light');
+        }
+    });
+
+    // Filter posts
+    let filteredPosts = currentPosts;
+    if (typeId === 'unclassified') {
+        filteredPosts = currentPosts.filter(p => !p.post_type_id);
+    } else if (typeId) {
+        filteredPosts = currentPosts.filter(p => p.post_type_id === typeId);
+    }
+
+    renderPosts(filteredPosts);
+}
+
+function renderPosts(posts) {
+    if (posts.length === 0) {
+        postsList.innerHTML = '<p class="text-gray-400 text-center py-8">Keine Posts in dieser Kategorie.</p>';
+        return;
+    }
+
+    postsList.innerHTML = posts.map((post, index) => {
+        const postType = currentPostTypes.find(pt => pt.id === post.post_type_id);
+        const postText = post.post_text || '';
+        const previewText = postText.substring(0, 300);
+
+        return `
+            <div class="post-card rounded-xl p-4 cursor-pointer" data-post-id="${post.id}" onclick="openPostModal('${post.id}')">
+                <div class="flex items-start gap-4">
+                    <div class="flex-1 min-w-0">
+                        <!-- Header -->
+                        <div class="flex items-center gap-2 mb-3 flex-wrap">
+                            ${postType ? `
+                                <span class="px-2 py-1 text-xs font-medium bg-brand-highlight/20 text-brand-highlight rounded">
+                                    ${escapeHtml(postType.name)}
+                                </span>
+                                <span class="text-xs text-gray-500">${post.classification_method || 'unknown'} (${Math.round((post.classification_confidence || 0) * 100)}%)</span>
+                            ` : `
+                                <span class="px-2 py-1 text-xs font-medium bg-gray-600/30 text-gray-400 rounded">
+                                    Nicht klassifiziert
+                                </span>
+                            `}
+                            ${post.posted_at ? `
+                                <span class="text-xs text-gray-500">${new Date(post.posted_at).toLocaleDateString('de-DE')}</span>
+                            ` : ''}
+                            ${post.engagement_score ? `
+                                <span class="text-xs text-gray-500">Engagement: ${post.engagement_score}</span>
+                            ` : ''}
+                        </div>
+
+                        <!-- Content Preview -->
+                        <div class="post-content-preview text-gray-300 text-sm whitespace-pre-wrap mb-3">
+                            ${escapeHtml(previewText)}${postText.length > 300 ? '...' : ''}
+                        </div>
+
+                        <!-- Click hint & Type badges -->
+                        <div class="flex items-center justify-between flex-wrap gap-2" onclick="event.stopPropagation()">
+                            <span class="text-xs text-gray-500 italic">Klicken für Vollansicht</span>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                ${currentPostTypes.map(pt => `
+                                    <button onclick="event.stopPropagation(); classifyPost('${post.id}', '${pt.id}')"
+                                        class="px-2 py-1 text-xs rounded transition-colors ${post.post_type_id === pt.id ? 'bg-brand-highlight/30 text-brand-highlight border border-brand-highlight' : 'bg-brand-bg hover:bg-brand-bg-light text-gray-300 border border-brand-bg-light'}">
+                                        ${escapeHtml(pt.name)}
+                                    </button>
+                                `).join('')}
+                                ${post.post_type_id ? `
+                                    <button onclick="event.stopPropagation(); classifyPost('${post.id}', null)" class="px-2 py-1 text-xs rounded bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-900/50">
+                                        ✕
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function classifyPost(postId, postTypeId) {
+    const customerId = customerSelect.value;
+    if (!customerId) return;
+
+    try {
+        const response = await fetch(`/api/linkedin-posts/${postId}/classify`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ post_type_id: postTypeId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to classify post');
+        }
+
+        // Update local data
+        const post = currentPosts.find(p => p.id === postId);
+        if (post) {
+            post.post_type_id = postTypeId;
+            post.classification_method = 'manual';
+            post.classification_confidence = 1.0;
+        }
+
+        // Update stats
+        const classified = currentPosts.filter(p => p.post_type_id).length;
+        document.getElementById('classifiedCount').textContent = classified;
+        document.getElementById('unclassifiedCount').textContent = currentPosts.length - classified;
+
+        // Re-render
+        filterByType(currentFilter);
+
+    } catch (error) {
+        console.error('Failed to classify post:', error);
+        alert('Fehler beim Klassifizieren: ' + error.message);
+    }
+}
+
+function openPostModal(postId) {
+    const post = currentPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const postType = currentPostTypes.find(pt => pt.id === post.post_type_id);
+
+    modalContent.innerHTML = `
+        <div class="mb-4 flex items-center gap-3 flex-wrap">
+            ${postType ? `
+                <span class="px-3 py-1.5 text-sm font-medium bg-brand-highlight/20 text-brand-highlight rounded-lg">
+                    ${escapeHtml(postType.name)}
+                </span>
+            ` : `
+                <span class="px-3 py-1.5 text-sm font-medium bg-gray-600/30 text-gray-400 rounded-lg">
+                    Nicht klassifiziert
+                </span>
+            `}
+            ${post.posted_at ? `
+                <span class="text-sm text-gray-500">${new Date(post.posted_at).toLocaleDateString('de-DE')}</span>
+            ` : ''}
+            ${post.engagement_score ? `
+                <span class="text-sm text-gray-500">Engagement: ${post.engagement_score}</span>
+            ` : ''}
+        </div>
+        <div class="bg-brand-bg rounded-xl p-6 mb-6 border border-brand-bg-light max-h-[50vh] overflow-y-auto">
+            <div class="whitespace-pre-wrap text-gray-200 font-sans text-base leading-relaxed">${escapeHtml(post.post_text || '')}</div>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap border-t border-brand-bg-light pt-4">
+            <span class="text-sm text-gray-400 font-medium">Typ zuweisen:</span>
+            ${currentPostTypes.map(pt => `
+                <button onclick="classifyPost('${post.id}', '${pt.id}'); closeModal();"
+                    class="px-4 py-2 text-sm rounded-lg transition-colors ${post.post_type_id === pt.id ? 'bg-brand-highlight text-brand-bg-dark font-medium' : 'bg-brand-bg hover:bg-brand-bg-light text-gray-300 border border-brand-bg-light'}">
+                    ${escapeHtml(pt.name)}
+                </button>
+            `).join('')}
+            ${post.post_type_id ? `
+                <button onclick="classifyPost('${post.id}', null); closeModal();" class="px-4 py-2 text-sm rounded-lg bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-900/50">
+                    Klassifizierung entfernen
+                </button>
+            ` : ''}
+        </div>
+    `;
+
+    postModal.classList.remove('hidden');
+    postModal.classList.add('flex');
+}
+
+function closeModal() {
+    postModal.classList.add('hidden');
+    postModal.classList.remove('flex');
+}
+
+// Close modal on backdrop click
+postModal.addEventListener('click', (e) => {
+    if (e.target === postModal) {
+        closeModal();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !postModal.classList.contains('hidden')) {
+        closeModal();
+    }
+});
+
+// Auto-classify button
+classifyAllBtn.addEventListener('click', async () => {
+    const customerId = customerSelect.value;
+    if (!customerId) return;
+
+    classifyAllBtn.disabled = true;
+    progressArea.classList.remove('hidden');
+
+    try {
+        const response = await fetch(`/api/customers/${customerId}/classify-posts`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+
+        const taskId = data.task_id;
+        await pollTask(taskId, async () => {
+            await loadCustomerData(customerId);
+        });
+
+    } catch (error) {
+        console.error('Classification failed:', error);
+        alert('Fehler bei der Klassifizierung: ' + error.message);
+    } finally {
+        classifyAllBtn.disabled = false;
+        progressArea.classList.add('hidden');
+    }
+});
+
+// Analyze post types button
+analyzeTypesBtn.addEventListener('click', async () => {
+    const customerId = customerSelect.value;
+    if (!customerId) return;
+
+    analyzeTypesBtn.disabled = true;
+    progressArea.classList.remove('hidden');
+
+    try {
+        const response = await fetch(`/api/customers/${customerId}/analyze-post-types`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+
+        const taskId = data.task_id;
+        await pollTask(taskId, async () => {
+            await loadCustomerData(customerId);
+            alert('Post-Typ-Analyse abgeschlossen! Die Analysen wurden aktualisiert.');
+        });
+
+    } catch (error) {
+        console.error('Analysis failed:', error);
+        alert('Fehler bei der Analyse: ' + error.message);
+    } finally {
+        analyzeTypesBtn.disabled = false;
+        progressArea.classList.add('hidden');
+    }
+});
+
+async function pollTask(taskId, onComplete) {
+    return new Promise((resolve) => {
+        const interval = setInterval(async () => {
+            try {
+                const statusResponse = await fetch(`/api/tasks/${taskId}`);
+                const status = await statusResponse.json();
+
+                progressBar.style.width = `${status.progress}%`;
+                progressPercent.textContent = `${status.progress}%`;
+                progressMessage.textContent = status.message;
+
+                if (status.status === 'completed') {
+                    clearInterval(interval);
+                    await onComplete();
+                    resolve();
+                } else if (status.status === 'error') {
+                    clearInterval(interval);
+                    alert('Fehler: ' + status.message);
+                    resolve();
+                }
+            } catch (error) {
+                clearInterval(interval);
+                console.error('Polling error:', error);
+                resolve();
+            }
+        }, 1000);
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}
