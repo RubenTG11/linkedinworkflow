@@ -1,8 +1,10 @@
 """Main orchestrator for the LinkedIn workflow."""
+from collections import Counter
 from typing import Dict, Any, List, Optional, Callable
 from uuid import UUID
 from loguru import logger
 
+from src.config import settings
 from src.database import db, Customer, LinkedInProfile, LinkedInPost, Topic
 from src.scraper import scraper
 from src.agents import (
@@ -211,13 +213,22 @@ class WorkflowOrchestrator:
         # Get customer data
         customer = await db.get_customer(customer_id)
 
+        # Get example posts to understand the person's actual content style
+        linkedin_posts = await db.get_linkedin_posts(customer_id)
+        example_post_texts = [
+            post.post_text for post in linkedin_posts
+            if post.post_text and len(post.post_text) > 100  # Only substantial posts
+        ][:15]  # Limit to 15 best examples
+        logger.info(f"Loaded {len(example_post_texts)} example posts for research context")
+
         # Step 3: Run research
         report_progress("AI recherchiert neue Topics...", 3)
         logger.info("Running research with AI")
         research_results = await self.researcher.process(
             profile_analysis=profile_analysis.full_analysis,
             existing_topics=existing_topics,
-            customer_data=customer.metadata
+            customer_data=customer.metadata,
+            example_posts=example_post_texts
         )
 
         # Step 4: Save research results
@@ -239,7 +250,7 @@ class WorkflowOrchestrator:
         customer_id: UUID,
         topic: Dict[str, Any],
         max_iterations: int = 3,
-        progress_callback: Optional[Callable[[str, int, int, Optional[int]], None]] = None
+        progress_callback: Optional[Callable[[str, int, int, Optional[int], Optional[List], Optional[List]], None]] = None
     ) -> Dict[str, Any]:
         """
         Create a LinkedIn post through writer-critic iteration.
@@ -248,19 +259,20 @@ class WorkflowOrchestrator:
             customer_id: Customer UUID
             topic: Topic dictionary
             max_iterations: Maximum number of writer-critic iterations
-            progress_callback: Optional callback(message, iteration, max_iterations, score)
+            progress_callback: Optional callback(message, iteration, max_iterations, score, versions, feedback_list)
 
         Returns:
             Dictionary with final post and metadata
         """
         logger.info(f"=== CREATING POST for topic: {topic.get('title')} ===")
 
-        def report_progress(message: str, iteration: int, score: Optional[int] = None):
+        def report_progress(message: str, iteration: int, score: Optional[int] = None,
+                          versions: Optional[List] = None, feedback_list: Optional[List] = None):
             if progress_callback:
-                progress_callback(message, iteration, max_iterations, score)
+                progress_callback(message, iteration, max_iterations, score, versions, feedback_list)
 
         # Get profile analysis
-        report_progress("Lade Profil-Analyse...", 0)
+        report_progress("Lade Profil-Analyse...", 0, None, [], [])
         profile_analysis = await db.get_profile_analysis(customer_id)
         if not profile_analysis:
             raise ValueError("Profile analysis not found. Run initial setup first.")
@@ -272,6 +284,9 @@ class WorkflowOrchestrator:
             if post.post_text and len(post.post_text) > 100  # Only use substantial posts
         ]
         logger.info(f"Loaded {len(example_post_texts)} example posts for style reference")
+
+        # Extract lessons from past feedback (if enabled)
+        feedback_lessons = await self._extract_recurring_feedback(customer_id)
 
         # Initialize tracking
         writer_versions = []
@@ -288,15 +303,16 @@ class WorkflowOrchestrator:
             # Writer creates/revises post
             if iteration == 1:
                 # Initial post
-                report_progress("Writer erstellt ersten Entwurf...", iteration)
+                report_progress("Writer erstellt ersten Entwurf...", iteration, None, writer_versions, critic_feedback_list)
                 current_post = await self.writer.process(
                     topic=topic,
                     profile_analysis=profile_analysis.full_analysis,
-                    example_posts=example_post_texts
+                    example_posts=example_post_texts,
+                    learned_lessons=feedback_lessons  # Pass lessons from past feedback
                 )
             else:
                 # Revision based on feedback - pass full critic result for structured changes
-                report_progress("Writer überarbeitet Post...", iteration)
+                report_progress("Writer überarbeitet Post...", iteration, None, writer_versions, critic_feedback_list)
                 last_feedback = critic_feedback_list[-1]
                 current_post = await self.writer.process(
                     topic=topic,
@@ -304,14 +320,17 @@ class WorkflowOrchestrator:
                     feedback=last_feedback.get("feedback", ""),
                     previous_version=writer_versions[-1],
                     example_posts=example_post_texts,
-                    critic_result=last_feedback  # Pass full critic result with specific_changes
+                    critic_result=last_feedback,  # Pass full critic result with specific_changes
+                    learned_lessons=feedback_lessons  # Also for revisions
                 )
 
             writer_versions.append(current_post)
             logger.info(f"Writer produced version {iteration}")
 
+            # Report progress with new version
+            report_progress("Critic bewertet Post...", iteration, None, writer_versions, critic_feedback_list)
+
             # Critic reviews post with iteration awareness
-            report_progress("Critic bewertet Post...", iteration)
             critic_result = await self.critic.process(
                 post=current_post,
                 profile_analysis=profile_analysis.full_analysis,
@@ -334,11 +353,11 @@ class WorkflowOrchestrator:
             logger.info(f"Critic score: {score}/100 | Approved: {approved}")
 
             if approved:
-                report_progress("Post genehmigt!", iteration, score)
+                report_progress("Post genehmigt!", iteration, score, writer_versions, critic_feedback_list)
                 logger.info("Post approved!")
                 break
             else:
-                report_progress(f"Score: {score}/100 - Überarbeitung nötig", iteration, score)
+                report_progress(f"Score: {score}/100 - Überarbeitung nötig", iteration, score, writer_versions, critic_feedback_list)
 
             if iteration < max_iterations:
                 logger.info("Post needs revision, continuing...")
@@ -375,6 +394,116 @@ class WorkflowOrchestrator:
             "final_score": critic_feedback_list[-1].get("overall_score", 0) if critic_feedback_list else 0,
             "writer_versions": writer_versions,
             "critic_feedback": critic_feedback_list
+        }
+
+    async def _extract_recurring_feedback(self, customer_id: UUID) -> Dict[str, Any]:
+        """
+        Extract recurring feedback patterns from past generated posts.
+
+        Args:
+            customer_id: Customer UUID
+
+        Returns:
+            Dictionary with recurring improvements and lessons learned
+        """
+        if not settings.writer_learn_from_feedback:
+            return {"lessons": [], "patterns": {}}
+
+        # Get recent generated posts with their critic feedback
+        generated_posts = await db.get_generated_posts(customer_id)
+
+        if not generated_posts:
+            return {"lessons": [], "patterns": {}}
+
+        # Limit to recent posts
+        recent_posts = generated_posts[:settings.writer_feedback_history_count]
+
+        # Collect all improvements from final feedback
+        all_improvements = []
+        all_scores = []
+        low_score_issues = []  # Issues from posts that scored < 85
+
+        for post in recent_posts:
+            if not post.critic_feedback:
+                continue
+
+            # Get final feedback (last in list)
+            final_feedback = post.critic_feedback[-1] if post.critic_feedback else None
+            if not final_feedback:
+                continue
+
+            score = final_feedback.get("overall_score", 0)
+            all_scores.append(score)
+
+            # Collect improvements
+            improvements = final_feedback.get("improvements", [])
+            all_improvements.extend(improvements)
+
+            # Track issues from lower-scoring posts
+            if score < 85:
+                low_score_issues.extend(improvements)
+
+        if not all_improvements:
+            return {"lessons": [], "patterns": {}}
+
+        # Count frequency of improvements (normalized)
+        def normalize_improvement(text: str) -> str:
+            """Normalize improvement text for comparison."""
+            text = text.lower().strip()
+            # Remove common prefixes
+            for prefix in ["der ", "die ", "das ", "mehr ", "weniger ", "zu "]:
+                if text.startswith(prefix):
+                    text = text[len(prefix):]
+            return text[:50]  # Limit length for comparison
+
+        improvement_counts = Counter([normalize_improvement(imp) for imp in all_improvements])
+        low_score_counts = Counter([normalize_improvement(imp) for imp in low_score_issues])
+
+        # Find recurring issues (mentioned 2+ times)
+        recurring_issues = [
+            imp for imp, count in improvement_counts.most_common(10)
+            if count >= 2
+        ]
+
+        # Find critical issues (from low-scoring posts, mentioned 2+ times)
+        critical_issues = [
+            imp for imp, count in low_score_counts.most_common(5)
+            if count >= 2
+        ]
+
+        # Build lessons learned
+        lessons = []
+
+        if critical_issues:
+            lessons.append({
+                "type": "critical",
+                "message": "Diese Punkte führten zu niedrigen Scores - UNBEDINGT vermeiden:",
+                "items": critical_issues[:3]
+            })
+
+        if recurring_issues:
+            # Filter out critical issues
+            non_critical = [r for r in recurring_issues if r not in critical_issues]
+            if non_critical:
+                lessons.append({
+                    "type": "recurring",
+                    "message": "Häufig genannte Verbesserungspunkte aus vergangenen Posts:",
+                    "items": non_critical[:4]
+                })
+
+        # Calculate average score for context
+        avg_score = sum(all_scores) / len(all_scores) if all_scores else 0
+
+        logger.info(f"Extracted feedback from {len(recent_posts)} posts: {len(lessons)} lesson categories, avg score: {avg_score:.1f}")
+
+        return {
+            "lessons": lessons,
+            "patterns": {
+                "avg_score": avg_score,
+                "posts_analyzed": len(recent_posts),
+                "recurring_count": len(recurring_issues),
+                "critical_count": len(critical_issues)
+            }
         }
 
     async def get_customer_status(self, customer_id: UUID) -> Dict[str, Any]:

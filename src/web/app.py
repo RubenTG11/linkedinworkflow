@@ -10,6 +10,7 @@ from uuid import UUID
 from fastapi import FastAPI, Request, Form, BackgroundTasks, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from loguru import logger
 
@@ -20,6 +21,9 @@ from src.orchestrator import orchestrator
 # Setup
 app = FastAPI(title="LinkedIn Post Creation System")
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
+
+# Static files
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 
 # Store for progress updates (in production, use Redis or similar)
 progress_store = {}
@@ -287,19 +291,38 @@ async def get_task_status(task_id: str):
 
 
 @app.get("/api/customers/{customer_id}/topics")
-async def get_customer_topics(customer_id: str):
-    """Get all research topics for a customer."""
+async def get_customer_topics(customer_id: str, include_used: bool = False):
+    """Get research topics for a customer, excluding already used ones by default."""
     try:
         all_research = await db.get_all_research(UUID(customer_id))
-        all_topics = []
 
+        # Get already used topic titles (from generated posts)
+        used_topic_titles = set()
+        if not include_used:
+            generated_posts = await db.get_generated_posts(UUID(customer_id))
+            for post in generated_posts:
+                if post.topic_title:
+                    # Normalize title for comparison (lowercase, strip)
+                    used_topic_titles.add(post.topic_title.lower().strip())
+
+        all_topics = []
         for research in all_research:
             if research.suggested_topics:
                 for topic in research.suggested_topics:
+                    topic_title = topic.get("title", "").lower().strip()
+
+                    # Skip if topic was already used for a post
+                    if topic_title in used_topic_titles:
+                        continue
+
                     topic["research_id"] = str(research.id)
                     all_topics.append(topic)
 
-        return {"topics": all_topics}
+        return {
+            "topics": all_topics,
+            "used_count": len(used_topic_titles),
+            "available_count": len(all_topics)
+        }
     except Exception as e:
         logger.error(f"Error loading topics: {e}")
         return {"topics": [], "error": str(e)}
@@ -353,7 +376,8 @@ async def create_post(
 
     async def run_create_post():
         try:
-            def progress_callback(message: str, iteration: int, max_iterations: int, score: int = None):
+            def progress_callback(message: str, iteration: int, max_iterations: int, score: int = None,
+                                versions: list = None, feedback_list: list = None):
                 progress = int((iteration / max_iterations) * 100) if iteration > 0 else 5
                 score_text = f" (Score: {score}/100)" if score else ""
                 progress_store[task_id] = {
@@ -361,7 +385,9 @@ async def create_post(
                     "message": f"{message}{score_text}",
                     "progress": progress,
                     "iteration": iteration,
-                    "max_iterations": max_iterations
+                    "max_iterations": max_iterations,
+                    "versions": versions or [],
+                    "feedback_list": feedback_list or []
                 }
 
             result = await orchestrator.create_post(

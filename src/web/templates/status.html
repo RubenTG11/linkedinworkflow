@@ -16,13 +16,13 @@
 {% if customer_statuses %}
 <div class="grid gap-6">
     {% for item in customer_statuses %}
-    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+    <div class="card-bg rounded-xl border overflow-hidden">
         <!-- Customer Header -->
-        <div class="px-6 py-4 border-b border-gray-700">
+        <div class="px-6 py-4 border-b border-brand-bg-light">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">{{ item.customer.name[0] | upper }}</span>
+                    <div class="w-12 h-12 bg-brand-highlight rounded-full flex items-center justify-center">
+                        <span class="text-brand-bg-dark font-bold text-lg">{{ item.customer.name[0] | upper }}</span>
                     </div>
                     <div>
                         <h3 class="font-semibold text-white text-lg">{{ item.customer.name }}</h3>
@@ -49,7 +49,7 @@
         <div class="p-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <!-- Scraped Posts -->
-                <div class="bg-gray-700/30 rounded-lg p-4">
+                <div class="bg-brand-bg/30 rounded-lg p-4">
                     <div class="flex items-center gap-2 mb-2">
                         {% if item.status.has_scraped_posts %}
                         <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -62,7 +62,7 @@
                 </div>
 
                 <!-- Profile Analysis -->
-                <div class="bg-gray-700/30 rounded-lg p-4">
+                <div class="bg-brand-bg/30 rounded-lg p-4">
                     <div class="flex items-center gap-2 mb-2">
                         {% if item.status.has_profile_analysis %}
                         <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -75,7 +75,7 @@
                 </div>
 
                 <!-- Research Topics -->
-                <div class="bg-gray-700/30 rounded-lg p-4">
+                <div class="bg-brand-bg/30 rounded-lg p-4">
                     <div class="flex items-center gap-2 mb-2">
                         {% if item.status.research_count > 0 %}
                         <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -88,9 +88,9 @@
                 </div>
 
                 <!-- Generated Posts -->
-                <div class="bg-gray-700/30 rounded-lg p-4">
+                <div class="bg-brand-bg/30 rounded-lg p-4">
                     <div class="flex items-center gap-2 mb-2">
-                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span class="text-sm text-gray-400">Generierte Posts</span>
                     </div>
                     <p class="text-2xl font-bold text-white">{{ item.status.posts_count }}</p>
@@ -118,7 +118,7 @@
             <!-- Quick Actions -->
             <div class="flex gap-3 mt-4">
                 {% if not item.status.has_profile_analysis %}
-                <a href="/customers/new" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white transition-colors">
+                <a href="/customers/new" class="px-4 py-2 btn-primary rounded-lg text-sm transition-colors">
                     Setup wiederholen
                 </a>
                 {% endif %}
@@ -128,7 +128,7 @@
                 </a>
                 {% endif %}
                 {% if item.status.ready_for_posts %}
-                <a href="/create" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm text-white transition-colors">
+                <a href="/create" class="px-4 py-2 btn-primary rounded-lg text-sm transition-colors">
                     Post erstellen
                 </a>
                 {% endif %}
@@ -138,11 +138,11 @@
     {% endfor %}
 </div>
 {% else %}
-<div class="bg-gray-800 rounded-xl border border-gray-700 p-12 text-center">
+<div class="card-bg rounded-xl border p-12 text-center">
     <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
     <h3 class="text-xl font-semibold text-white mb-2">Noch keine Kunden</h3>
     <p class="text-gray-400 mb-6">Erstelle deinen ersten Kunden, um den Status zu sehen.</p>
-    <a href="/customers/new" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+    <a href="/customers/new" class="inline-flex items-center gap-2 px-6 py-3 btn-primary font-medium rounded-lg transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
         Neuer Kunde
     </a>

@@ -104,7 +104,9 @@ class ProfileAnalyzerAgent(BaseAgent):
         """Get system prompt for profile analysis."""
         return """Du bist ein hochspezialisierter AI-Analyst für LinkedIn-Profile und Content-Strategie.
 
-Deine Aufgabe ist es, aus LinkedIn-Profildaten und Posts ein umfassendes Content-Analyse-Profil zu erstellen.
+Deine Aufgabe ist es, aus LinkedIn-Profildaten und Posts ein umfassendes Content-Analyse-Profil zu erstellen, das als BLAUPAUSE für das Schreiben neuer Posts dient.
+
+WICHTIG: Extrahiere ECHTE BEISPIELE aus den Posts! Keine generischen Beschreibungen.
 
 Das Profil soll folgende Dimensionen analysieren:
 
@@ -114,18 +116,17 @@ Das Profil soll folgende Dimensionen analysieren:
    - Wie ist die Ansprache? (Du, Sie, neutral)
    - Satzdynamik und Rhythmus
 
-2. **Linguistischer Fingerabdruck**
-   - Energielevel (1-10 Skala)
-   - Nutzung von GROSSBUCHSTABEN zur Betonung
-   - Besondere Satzzeichen-Muster
-   - Signature Phrases (wiederkehrende Ausdrücke)
-   - Erzähl-Anker (Storytelling-Elemente)
+2. **Phrasen-Bibliothek (KRITISCH!)**
+   - Hook-Phrasen: Wie beginnen Posts? Extrahiere 5-10 ECHTE Beispiele!
+   - Übergangs-Phrasen: Wie werden Absätze verbunden?
+   - Emotionale Ausdrücke: Ausrufe, Begeisterung, etc.
+   - CTA-Phrasen: Wie werden Leser aktiviert?
+   - Signature Phrases: Wiederkehrende Markenzeichen
 
-3. **Themen & Expertise**
-   - Hauptthemen über die geschrieben wird
-   - Zielgruppe und deren Schmerzpunkte
-   - Expertise-Level
-   - Content-Säulen
+3. **Struktur-Templates**
+   - Analysiere die STRUKTUR der Top-Posts
+   - Erstelle 2-3 konkrete Templates (z.B. "Hook → Flashback → Erkenntnis → CTA")
+   - Typische Satzanfänge für jeden Abschnitt
 
 4. **Visuelle Muster**
    - Emoji-Nutzung (welche, wo, wie oft)
@@ -182,15 +183,16 @@ Gib deine Analyse als strukturiertes JSON zurück."""
 
 ---
 
-WICHTIG: Analysiere die ECHTEN POSTS sehr genau! Deine Analyse muss auf den tatsächlichen Mustern basieren, nicht auf Annahmen.
+WICHTIG: Analysiere die ECHTEN POSTS sehr genau! Deine Analyse muss auf den tatsächlichen Mustern basieren, nicht auf Annahmen. Extrahiere WÖRTLICHE ZITATE wo möglich!
 
 Achte besonders auf:
 1. Die TOP-PERFORMING Posts - was macht sie erfolgreich?
-2. Wiederkehrende Phrasen und Formulierungen
-3. Wie beginnen die Posts (Hooks)?
+2. Wiederkehrende Phrasen und Formulierungen - WÖRTLICH extrahieren!
+3. Wie beginnen die Posts (Hooks)? - ECHTE BEISPIELE sammeln!
 4. Wie enden die Posts (CTAs)?
 5. Emoji-Verwendung (welche, wo, wie oft)
 6. Länge und Struktur der Absätze
+7. Typische Satzanfänge und Übergänge
 
 Erstelle eine umfassende Analyse im folgenden JSON-Format:
 
@@ -209,6 +211,52 @@ Erstelle eine umfassende Analyse im folgenden JSON-Format:
     "punctuation_patterns": "Beschreibung (!!!, ..., ?, etc.)",
     "signature_phrases": ["ECHTE Phrasen aus den Posts", "die wiederholt vorkommen"],
     "narrative_anchors": ["Storytelling-Elemente", "die die Person nutzt"]
+  }},
+  "phrase_library": {{
+    "hook_phrases": [
+      "ECHTE Hook-Sätze aus den Posts wörtlich kopiert",
+      "Mindestens 5-8 verschiedene Beispiele",
+      "z.B. '𝗞𝗜-𝗦𝘂𝗰𝗵𝗲 𝗶𝘀𝘁 𝗱𝗲𝗿 𝗲𝗿𝘀𝘁𝗲 𝗦𝗰𝗵𝗿𝗶𝘁𝘁 𝗶𝗺 𝗦𝗮𝗹𝗲𝘀 𝗙𝘂𝗻𝗻𝗲𝗹.'"
+    ],
+    "transition_phrases": [
+      "ECHTE Übergangssätze zwischen Absätzen",
+      "z.B. 'Und wisst ihr was?', 'Aber Moment...', 'Was das mit X zu tun hat?'"
+    ],
+    "emotional_expressions": [
+      "Ausrufe und emotionale Marker",
+      "z.B. 'Halleluja!', 'Sorry to say!!', 'Galopp!!!!'"
+    ],
+    "cta_phrases": [
+      "ECHTE Call-to-Action Formulierungen",
+      "z.B. 'Was denkt ihr?', 'Seid ihr dabei?', 'Lasst uns darüber sprechen.'"
+    ],
+    "filler_expressions": [
+      "Typische Füllwörter und Ausdrücke",
+      "z.B. 'Ich meine...', 'Wisst ihr...', 'Ok, ok...'"
+    ]
+  }},
+  "structure_templates": {{
+    "primary_structure": "Die häufigste Struktur beschreiben, z.B. 'Unicode-Hook → Persönliche Anekdote → Erkenntnis → Bullet Points → CTA'",
+    "template_examples": [
+      {{
+        "name": "Storytelling-Post",
+        "structure": ["Fetter Hook mit Zitat", "Flashback/Anekdote", "Erkenntnis/Lesson", "Praktische Tipps", "CTA-Frage"],
+        "example_post_index": 1
+      }},
+      {{
+        "name": "Insight-Post",
+        "structure": ["Provokante These", "Begründung", "Beispiel", "Handlungsaufforderung"],
+        "example_post_index": 2
+      }}
+    ],
+    "typical_sentence_starters": [
+      "ECHTE Satzanfänge aus den Posts",
+      "z.B. 'Ich glaube, dass...', 'Was mir aufgefallen ist...', 'Das Verrückte ist...'"
+    ],
+    "paragraph_transitions": [
+      "Wie werden Absätze eingeleitet?",
+      "z.B. 'Und...', 'Aber:', 'Das bedeutet:'"
+    ]
   }},
   "tone_analysis": {{
     "primary_tone": "Haupttonalität basierend auf den Posts",
@@ -237,16 +285,16 @@ Erstelle eine umfassende Analyse im folgenden JSON-Format:
     "structure_preferences": "Absätze/Listen/Einzeiler/Nummeriert"
   }},
   "content_strategy": {{
-    "hook_patterns": "Wie werden Posts KONKRET eröffnet? Beispiele!",
+    "hook_patterns": "Wie werden Posts KONKRET eröffnet? Beschreibung des Musters",
     "cta_style": "Wie sehen die CTAs aus? Frage? Aufforderung? Keine?",
     "storytelling_approach": "Persönliche Geschichten? Metaphern? Case Studies?",
     "post_structure": "Hook → Body → CTA? Oder anders?"
   }},
   "best_performing_patterns": {{
     "what_works": "Was machen die Top-Posts anders/besser?",
-    "successful_hooks": ["Beispiel-Hooks aus Top-Posts"],
+    "successful_hooks": ["WÖRTLICHE Beispiel-Hooks aus Top-Posts"],
     "engagement_drivers": ["Was treibt Engagement?"]
   }}
 }}
 
-Sei KONKRET und nutze ECHTE BEISPIELE aus den Posts!"""
+KRITISCH: Bei phrase_library und structure_templates müssen ECHTE, WÖRTLICHE Beispiele aus den Posts stehen! Keine generischen Beschreibungen!"""

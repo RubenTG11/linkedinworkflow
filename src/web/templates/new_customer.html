@@ -8,27 +8,27 @@
 </div>
 
 <div class="max-w-2xl">
-    <form id="customerForm" class="bg-gray-800 rounded-xl border border-gray-700 p-6 space-y-6">
+    <form id="customerForm" class="card-bg rounded-xl border p-6 space-y-6">
         <!-- Basic Info -->
         <div>
             <h3 class="text-lg font-semibold text-white mb-4">Basis-Informationen</h3>
             <div class="grid gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Name *</label>
-                    <input type="text" name="name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                    <input type="text" name="name" required class="w-full input-bg border rounded-lg px-4 py-2 text-white">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">LinkedIn URL *</label>
-                    <input type="url" name="linkedin_url" required placeholder="https://www.linkedin.com/in/username" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                    <input type="url" name="linkedin_url" required placeholder="https://www.linkedin.com/in/username" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Firma</label>
-                        <input type="text" name="company_name" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                        <input type="text" name="company_name" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">E-Mail</label>
-                        <input type="email" name="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                        <input type="email" name="email" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
                     </div>
                 </div>
             </div>
@@ -40,28 +40,28 @@
             <div class="grid gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Persona</label>
-                    <textarea name="persona" rows="3" placeholder="Beschreibe die Expertise, Positionierung und den Charakter der Person..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none"></textarea>
+                    <textarea name="persona" rows="3" placeholder="Beschreibe die Expertise, Positionierung und den Charakter der Person..." class="w-full input-bg border rounded-lg px-4 py-2 text-white"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Ansprache</label>
-                    <input type="text" name="form_of_address" placeholder="z.B. Duzen (Du/Euch) oder Siezen (Sie)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                    <input type="text" name="form_of_address" placeholder="z.B. Duzen (Du/Euch) oder Siezen (Sie)" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Style Guide</label>
-                    <textarea name="style_guide" rows="3" placeholder="Beschreibe den Schreibstil, Tonalität und Richtlinien..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none"></textarea>
+                    <textarea name="style_guide" rows="3" placeholder="Beschreibe den Schreibstil, Tonalität und Richtlinien..." class="w-full input-bg border rounded-lg px-4 py-2 text-white"></textarea>
                 </div>
             </div>
         </div>
 
         <!-- Progress Area -->
         <div id="progressArea" class="hidden">
-            <div class="bg-gray-700/50 rounded-lg p-4">
+            <div class="bg-brand-bg rounded-lg p-4">
                 <div class="flex items-center justify-between mb-2">
                     <span id="progressMessage" class="text-gray-300">Starte Setup...</span>
                     <span id="progressPercent" class="text-gray-400">0%</span>
                 </div>
-                <div class="w-full bg-gray-600 rounded-full h-2">
-                    <div id="progressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <div class="w-full bg-brand-bg-dark rounded-full h-2">
+                    <div id="progressBar" class="bg-brand-highlight h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@
 
         <!-- Submit -->
         <div class="flex gap-4">
-            <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors">
+            <button type="submit" id="submitBtn" class="flex-1 btn-primary font-medium py-3 rounded-lg transition-colors">
                 Setup starten
             </button>
         </div>

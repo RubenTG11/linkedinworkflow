@@ -19,7 +19,8 @@ class ResearchAgent(BaseAgent):
         self,
         profile_analysis: Dict[str, Any],
         existing_topics: List[str],
-        customer_data: Dict[str, Any]
+        customer_data: Dict[str, Any],
+        example_posts: List[str] = None
     ) -> Dict[str, Any]:
         """
         Research new content topics.
@@ -28,6 +29,7 @@ class ResearchAgent(BaseAgent):
             profile_analysis: Profile analysis results
             existing_topics: List of already covered topics
             customer_data: Customer data (contains persona, style_guide, etc.)
+            example_posts: List of the person's actual posts for style reference
 
         Returns:
             Research results with suggested topics
@@ -72,25 +74,31 @@ class ResearchAgent(BaseAgent):
             model="sonar-pro"
         )
 
-        logger.info("Step 2: Structuring results with OpenAI")
-        # STEP 2: Use OpenAI to structure the Perplexity results into clean JSON
-        structure_prompt = self._get_structure_prompt(
+        logger.info("Step 2: Transforming research into personalized topic ideas")
+        # STEP 2: Transform raw research into PERSONALIZED topic suggestions
+        transform_prompt = self._get_transform_prompt(
             raw_research=raw_research,
             target_audience=target_audience,
-            persona=persona
+            persona=persona,
+            content_pillars=content_pillars,
+            example_posts=example_posts or [],
+            existing_topics=existing_topics
         )
 
         response = await self.call_openai(
-            system_prompt="Du strukturierst Recherche-Ergebnisse in ein sauberes JSON-Format. Behalte alle Fakten, Quellen und Details bei.",
-            user_prompt=structure_prompt,
+            system_prompt=self._get_topic_creator_system_prompt(),
+            user_prompt=transform_prompt,
             model="gpt-4o",
-            temperature=0.3,
+            temperature=0.7,  # Higher for creative topic angles
             response_format={"type": "json_object"}
         )
 
         # Parse JSON response
         result = json.loads(response)
         suggested_topics = result.get("topics", [])
+
+        # STEP 3: Ensure diversity - filter out similar topics
+        suggested_topics = self._ensure_diversity(suggested_topics)
 
         # Parse research results
         research_results = {
@@ -103,8 +111,37 @@ class ResearchAgent(BaseAgent):
         logger.info(f"Research completed with {len(research_results['suggested_topics'])} topic suggestions")
         return research_results
 
+    def _get_topic_creator_system_prompt(self) -> str:
+        """Get system prompt for transforming research into personalized topics."""
+        return """Du bist ein LinkedIn Content-Stratege, der aus Recherche-Ergebnissen KONKRETE, PERSONALISIERTE Themenvorschläge erstellt.
+
+WICHTIG: Du erstellst KEINE Schlagzeilen oder News-Titel!
+Du erstellst KONKRETE CONTENT-IDEEN mit:
+- Einem klaren ANGLE (Perspektive/Blickwinkel)
+- Einer konkreten HOOK-IDEE
+- Einem NARRATIV das die Person erzählen könnte
+
+Der Unterschied:
+❌ SCHLECHT (Schlagzeile): "KI verändert den Arbeitsmarkt"
+✅ GUT (Themenvorschlag): "Warum ich als [Rolle] plötzlich 50% meiner Zeit mit KI-Prompts verbringe - und was das für mein Team bedeutet"
+
+❌ SCHLECHT: "Neue Studie zu Remote Work"
+✅ GUT: "3 Erkenntnisse aus der Stanford Remote-Studie, die mich als Führungskraft überrascht haben"
+
+❌ SCHLECHT: "Fachkräftemangel in der IT"
+✅ GUT: "Unpopuläre Meinung: Wir haben keinen Fachkräftemangel - wir haben ein Ausbildungsproblem. Hier ist was ich damit meine..."
+
+Deine Themenvorschläge müssen:
+1. ZUR PERSON PASSEN - Klingt wie etwas das diese spezifische Person posten würde
+2. EINEN KONKRETEN ANGLE HABEN - Nicht "über X schreiben" sondern "diesen spezifischen Aspekt von X aus dieser Perspektive beleuchten"
+3. EINEN HOOK VORSCHLAGEN - Eine konkrete Idee wie der Post starten könnte
+4. HINTERGRUND-INFOS LIEFERN - Fakten/Daten aus der Recherche die die Person nutzen kann
+5. ABWECHSLUNGSREICH SEIN - Verschiedene Formate und Kategorien
+
+Antworte als JSON."""
+
     def _get_system_prompt(self) -> str:
-        """Get system prompt for research."""
+        """Get system prompt for research (legacy, kept for compatibility)."""
         return """Du bist ein hochspezialisierter Trend-Analyst und Content-Researcher.
 
 Deine Mission ist es, aktuelle, hochrelevante Content-Themen für LinkedIn zu identifizieren.
@@ -287,28 +324,132 @@ RECHERCHE-SCHWERPUNKTE FÜR DIESE SESSION:
 ⛔ BEREITS BEHANDELTE THEMEN - NICHT NOCHMAL VORSCHLAGEN:
 {existing_text}
 
-AUFGABE:
-Finde 6-8 WIRKLICH AKTUELLE und SPEZIFISCHE Themen.
+=== DEINE AUFGABE ===
 
-Für jedes Thema:
-1. **Titel**: Konkreter, spezifischer Titel (nicht generisch!)
-2. **Was ist passiert?**: Echte Fakten, Zahlen, Namen, Daten
-3. **Wann?**: Genaues Datum wenn möglich
-4. **Quelle**: URL oder Publikationsname
-5. **Relevanz**: Warum sollte {target_audience} das interessieren?
+Recherchiere FAKTEN, DATEN und ENTWICKLUNGEN - keine fertigen Themenvorschläge!
+Ich brauche ROHDATEN die ich dann in personalisierte Content-Ideen umwandeln kann.
+
+Für jede Entwicklung/News sammle:
+1. **Was genau ist passiert?** - Konkrete Fakten, nicht Interpretationen
+2. **Zahlen & Daten** - Statistiken, Prozentsätze, Beträge, Veränderungen
+3. **Wer ist beteiligt?** - Unternehmen, Personen, Organisationen
+4. **Wann?** - Genaues Datum oder Zeitraum
+5. **Quelle** - URL oder Publikationsname
+6. **Kontext** - Warum ist das relevant? Was bedeutet es?
+
+SUCHE NACH:
+✅ Neue Studien/Reports mit konkreten Zahlen
+✅ Unternehmens-Entscheidungen oder -Ankündigungen
+✅ Marktveränderungen mit Daten
+✅ Gesetzliche/Regulatorische Änderungen
+✅ Kontroverse Aussagen von Branchenführern
+✅ Überraschende Statistiken oder Trends
+✅ Gescheiterte Projekte oder unerwartete Erfolge
+
+FORMAT DEINER ANTWORT:
+Liefere 8-10 verschiedene Entwicklungen/News mit möglichst vielen Fakten und Zahlen.
+Formatiere sie klar und strukturiert.
 
 QUALITÄTSKRITERIEN:
-✅ Thema ist von dieser Woche oder letzter Woche
-✅ Enthält konkrete Fakten/Zahlen (nicht "Experten sagen...")
-✅ Hat eine echte Quelle die man prüfen kann
-✅ Ist SPEZIFISCH für {industry} (keine generischen Produktivitäts-Tipps)
-✅ Wurde noch NICHT in den bereits behandelten Themen erwähnt
+✅ AKTUALITÄT: Von dieser Woche oder letzter Woche
+✅ KONKRETHEIT: Echte Zahlen, Namen, Daten (nicht "Experten sagen...")
+✅ VERIFIZIERBARKEIT: Echte Quelle die man prüfen kann
+✅ BRANCHENRELEVANZ: Spezifisch für {industry}
 
 ❌ VERMEIDE:
-- Generische Themen wie "Die Zukunft von X" ohne konkrete News
-- Evergreen-Content ohne aktuellen Aufhänger
-- Themen ohne konkrete Daten/Fakten
-- Alles was älter als 2 Wochen ist"""
+- Vage Aussagen ohne Daten ("KI wird wichtiger")
+- Generische Trends ohne konkreten Aufhänger
+- Alte News die jeder schon kennt
+- Themen ohne verifizierbare Fakten"""
+
+    def _get_transform_prompt(
+        self,
+        raw_research: str,
+        target_audience: str,
+        persona: str,
+        content_pillars: List[str],
+        example_posts: List[str],
+        existing_topics: List[str]
+    ) -> str:
+        """Transform raw research into personalized, concrete topic suggestions."""
+
+        # Build example posts section
+        examples_section = ""
+        if example_posts:
+            examples_section = "\n\n=== SO SCHREIBT DIESE PERSON (Beispiel-Posts) ===\n"
+            for i, post in enumerate(example_posts[:5], 1):
+                post_preview = post[:600] + "..." if len(post) > 600 else post
+                examples_section += f"\n--- Beispiel {i} ---\n{post_preview}\n"
+            examples_section += "--- Ende Beispiele ---\n"
+
+        # Build pillars section
+        pillars_text = ", ".join(content_pillars[:5]) if content_pillars else "Keine spezifischen Säulen"
+
+        # Build existing topics section (to avoid)
+        existing_text = ", ".join(existing_topics[:15]) if existing_topics else "Keine"
+
+        return f"""AUFGABE: Transformiere die Recherche-Ergebnisse in KONKRETE, PERSONALISIERTE Themenvorschläge.
+
+=== RECHERCHE-ERGEBNISSE (Rohdaten) ===
+{raw_research}
+
+=== PERSON/EXPERTISE ===
+{persona[:800] if persona else "Keine Persona definiert"}
+
+=== CONTENT-SÄULEN DER PERSON ===
+{pillars_text}
+{examples_section}
+=== BEREITS BEHANDELT (NICHT NOCHMAL!) ===
+{existing_text}
+
+=== DEINE AUFGABE ===
+
+Erstelle 6-8 KONKRETE Themenvorschläge die:
+1. ZU DIESER PERSON PASSEN - Basierend auf Expertise und Beispiel-Posts
+2. EINEN KLAREN ANGLE HABEN - Nicht "über X schreiben" sondern eine spezifische Perspektive
+3. FAKTEN AUS DER RECHERCHE NUTZEN - Konkrete Daten/Zahlen einbauen
+4. ABWECHSLUNGSREICH SIND - Verschiedene Kategorien und Formate
+
+KATEGORIEN (mindestens 3 verschiedene!):
+- **Meinung/Take**: Deine Perspektive zu einem aktuellen Thema
+- **Erfahrungsbericht**: "Was ich gelernt habe als..."
+- **Konträr**: "Unpopuläre Meinung: ..."
+- **How-To/Insight**: Konkrete Tipps basierend auf Daten
+- **Story**: Persönliche Geschichte mit Business-Lesson
+- **Analyse**: Daten/Trend analysiert durch deine Expertise-Brille
+
+FORMAT DER THEMENVORSCHLÄGE:
+
+{{
+  "topics": [
+    {{
+      "title": "Konkreter Thementitel (kein Schlagzeilen-Stil!)",
+      "category": "Meinung/Take | Erfahrungsbericht | Konträr | How-To/Insight | Story | Analyse",
+      "angle": "Der spezifische Blickwinkel/die Perspektive für diesen Post",
+      "hook_idea": "Konkrete Hook-Idee die zum Post passen würde (1-2 Sätze)",
+      "key_facts": ["Fakt 1 aus der Recherche", "Fakt 2 mit Zahlen", "Fakt 3"],
+      "why_this_person": "Warum passt dieses Thema zu DIESER Person und ihrer Expertise?",
+      "source": "Quellenangabe"
+    }}
+  ]
+}}
+
+BEISPIEL EINES GUTEN THEMENVORSCHLAGS:
+{{
+  "title": "Warum ich als Tech-Lead jetzt 30% meiner Zeit mit Prompt Engineering verbringe",
+  "category": "Erfahrungsbericht",
+  "angle": "Persönliche Erfahrung eines Tech-Leads mit der Veränderung seiner Rolle durch KI",
+  "hook_idea": "Vor einem Jahr habe ich Code geschrieben. Heute schreibe ich Prompts. Und ehrlich? Ich weiß noch nicht ob das gut oder schlecht ist.",
+  "key_facts": ["GitHub Copilot wird von 92% der Entwickler genutzt (Stack Overflow 2024)", "Durchschnittliche Zeitersparnis: 55%", "Aber: Code-Review-Zeit +40%"],
+  "why_this_person": "Als Tech-Lead hat die Person direkten Einblick in diese Veränderung und kann authentisch darüber berichten",
+  "source": "Stack Overflow Developer Survey 2024"
+}}
+
+WICHTIG:
+- Jeder Vorschlag muss sich UNTERSCHEIDEN (anderer Angle, andere Kategorie)
+- Keine generischen "Die Zukunft von X" Themen
+- Hook-Ideen müssen zum Stil der Beispiel-Posts passen!
+- Key Facts müssen aus der Recherche stammen (keine erfundenen Zahlen)"""
 
     def _get_structure_prompt(
         self,
@@ -316,7 +457,7 @@ QUALITÄTSKRITERIEN:
         target_audience: str,
         persona: str = ""
     ) -> str:
-        """Get prompt to structure Perplexity research into JSON."""
+        """Get prompt to structure Perplexity research into JSON (legacy)."""
         return f"""Strukturiere die folgenden Recherche-Ergebnisse in ein sauberes JSON-Format.
 
 RECHERCHE-ERGEBNISSE:
@@ -344,6 +485,42 @@ WICHTIG:
 - Erfinde NICHTS dazu
 - Wenn etwas unklar ist, lass es weg
 - Mindestens 5 Themen wenn vorhanden"""
+
+    def _ensure_diversity(self, topics: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Ensure topic suggestions are diverse (different categories, angles).
+
+        Args:
+            topics: List of topic suggestions
+
+        Returns:
+            Filtered list with diverse topics
+        """
+        if len(topics) <= 3:
+            return topics
+
+        # Track categories used
+        category_counts = {}
+        diverse_topics = []
+
+        for topic in topics:
+            category = topic.get("category", "Unknown")
+
+            # Allow max 2 topics per category
+            if category_counts.get(category, 0) < 2:
+                diverse_topics.append(topic)
+                category_counts[category] = category_counts.get(category, 0) + 1
+
+        # If we filtered too many, add back some
+        if len(diverse_topics) < 5 and len(topics) >= 5:
+            for topic in topics:
+                if topic not in diverse_topics:
+                    diverse_topics.append(topic)
+                    if len(diverse_topics) >= 6:
+                        break
+
+        logger.info(f"Diversity check: {len(topics)} -> {len(diverse_topics)} topics, categories: {category_counts}")
+        return diverse_topics
 
     def _extract_topics_from_response(self, response: str) -> List[Dict[str, Any]]:
         """
