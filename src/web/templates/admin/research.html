@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Research Topics - LinkedIn Posts{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2">Research Topics</h1>
+    <p class="text-gray-400">Recherchiere neue Content-Themen mit Perplexity AI</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Left: Form -->
+    <div>
+        <form id="researchForm" class="card-bg rounded-xl border p-6">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Kunde auswählen</label>
+                <select name="customer_id" id="customerSelect" required class="w-full input-bg border rounded-lg px-4 py-3 text-white">
+                    <option value="">-- Kunde wählen --</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}">{{ customer.name }} - {{ customer.company_name or 'Kein Unternehmen' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Post Type Selection -->
+            <div id="postTypeArea" class="mb-6 hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Post-Typ (optional)</label>
+                <div id="postTypeCards" class="grid grid-cols-2 gap-2 mb-2">
+                    <!-- Post type cards will be loaded here -->
+                </div>
+                <p class="text-xs text-gray-500">Wähle einen Post-Typ für gezielte Recherche oder lasse leer für allgemeine Recherche.</p>
+                <input type="hidden" name="post_type_id" id="selectedPostTypeId" value="">
+            </div>
+
+            <!-- Progress Area -->
+            <div id="progressArea" class="hidden mb-6">
+                <div class="bg-brand-bg rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="progressMessage" class="text-gray-300">Starte Recherche...</span>
+                        <span id="progressPercent" class="text-gray-400">0%</span>
+                    </div>
+                    <div class="w-full bg-brand-bg-dark rounded-full h-2">
+                        <div id="progressBar" class="bg-brand-highlight h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full btn-primary font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                Research starten
+            </button>
+        </form>
+
+        {% if not customers %}
+        <div class="mt-4 bg-yellow-900/30 border border-yellow-600 rounded-lg p-4">
+            <p class="text-yellow-300">Noch keine Kunden vorhanden. <a href="/admin/customers/new" class="underline">Erstelle zuerst einen Kunden</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right: Results -->
+    <div>
+        <div id="resultsArea" class="card-bg rounded-xl border p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Gefundene Topics</h3>
+            <div id="topicsList" class="space-y-4">
+                <p class="text-gray-400">Starte eine Recherche um Topics zu finden...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('researchForm');
+const submitBtn = document.getElementById('submitBtn');
+const progressArea = document.getElementById('progressArea');
+const progressBar = document.getElementById('progressBar');
+const progressMessage = document.getElementById('progressMessage');
+const progressPercent = document.getElementById('progressPercent');
+const topicsList = document.getElementById('topicsList');
+const customerSelect = document.getElementById('customerSelect');
+const postTypeArea = document.getElementById('postTypeArea');
+const postTypeCards = document.getElementById('postTypeCards');
+const selectedPostTypeId = document.getElementById('selectedPostTypeId');
+
+let currentPostTypes = [];
+
+// Load post types when customer is selected
+customerSelect.addEventListener('change', async () => {
+    const customerId = customerSelect.value;
+    selectedPostTypeId.value = '';
+
+    if (!customerId) {
+        postTypeArea.classList.add('hidden');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/api/customers/${customerId}/post-types`);
+        const data = await response.json();
+
+        if (data.post_types && data.post_types.length > 0) {
+            currentPostTypes = data.post_types;
+            postTypeArea.classList.remove('hidden');
+
+            postTypeCards.innerHTML = `
+                <button type="button" onclick="selectPostType('')" id="pt_all"
+                    class="p-3 rounded-lg border text-left transition-colors bg-brand-highlight/20 border-brand-highlight text-white">
+                    <div class="font-medium text-sm">Alle Typen</div>
+                    <div class="text-xs text-gray-400 mt-1">Allgemeine Recherche</div>
+                </button>
+            ` + data.post_types.map(pt => `
+                <button type="button" onclick="selectPostType('${pt.id}')" id="pt_${pt.id}"
+                    class="p-3 rounded-lg border text-left transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white">
+                    <div class="font-medium text-sm">${pt.name}</div>
+                    <div class="text-xs text-gray-400 mt-1">${pt.analyzed_post_count || 0} Posts analysiert</div>
+                    ${pt.has_analysis ? '<span class="text-xs text-green-400">Analyse</span>' : ''}
+                </button>
+            `).join('');
+        } else {
+            postTypeArea.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Failed to load post types:', error);
+        postTypeArea.classList.add('hidden');
+    }
+});
+
+function selectPostType(typeId) {
+    selectedPostTypeId.value = typeId;
+
+    // Update card styles
+    document.querySelectorAll('[id^="pt_"]').forEach(card => {
+        if (card.id === `pt_${typeId}` || (typeId === '' && card.id === 'pt_all')) {
+            card.className = 'p-3 rounded-lg border text-left transition-colors bg-brand-highlight/20 border-brand-highlight text-white';
+        } else {
+            card.className = 'p-3 rounded-lg border text-left transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white';
+        }
+    });
+}
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const customerId = customerSelect.value;
+    if (!customerId) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Recherchiert...';
+    progressArea.classList.remove('hidden');
+
+    const formData = new FormData();
+    formData.append('customer_id', customerId);
+    if (selectedPostTypeId.value) {
+        formData.append('post_type_id', selectedPostTypeId.value);
+    }
+
+    try {
+        const response = await fetch('/admin/api/research', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        const taskId = data.task_id;
+        const pollInterval = setInterval(async () => {
+            const statusResponse = await fetch(`/admin/api/tasks/${taskId}`);
+            const status = await statusResponse.json();
+
+            progressBar.style.width = `${status.progress}%`;
+            progressPercent.textContent = `${status.progress}%`;
+            progressMessage.textContent = status.message;
+
+            if (status.status === 'completed') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Research starten';
+
+                // Display topics
+                if (status.topics && status.topics.length > 0) {
+                    topicsList.innerHTML = status.topics.map((topic, i) => `
+                        <div class="bg-brand-bg rounded-lg p-4 border border-brand-bg-light">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1">
+                                    <span class="inline-block px-2 py-1 text-xs font-medium bg-brand-highlight/20 text-brand-highlight rounded mb-2">${topic.category || 'Topic'}</span>
+                                    <h4 class="font-semibold text-white">${topic.title}</h4>
+                                    ${topic.angle ? `<p class="text-sm text-brand-highlight/80 mt-1">↳ ${topic.angle}</p>` : ''}
+                                    ${topic.hook_idea ? `<p class="text-sm text-gray-300 mt-2 italic border-l-2 border-brand-highlight/30 pl-2">"${topic.hook_idea.substring(0, 150)}..."</p>` : ''}
+                                    <p class="text-gray-400 text-sm mt-2">${topic.fact ? topic.fact.substring(0, 200) + '...' : ''}</p>
+                                    ${topic.source ? `<p class="text-gray-500 text-xs mt-2">Quelle: ${topic.source}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    topicsList.innerHTML = '<p class="text-gray-400">Keine Topics gefunden.</p>';
+                }
+            } else if (status.status === 'error') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Research starten';
+                topicsList.innerHTML = `<p class="text-red-400">Fehler: ${status.message}</p>`;
+            }
+        }, 1000);
+    } catch (error) {
+        progressArea.classList.add('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Research starten';
+        topicsList.innerHTML = `<p class="text-red-400">Fehler: ${error.message}</p>`;
+    }
+});
+</script>
+{% endblock %}

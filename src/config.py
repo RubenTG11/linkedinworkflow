@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     writer_learn_from_feedback: bool = True  # Learn from recurring critic feedback
     writer_feedback_history_count: int = 10  # Number of past posts to analyze for patterns
 
+    # User Frontend (LinkedIn OAuth via Supabase)
+    user_frontend_enabled: bool = True  # Enable user frontend with LinkedIn OAuth
+    supabase_redirect_url: str = ""  # OAuth Callback URL (e.g., https://linkedin.onyva.dev/auth/callback)
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

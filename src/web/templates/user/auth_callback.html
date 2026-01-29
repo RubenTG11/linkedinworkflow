@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anmeldung... - LinkedIn Posts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #3d4848; }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <div class="w-16 h-16 border-4 border-brand-highlight border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-white text-lg">Anmeldung wird verarbeitet...</p>
+        <p class="text-gray-400 text-sm mt-2">Du wirst gleich weitergeleitet.</p>
+    </div>
+
+    <script>
+        // Supabase returns tokens in URL hash fragment
+        // Extract them and redirect to callback with query params
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        const error = params.get('error');
+        const errorDescription = params.get('error_description');
+
+        if (error) {
+            window.location.href = `/login?error=${encodeURIComponent(error)}`;
+        } else if (accessToken) {
+            // Redirect back to callback with tokens in query params
+            let callbackUrl = `/auth/callback?access_token=${encodeURIComponent(accessToken)}`;
+            if (refreshToken) {
+                callbackUrl += `&refresh_token=${encodeURIComponent(refreshToken)}`;
+            }
+            window.location.href = callbackUrl;
+        } else {
+            // No tokens found, redirect to login
+            window.location.href = '/login?error=no_tokens';
+        }
+    </script>
+</body>
+</html>

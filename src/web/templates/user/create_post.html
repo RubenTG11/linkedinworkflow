@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+{% block title %}Post erstellen - LinkedIn Posts{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2">Post erstellen</h1>
+    <p class="text-gray-400">Generiere einen neuen LinkedIn Post mit AI</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Left: Form -->
+    <div>
+        <form id="createPostForm" class="card-bg rounded-xl border p-6 space-y-6">
+            <!-- Post Type Selection -->
+            <div id="postTypeSelectionArea" class="hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Post-Typ auswählen (optional)</label>
+                <div id="postTypeCards" class="flex flex-wrap gap-2 mb-2">
+                    <!-- Post type cards will be loaded here -->
+                </div>
+                <input type="hidden" id="selectedPostTypeId" value="">
+            </div>
+
+            <!-- Topic Selection -->
+            <div id="topicSelectionArea">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Topic auswählen</label>
+                <div id="topicsList" class="space-y-2 max-h-64 overflow-y-auto">
+                    <p class="text-gray-500">Lade Topics...</p>
+                </div>
+            </div>
+
+            <!-- Custom Topic -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <span>Oder eigenes Topic eingeben</span>
+                </label>
+                <div class="space-y-3">
+                    <input type="text" id="customTopicTitle" placeholder="Topic Titel" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
+                    <textarea id="customTopicFact" rows="3" placeholder="Fakt / Kernaussage zum Topic..." class="w-full input-bg border rounded-lg px-4 py-2 text-white"></textarea>
+                    <input type="text" id="customTopicSource" placeholder="Quelle (optional)" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
+                </div>
+            </div>
+
+            <!-- Progress Area -->
+            <div id="progressArea" class="hidden">
+                <div class="bg-brand-bg rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="progressMessage" class="text-gray-300">Starte Post-Erstellung...</span>
+                        <span id="progressPercent" class="text-gray-400">0%</span>
+                    </div>
+                    <div class="w-full bg-brand-bg-dark rounded-full h-2">
+                        <div id="progressBar" class="bg-brand-highlight h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="iterationInfo" class="mt-2 text-sm text-gray-400"></div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full btn-primary font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Post generieren
+            </button>
+        </form>
+    </div>
+
+    <!-- Right: Result -->
+    <div>
+        <div id="resultArea" class="card-bg rounded-xl border p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Generierter Post</h3>
+
+            <!-- Live Versions Display -->
+            <div id="liveVersions" class="hidden space-y-4 mb-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-sm text-gray-400">Live-Vorschau der Iterationen:</span>
+                </div>
+                <div id="versionsContainer" class="space-y-4"></div>
+            </div>
+
+            <div id="postResult">
+                <p class="text-gray-400">Wähle ein Topic aus oder gib ein eigenes ein, dann klicke auf "Post generieren"...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('createPostForm');
+const topicSelectionArea = document.getElementById('topicSelectionArea');
+const topicsList = document.getElementById('topicsList');
+const submitBtn = document.getElementById('submitBtn');
+const progressArea = document.getElementById('progressArea');
+const progressBar = document.getElementById('progressBar');
+const progressMessage = document.getElementById('progressMessage');
+const progressPercent = document.getElementById('progressPercent');
+const iterationInfo = document.getElementById('iterationInfo');
+const postResult = document.getElementById('postResult');
+const liveVersions = document.getElementById('liveVersions');
+const versionsContainer = document.getElementById('versionsContainer');
+const postTypeSelectionArea = document.getElementById('postTypeSelectionArea');
+const postTypeCards = document.getElementById('postTypeCards');
+const selectedPostTypeIdInput = document.getElementById('selectedPostTypeId');
+
+let selectedTopic = null;
+let currentVersionIndex = 0;
+let currentPostTypes = [];
+let currentTopics = [];
+
+function renderVersions(versions, feedbackList) {
+    if (!versions || versions.length === 0) {
+        liveVersions.classList.add('hidden');
+        return;
+    }
+
+    liveVersions.classList.remove('hidden');
+
+    // Build version tabs and content
+    let html = `
+        <div class="flex gap-2 mb-4 flex-wrap">
+            ${versions.map((_, i) => `
+                <button onclick="showVersion(${i})" id="versionTab${i}"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
+                    ${i === currentVersionIndex ? 'bg-brand-highlight text-brand-bg-dark' : 'bg-brand-bg text-gray-300 hover:bg-brand-bg-light'}">
+                    V${i + 1}
+                    ${feedbackList[i] ? `<span class="ml-1 text-xs opacity-75">(${feedbackList[i].overall_score || '?'})</span>` : ''}
+                </button>
+            `).join('')}
+        </div>
+    `;
+
+    // Show current version
+    const currentVersion = versions[currentVersionIndex];
+    const currentFeedback = feedbackList[currentVersionIndex];
+
+    html += `
+        <div class="grid grid-cols-1 ${currentFeedback ? 'lg:grid-cols-2' : ''} gap-4">
+            <div class="bg-brand-bg/50 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-300">Version ${currentVersionIndex + 1}</span>
+                    ${currentFeedback ? `
+                        <span class="px-2 py-0.5 text-xs rounded ${currentFeedback.approved ? 'bg-green-600/30 text-green-300' : 'bg-yellow-600/30 text-yellow-300'}">
+                            ${currentFeedback.approved ? 'Approved' : `Score: ${currentFeedback.overall_score}/100`}
+                        </span>
+                    ` : '<span class="text-xs text-gray-500">Wird bewertet...</span>'}
+                </div>
+                <pre class="whitespace-pre-wrap text-gray-200 font-sans text-sm max-h-96 overflow-y-auto">${currentVersion}</pre>
+            </div>
+            ${currentFeedback ? `
+                <div class="bg-brand-bg/30 rounded-lg p-4 border border-brand-bg-light">
+                    <span class="text-sm font-medium text-gray-300 block mb-2">Kritik</span>
+                    <p class="text-sm text-gray-400 mb-3">${currentFeedback.feedback || 'Keine Kritik'}</p>
+                    ${currentFeedback.improvements && currentFeedback.improvements.length > 0 ? `
+                        <div class="mt-2">
+                            <span class="text-xs font-medium text-gray-400">Verbesserungen:</span>
+                            <ul class="mt-1 space-y-1">
+                                ${currentFeedback.improvements.map(imp => `
+                                    <li class="text-xs text-gray-500 flex items-start gap-1">
+                                        <span class="text-yellow-500">•</span> ${imp}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    ${currentFeedback.scores ? `
+                        <div class="mt-3 pt-3 border-t border-brand-bg-light">
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div class="text-center">
+                                    <div class="text-gray-500">Authentizität</div>
+                                    <div class="font-medium text-gray-300">${currentFeedback.scores.authenticity_and_style || '?'}/40</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-gray-500">Content</div>
+                                    <div class="font-medium text-gray-300">${currentFeedback.scores.content_quality || '?'}/35</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-gray-500">Technik</div>
+                                    <div class="font-medium text-gray-300">${currentFeedback.scores.technical_execution || '?'}/25</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    versionsContainer.innerHTML = html;
+}
+
+function showVersion(index) {
+    currentVersionIndex = index;
+    // Get cached versions from progress store
+    const cachedData = window.lastProgressData;
+    if (cachedData) {
+        renderVersions(cachedData.versions, cachedData.feedback_list);
+    }
+}
+
+// Load topics and post types on page load
+async function loadData() {
+    // Load post types
+    try {
+        const ptResponse = await fetch('/api/post-types');
+        const ptData = await ptResponse.json();
+
+        if (ptData.post_types && ptData.post_types.length > 0) {
+            currentPostTypes = ptData.post_types;
+            postTypeSelectionArea.classList.remove('hidden');
+
+            postTypeCards.innerHTML = `
+                <button type="button" onclick="selectPostTypeForCreate('')" id="ptc_all"
+                    class="px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-highlight/20 border-brand-highlight text-white">
+                    Alle Typen
+                </button>
+            ` + ptData.post_types.map(pt => `
+                <button type="button" onclick="selectPostTypeForCreate('${pt.id}')" id="ptc_${pt.id}"
+                    class="px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white">
+                    ${pt.name}
+                    ${pt.has_analysis ? '<span class="ml-1 text-green-400 text-xs">*</span>' : ''}
+                </button>
+            `).join('');
+        } else {
+            postTypeSelectionArea.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Failed to load post types:', error);
+        postTypeSelectionArea.classList.add('hidden');
+    }
+
+    // Load topics
+    loadTopics();
+}
+
+async function loadTopics(postTypeId = null) {
+    topicsList.innerHTML = '<p class="text-gray-500">Lade Topics...</p>';
+
+    try {
+        let url = '/api/topics';
+        if (postTypeId) {
+            url += `?post_type_id=${postTypeId}`;
+        }
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.topics && data.topics.length > 0) {
+            renderTopicsList(data);
+        } else {
+            let message = '';
+            if (data.used_count > 0) {
+                message = `<div class="text-center py-4">
+                    <p class="text-gray-400 mb-2">Alle ${data.used_count} Topics wurden bereits verwendet.</p>
+                    <a href="/research" class="text-brand-highlight hover:underline">Neue Topics recherchieren</a>
+                    <p class="text-gray-500 text-sm mt-2">oder gib unten ein eigenes Topic ein.</p>
+                </div>`;
+            } else {
+                message = `<div class="text-center py-4">
+                    <p class="text-gray-400 mb-2">Keine Topics gefunden${postTypeId ? ' für diesen Post-Typ' : ''}.</p>
+                    <a href="/research" class="text-brand-highlight hover:underline">Recherche starten</a>
+                    <p class="text-gray-500 text-sm mt-2">oder gib unten ein eigenes Topic ein.</p>
+                </div>`;
+            }
+            topicsList.innerHTML = message;
+        }
+    } catch (error) {
+        topicsList.innerHTML = `<p class="text-red-400">Fehler beim Laden: ${error.message}</p>`;
+    }
+}
+
+// Clear selected topic when custom topic is entered
+['customTopicTitle', 'customTopicFact', 'customTopicSource'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+        selectedTopic = null;
+        document.querySelectorAll('input[name="topic"]').forEach(radio => radio.checked = false);
+    });
+});
+
+function selectPostTypeForCreate(typeId) {
+    selectedPostTypeIdInput.value = typeId;
+
+    // Update card styles
+    document.querySelectorAll('[id^="ptc_"]').forEach(card => {
+        if (card.id === `ptc_${typeId}` || (typeId === '' && card.id === 'ptc_all')) {
+            card.className = 'px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-highlight/20 border-brand-highlight text-white';
+        } else {
+            card.className = 'px-3 py-2 rounded-lg border text-sm transition-colors bg-brand-bg border-brand-bg-light hover:border-brand-highlight/50 text-white';
+        }
+    });
+
+    // Reload topics filtered by post type
+    loadTopics(typeId);
+}
+
+function renderTopicsList(data) {
+    // Store topics in global array for safe access
+    currentTopics = data.topics;
+
+    // Reset selected topic when list is re-rendered
+    selectedTopic = null;
+
+    let statsHtml = '';
+    if (data.used_count > 0) {
+        statsHtml = `<p class="text-xs text-gray-500 mb-3">${data.available_count} verfügbar · ${data.used_count} bereits verwendet</p>`;
+    }
+
+    topicsList.innerHTML = statsHtml + data.topics.map((topic, i) => `
+        <label class="flex items-start gap-3 p-3 bg-brand-bg/50 rounded-lg cursor-pointer hover:bg-brand-bg transition-colors border border-transparent hover:border-brand-highlight/30">
+            <input type="radio" name="topic" value="${i}" class="mt-1 text-brand-highlight" data-topic-index="${i}">
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-brand-highlight/20 text-brand-highlight rounded">${escapeHtml(topic.category || 'Topic')}</span>
+                    ${topic.target_post_type_id ? `<span class="text-xs text-gray-500">Typ-spezifisch</span>` : ''}
+                    ${topic.source ? `<span class="text-xs text-gray-500">🔗 ${escapeHtml(topic.source.substring(0, 30))}${topic.source.length > 30 ? '...' : ''}</span>` : ''}
+                </div>
+                <p class="font-medium text-white">${escapeHtml(topic.title)}</p>
+                ${topic.angle ? `<p class="text-xs text-brand-highlight/80 mt-1">→ ${escapeHtml(topic.angle)}</p>` : ''}
+                ${topic.hook_idea ? `<p class="text-sm text-gray-300 mt-2 italic border-l-2 border-brand-highlight/30 pl-2">"${escapeHtml(topic.hook_idea.substring(0, 120))}${topic.hook_idea.length > 120 ? '...' : ''}"</p>` : ''}
+                ${topic.key_facts && topic.key_facts.length > 0 ? `
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        ${topic.key_facts.slice(0, 2).map(f => `<span class="text-xs bg-brand-bg-dark px-2 py-0.5 rounded text-gray-400">📊 ${escapeHtml(f.substring(0, 40))}${f.length > 40 ? '...' : ''}</span>`).join('')}
+                    </div>
+                ` : (topic.fact ? `<p class="text-sm text-gray-400 mt-1">${escapeHtml(topic.fact.substring(0, 100))}...</p>` : '')}
+                ${topic.why_this_person ? `<p class="text-xs text-gray-500 mt-2">💡 ${escapeHtml(topic.why_this_person.substring(0, 80))}${topic.why_this_person.length > 80 ? '...' : ''}</p>` : ''}
+            </div>
+        </label>
+    `).join('');
+
+    // Add event listeners to radio buttons
+    document.querySelectorAll('input[name="topic"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const index = parseInt(radio.dataset.topicIndex, 10);
+            selectedTopic = currentTopics[index];
+            // Clear custom topic fields
+            document.getElementById('customTopicTitle').value = '';
+            document.getElementById('customTopicFact').value = '';
+            document.getElementById('customTopicSource').value = '';
+        });
+    });
+}
+
+// Helper function to escape HTML special characters
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Get topic (either selected or custom)
+    let topic;
+    const customTitle = document.getElementById('customTopicTitle').value.trim();
+    const customFact = document.getElementById('customTopicFact').value.trim();
+
+    if (customTitle && customFact) {
+        topic = {
+            title: customTitle,
+            fact: customFact,
+            source: document.getElementById('customTopicSource').value.trim() || null,
+            category: 'Custom'
+        };
+    } else if (selectedTopic) {
+        topic = selectedTopic;
+    } else {
+        alert('Bitte wähle ein Topic aus oder gib ein eigenes ein.');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generiert...';
+    progressArea.classList.remove('hidden');
+    postResult.innerHTML = '<p class="text-gray-400">Post wird generiert...</p>';
+
+    const formData = new FormData();
+    formData.append('topic_json', JSON.stringify(topic));
+    if (selectedPostTypeIdInput.value) {
+        formData.append('post_type_id', selectedPostTypeIdInput.value);
+    }
+
+    try {
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        const taskId = data.task_id;
+        currentVersionIndex = 0;
+        window.lastProgressData = null;
+
+        const pollInterval = setInterval(async () => {
+            const statusResponse = await fetch(`/api/tasks/${taskId}`);
+            const status = await statusResponse.json();
+
+            progressBar.style.width = `${status.progress}%`;
+            progressPercent.textContent = `${status.progress}%`;
+            progressMessage.textContent = status.message;
+
+            if (status.iteration !== undefined) {
+                iterationInfo.textContent = `Iteration ${status.iteration}/${status.max_iterations}`;
+            }
+
+            // Update live versions display
+            if (status.versions && status.versions.length > 0) {
+                window.lastProgressData = status;
+                // Auto-select latest version
+                if (status.versions.length > currentVersionIndex + 1) {
+                    currentVersionIndex = status.versions.length - 1;
+                }
+                renderVersions(status.versions, status.feedback_list || []);
+                postResult.innerHTML = '<p class="text-gray-400">Siehe Live-Vorschau oben...</p>';
+            }
+
+            if (status.status === 'completed') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Post generieren';
+
+                // Keep live versions visible but update header
+                const result = status.result;
+
+                postResult.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 text-sm flex-wrap">
+                            <span class="px-2 py-1 rounded ${result.approved ? 'bg-green-600/30 text-green-300' : 'bg-yellow-600/30 text-yellow-300'}">
+                                ${result.approved ? 'Approved' : 'Review needed'}
+                            </span>
+                            <span class="text-gray-400">Score: ${result.final_score}/100</span>
+                            <span class="text-gray-400">Iterations: ${result.iterations}</span>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-2">Finaler Post:</div>
+                        <div class="bg-brand-bg/50 rounded-lg p-4">
+                            <pre class="whitespace-pre-wrap text-gray-200 font-sans">${result.final_post}</pre>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="copyPost()" class="px-4 py-2 bg-brand-bg hover:bg-brand-bg-light rounded-lg text-sm text-white transition-colors">
+                                In Zwischenablage kopieren
+                            </button>
+                            <button onclick="toggleVersions()" class="px-4 py-2 bg-brand-bg hover:bg-brand-bg-light rounded-lg text-sm text-white transition-colors">
+                                Versionen ${liveVersions.classList.contains('hidden') ? 'anzeigen' : 'ausblenden'}
+                            </button>
+                            <a href="/posts/${result.post_id}" class="px-4 py-2 bg-brand-highlight hover:bg-brand-highlight/90 rounded-lg text-sm text-brand-bg-dark font-medium transition-colors">
+                                Post öffnen
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else if (status.status === 'error') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Post generieren';
+                postResult.innerHTML = `<p class="text-red-400">Fehler: ${status.message}</p>`;
+            }
+        }, 1000);
+    } catch (error) {
+        progressArea.classList.add('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Post generieren';
+        postResult.innerHTML = `<p class="text-red-400">Fehler: ${error.message}</p>`;
+    }
+});
+
+function copyPost() {
+    const postText = document.querySelector('#postResult pre').textContent;
+    navigator.clipboard.writeText(postText).then(() => {
+        alert('Post in Zwischenablage kopiert!');
+    });
+}
+
+function toggleVersions() {
+    liveVersions.classList.toggle('hidden');
+}
+
+// Load data on page load
+loadData();
+</script>
+{% endblock %}

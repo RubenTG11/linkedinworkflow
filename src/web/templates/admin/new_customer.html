@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Neuer Kunde - LinkedIn Posts{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2">Neuer Kunde</h1>
+    <p class="text-gray-400">Richte einen neuen Kunden ein und starte das initiale Setup</p>
+</div>
+
+<div class="max-w-2xl">
+    <form id="customerForm" class="card-bg rounded-xl border p-6 space-y-6">
+        <!-- Basic Info -->
+        <div>
+            <h3 class="text-lg font-semibold text-white mb-4">Basis-Informationen</h3>
+            <div class="grid gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Name *</label>
+                    <input type="text" name="name" required class="w-full input-bg border rounded-lg px-4 py-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">LinkedIn URL *</label>
+                    <input type="url" name="linkedin_url" required placeholder="https://www.linkedin.com/in/username" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Firma</label>
+                        <input type="text" name="company_name" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">E-Mail</label>
+                        <input type="email" name="email" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona -->
+        <div>
+            <h3 class="text-lg font-semibold text-white mb-4">Persona & Stil</h3>
+            <div class="grid gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Persona</label>
+                    <textarea name="persona" rows="3" placeholder="Beschreibe die Expertise, Positionierung und den Charakter der Person..." class="w-full input-bg border rounded-lg px-4 py-2 text-white"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Ansprache</label>
+                    <input type="text" name="form_of_address" placeholder="z.B. Duzen (Du/Euch) oder Siezen (Sie)" class="w-full input-bg border rounded-lg px-4 py-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Style Guide</label>
+                    <textarea name="style_guide" rows="3" placeholder="Beschreibe den Schreibstil, Tonalität und Richtlinien..." class="w-full input-bg border rounded-lg px-4 py-2 text-white"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Types -->
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white">Post-Typen</h3>
+                <button type="button" id="addPostTypeBtn" class="text-sm text-brand-highlight hover:underline">+ Post-Typ hinzufügen</button>
+            </div>
+            <p class="text-sm text-gray-400 mb-4">Definiere verschiedene Arten von Posts (z.B. "Thought Leader", "Case Study", "How-To"). Diese werden zur Kategorisierung und typ-spezifischen Analyse verwendet.</p>
+
+            <div id="postTypesContainer" class="space-y-4">
+                <!-- Post type entries will be added here -->
+            </div>
+        </div>
+
+        <!-- Progress Area -->
+        <div id="progressArea" class="hidden">
+            <div class="bg-brand-bg rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span id="progressMessage" class="text-gray-300">Starte Setup...</span>
+                    <span id="progressPercent" class="text-gray-400">0%</span>
+                </div>
+                <div class="w-full bg-brand-bg-dark rounded-full h-2">
+                    <div id="progressBar" class="bg-brand-highlight h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Area -->
+        <div id="resultArea" class="hidden">
+            <div id="successResult" class="hidden bg-green-900/30 border border-green-500 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span class="text-green-300">Setup erfolgreich abgeschlossen!</span>
+                </div>
+            </div>
+            <div id="errorResult" class="hidden bg-red-900/30 border border-red-500 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <span id="errorMessage" class="text-red-300">Fehler beim Setup</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex gap-4">
+            <button type="submit" id="submitBtn" class="flex-1 btn-primary font-medium py-3 rounded-lg transition-colors">
+                Setup starten
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('customerForm');
+const submitBtn = document.getElementById('submitBtn');
+const progressArea = document.getElementById('progressArea');
+const resultArea = document.getElementById('resultArea');
+const progressBar = document.getElementById('progressBar');
+const progressMessage = document.getElementById('progressMessage');
+const progressPercent = document.getElementById('progressPercent');
+const postTypesContainer = document.getElementById('postTypesContainer');
+const addPostTypeBtn = document.getElementById('addPostTypeBtn');
+
+let postTypeIndex = 0;
+
+function createPostTypeEntry() {
+    const index = postTypeIndex++;
+    const entry = document.createElement('div');
+    entry.className = 'bg-brand-bg rounded-lg p-4 border border-brand-bg-light';
+    entry.id = `postType_${index}`;
+    entry.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+            <span class="text-sm font-medium text-gray-300">Post-Typ ${index + 1}</span>
+            <button type="button" onclick="removePostType(${index})" class="text-red-400 hover:text-red-300 text-sm">Entfernen</button>
+        </div>
+        <div class="grid gap-3">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Name *</label>
+                    <input type="text" data-pt-field="name" data-pt-index="${index}" required placeholder="z.B. Thought Leader" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Beschreibung</label>
+                    <input type="text" data-pt-field="description" data-pt-index="${index}" placeholder="Kurze Beschreibung" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Identifizierende Hashtags (kommagetrennt)</label>
+                <input type="text" data-pt-field="hashtags" data-pt-index="${index}" placeholder="#ThoughtLeader, #Insight, #Leadership" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Keywords (kommagetrennt)</label>
+                <input type="text" data-pt-field="keywords" data-pt-index="${index}" placeholder="Erfahrung, Learnings, Meinung" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+            </div>
+            <details class="mt-2">
+                <summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-300">Erweiterte Eigenschaften</summary>
+                <div class="mt-3 grid gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Zweck</label>
+                        <input type="text" data-pt-field="purpose" data-pt-index="${index}" placeholder="z.B. Expertise zeigen, Meinungsführerschaft etablieren" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Typische Tonalität</label>
+                        <input type="text" data-pt-field="tone" data-pt-index="${index}" placeholder="z.B. reflektiert, provokativ, inspirierend" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Zielgruppe</label>
+                        <input type="text" data-pt-field="target_audience" data-pt-index="${index}" placeholder="z.B. Führungskräfte, Entscheider" class="w-full input-bg border rounded-lg px-3 py-2 text-white text-sm">
+                    </div>
+                </div>
+            </details>
+        </div>
+    `;
+    postTypesContainer.appendChild(entry);
+}
+
+function removePostType(index) {
+    const entry = document.getElementById(`postType_${index}`);
+    if (entry) {
+        entry.remove();
+    }
+}
+
+function collectPostTypes() {
+    const postTypes = [];
+    const entries = postTypesContainer.querySelectorAll('[id^="postType_"]');
+
+    entries.forEach(entry => {
+        const index = entry.id.split('_')[1];
+        const name = entry.querySelector(`[data-pt-field="name"][data-pt-index="${index}"]`)?.value?.trim();
+
+        if (name) {
+            const hashtagsRaw = entry.querySelector(`[data-pt-field="hashtags"][data-pt-index="${index}"]`)?.value || '';
+            const keywordsRaw = entry.querySelector(`[data-pt-field="keywords"][data-pt-index="${index}"]`)?.value || '';
+
+            postTypes.push({
+                name: name,
+                description: entry.querySelector(`[data-pt-field="description"][data-pt-index="${index}"]`)?.value?.trim() || null,
+                identifying_hashtags: hashtagsRaw.split(',').map(h => h.trim()).filter(h => h),
+                identifying_keywords: keywordsRaw.split(',').map(k => k.trim()).filter(k => k),
+                semantic_properties: {
+                    purpose: entry.querySelector(`[data-pt-field="purpose"][data-pt-index="${index}"]`)?.value?.trim() || null,
+                    typical_tone: entry.querySelector(`[data-pt-field="tone"][data-pt-index="${index}"]`)?.value?.trim() || null,
+                    target_audience: entry.querySelector(`[data-pt-field="target_audience"][data-pt-index="${index}"]`)?.value?.trim() || null
+                }
+            });
+        }
+    });
+
+    return postTypes;
+}
+
+addPostTypeBtn.addEventListener('click', createPostTypeEntry);
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wird gestartet...';
+    progressArea.classList.remove('hidden');
+    resultArea.classList.add('hidden');
+
+    const formData = new FormData(form);
+
+    // Add post types as JSON
+    const postTypes = collectPostTypes();
+    if (postTypes.length > 0) {
+        formData.append('post_types_json', JSON.stringify(postTypes));
+    }
+
+    try {
+        const response = await fetch('/admin/api/customers', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        // Poll for progress
+        const taskId = data.task_id;
+        const pollInterval = setInterval(async () => {
+            const statusResponse = await fetch(`/admin/api/tasks/${taskId}`);
+            const status = await statusResponse.json();
+
+            progressBar.style.width = `${status.progress}%`;
+            progressPercent.textContent = `${status.progress}%`;
+            progressMessage.textContent = status.message;
+
+            if (status.status === 'completed') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                resultArea.classList.remove('hidden');
+                document.getElementById('successResult').classList.remove('hidden');
+                submitBtn.textContent = 'Setup starten';
+                submitBtn.disabled = false;
+                form.reset();
+                postTypesContainer.innerHTML = '';
+                postTypeIndex = 0;
+            } else if (status.status === 'error') {
+                clearInterval(pollInterval);
+                progressArea.classList.add('hidden');
+                resultArea.classList.remove('hidden');
+                document.getElementById('errorResult').classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = status.message;
+                submitBtn.textContent = 'Setup starten';
+                submitBtn.disabled = false;
+            }
+        }, 1000);
+    } catch (error) {
+        progressArea.classList.add('hidden');
+        resultArea.classList.remove('hidden');
+        document.getElementById('errorResult').classList.remove('hidden');
+        document.getElementById('errorMessage').textContent = error.message;
+        submitBtn.textContent = 'Setup starten';
+        submitBtn.disabled = false;
+    }
+});
+</script>
+{% endblock %}

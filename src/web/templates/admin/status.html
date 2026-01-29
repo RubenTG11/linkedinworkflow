@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Status - LinkedIn Posts{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2">Status</h1>
+    <p class="text-gray-400">Übersicht über alle Kunden und deren Setup-Status</p>
+</div>
+
+{% if error %}
+<div class="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-6">
+    <strong>Error:</strong> {{ error }}
+</div>
+{% endif %}
+
+{% if customer_statuses %}
+<div class="grid gap-6">
+    {% for item in customer_statuses %}
+    <div class="card-bg rounded-xl border overflow-hidden">
+        <!-- Customer Header -->
+        <div class="px-6 py-4 border-b border-brand-bg-light">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden {{ 'bg-brand-highlight' if not item.profile_picture else '' }}">
+                        {% if item.profile_picture %}
+                        <img src="{{ item.profile_picture }}" alt="{{ item.customer.name }}" class="w-full h-full object-cover" loading="lazy" referrerpolicy="no-referrer">
+                        {% else %}
+                        <span class="text-brand-bg-dark font-bold text-lg">{{ item.customer.name[0] | upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white text-lg">{{ item.customer.name }}</h3>
+                        <p class="text-sm text-gray-400">{{ item.customer.company_name or 'Kein Unternehmen' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if item.status.ready_for_posts %}
+                    <span class="px-3 py-1.5 bg-green-600/30 text-green-300 rounded-lg text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Bereit für Posts
+                    </span>
+                    {% else %}
+                    <span class="px-3 py-1.5 bg-yellow-600/30 text-yellow-300 rounded-lg text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        Setup unvollständig
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Grid -->
+        <div class="p-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <!-- Scraped Posts -->
+                <div class="bg-brand-bg/30 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        {% if item.status.has_scraped_posts %}
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        {% else %}
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        {% endif %}
+                        <span class="text-sm text-gray-400">Scraped Posts</span>
+                    </div>
+                    <p class="text-2xl font-bold text-white">{{ item.status.scraped_posts_count }}</p>
+                </div>
+
+                <!-- Profile Analysis -->
+                <div class="bg-brand-bg/30 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        {% if item.status.has_profile_analysis %}
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        {% else %}
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        {% endif %}
+                        <span class="text-sm text-gray-400">Profil Analyse</span>
+                    </div>
+                    <p class="text-lg font-semibold text-white">{{ 'Vorhanden' if item.status.has_profile_analysis else 'Fehlt' }}</p>
+                </div>
+
+                <!-- Research Topics -->
+                <div class="bg-brand-bg/30 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        {% if item.status.research_count > 0 %}
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        {% else %}
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        {% endif %}
+                        <span class="text-sm text-gray-400">Research Topics</span>
+                    </div>
+                    <p class="text-2xl font-bold text-white">{{ item.status.research_count }}</p>
+                </div>
+
+                <!-- Generated Posts -->
+                <div class="bg-brand-bg/30 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span class="text-sm text-gray-400">Generierte Posts</span>
+                    </div>
+                    <p class="text-2xl font-bold text-white">{{ item.status.posts_count }}</p>
+                </div>
+            </div>
+
+            <!-- Missing Items -->
+            {% if item.status.missing_items %}
+            <div class="bg-yellow-900/20 border border-yellow-600/50 rounded-lg p-4">
+                <h4 class="font-medium text-yellow-300 mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Fehlende Elemente
+                </h4>
+                <ul class="space-y-1">
+                    {% for item_missing in item.status.missing_items %}
+                    <li class="text-yellow-200/80 text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        {{ item_missing }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="flex flex-wrap gap-3 mt-4">
+                {% if not item.status.has_profile_analysis %}
+                <a href="/admin/customers/new" class="px-4 py-2 btn-primary rounded-lg text-sm transition-colors">
+                    Setup wiederholen
+                </a>
+                {% endif %}
+                {% if item.status.research_count == 0 %}
+                <a href="/admin/research" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm text-white transition-colors">
+                    Recherche starten
+                </a>
+                {% endif %}
+                {% if item.status.ready_for_posts %}
+                <a href="/admin/create" class="px-4 py-2 btn-primary rounded-lg text-sm transition-colors">
+                    Post erstellen
+                </a>
+                {% endif %}
+                <a href="/admin/impersonate/{{ item.customer.id }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm text-white transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Als User einloggen
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card-bg rounded-xl border p-12 text-center">
+    <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+    <h3 class="text-xl font-semibold text-white mb-2">Noch keine Kunden</h3>
+    <p class="text-gray-400 mb-6">Erstelle deinen ersten Kunden, um den Status zu sehen.</p>
+    <a href="/admin/customers/new" class="inline-flex items-center gap-2 px-6 py-3 btn-primary font-medium rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        Neuer Kunde
+    </a>
+</div>
+{% endif %}
+{% endblock %}

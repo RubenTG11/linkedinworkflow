@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LinkedIn Posts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': {
+                            'bg': '#3d4848',
+                            'bg-light': '#4a5858',
+                            'bg-dark': '#2d3838',
+                            'highlight': '#ffc700',
+                            'highlight-dark': '#e6b300',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #3d4848; }
+        .btn-primary { background-color: #ffc700; color: #2d3838; }
+        .btn-primary:hover { background-color: #e6b300; }
+        .card-bg { background-color: #4a5858; border-color: #5a6868; }
+        .input-bg { background-color: #3d4848; border-color: #5a6868; }
+        .input-bg:focus { border-color: #ffc700; outline: none; }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+        <div class="card-bg rounded-xl border p-8">
+            <div class="text-center mb-8">
+                <img src="/static/logo.png" alt="Logo" class="h-16 w-auto mx-auto mb-4">
+                <h1 class="text-2xl font-bold text-white mb-2">LinkedIn Posts</h1>
+                <p class="text-gray-400">Admin Panel</p>
+            </div>
+
+            {% if error %}
+            <div class="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-6">
+                Falsches Passwort. Bitte versuche es erneut.
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/admin/login" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Passwort</label>
+                    <input
+                        type="password"
+                        name="password"
+                        required
+                        autofocus
+                        class="w-full input-bg border rounded-lg px-4 py-3 text-white"
+                        placeholder="Passwort eingeben..."
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full btn-primary font-medium py-3 rounded-lg transition-colors"
+                >
+                    Anmelden
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

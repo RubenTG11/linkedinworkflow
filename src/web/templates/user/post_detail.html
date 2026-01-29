@@ -1,0 +1,698 @@
+{% extends "base.html" %}
+{% block title %}{{ post.topic_title }} - Post Details{% endblock %}
+
+{% block head %}
+<style>
+    .section-card {
+        background: rgba(61, 72, 72, 0.3);
+        border: 1px solid rgba(61, 72, 72, 0.6);
+    }
+    .title-truncate {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .reference-post {
+        background: linear-gradient(135deg, rgba(61, 72, 72, 0.4) 0%, rgba(45, 56, 56, 0.6) 100%);
+        border: 1px solid rgba(255, 199, 0, 0.15);
+        position: relative;
+    }
+    .reference-post::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #ffc700 0%, rgba(255, 199, 0, 0.3) 100%);
+        border-radius: 3px 0 0 3px;
+    }
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .profile-item {
+        background: rgba(45, 56, 56, 0.5);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid rgba(61, 72, 72, 0.8);
+    }
+    .stat-bar {
+        height: 6px;
+        background: rgba(45, 56, 56, 0.8);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .stat-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffc700 0%, #ffdb4d 100%);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    /* LinkedIn Preview styles */
+    .linkedin-preview {
+        background: #ffffff;
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        color: rgba(0, 0, 0, 0.9);
+        overflow: hidden;
+    }
+    .linkedin-header {
+        padding: 12px 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .linkedin-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0a66c2 0%, #004182 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 18px;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    .linkedin-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .linkedin-user-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .linkedin-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.9);
+        line-height: 1.3;
+    }
+    .linkedin-headline {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+        line-height: 1.3;
+        margin-top: 2px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .linkedin-timestamp {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 2px;
+    }
+    .linkedin-content {
+        padding: 0 16px 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(0, 0, 0, 0.9);
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .linkedin-content.collapsed {
+        max-height: 120px;
+        overflow: hidden;
+        position: relative;
+    }
+    .linkedin-content.collapsed::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: linear-gradient(transparent, white);
+    }
+    .linkedin-see-more {
+        padding: 0 16px 12px;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .linkedin-see-more:hover {
+        color: #0a66c2;
+        text-decoration: underline;
+    }
+    .linkedin-engagement {
+        padding: 8px 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+    }
+    .linkedin-actions {
+        display: flex;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .linkedin-action-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.6);
+        background: transparent;
+        border: none;
+        cursor: default;
+        transition: background 0.15s;
+    }
+    .linkedin-action-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+    .linkedin-more-btn {
+        padding: 4px;
+        color: rgba(0, 0, 0, 0.6);
+        border-radius: 50%;
+        cursor: default;
+    }
+    .view-toggle {
+        display: inline-flex;
+        background: rgba(61, 72, 72, 0.5);
+        border-radius: 8px;
+        padding: 2px;
+    }
+    .view-toggle-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 6px;
+        color: #9ca3af;
+        transition: all 0.2s;
+    }
+    .view-toggle-btn.active {
+        background: rgba(255, 199, 0, 0.2);
+        color: #ffc700;
+    }
+    .view-toggle-btn:hover:not(.active) {
+        color: #e5e7eb;
+    }
+    /* Tab styles */
+    .tab-btn {
+        position: relative;
+        padding: 0.75rem 1.25rem;
+        font-weight: 500;
+        color: #9ca3af;
+        transition: all 0.2s ease;
+        border-bottom: 2px solid transparent;
+    }
+    .tab-btn:hover {
+        color: #e5e7eb;
+    }
+    .tab-btn.active {
+        color: #ffc700;
+        border-bottom-color: #ffc700;
+    }
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #ffc700;
+    }
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.2s ease;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb & Header -->
+<div class="mb-6">
+    <a href="/posts" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-highlight transition-colors mb-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Zurück zu meinen Posts
+    </a>
+    <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold text-white mb-2 title-truncate" title="{{ post.topic_title or 'Untitled Post' }}">
+                {{ post.topic_title or 'Untitled Post' }}
+            </h1>
+            <div class="flex items-center gap-3 text-sm text-gray-400 flex-wrap">
+                <span>{{ post.created_at.strftime('%d.%m.%Y um %H:%M Uhr') if post.created_at else 'N/A' }}</span>
+                <span class="text-gray-600">|</span>
+                <span>{{ post.iterations }} Iteration{{ 's' if post.iterations != 1 else '' }}</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+            <span class="px-3 py-1.5 rounded-lg text-sm font-medium {{ 'bg-green-600/30 text-green-300 border border-green-600/50' if post.status == 'approved' else 'bg-yellow-600/30 text-yellow-300 border border-yellow-600/50' }}">
+                {{ post.status | capitalize }}
+            </span>
+            {% if final_feedback %}
+            <span class="px-3 py-1.5 rounded-lg text-sm font-bold {{ 'bg-green-600/30 text-green-300' if final_feedback.overall_score >= 85 else 'bg-yellow-600/30 text-yellow-300' if final_feedback.overall_score >= 70 else 'bg-red-600/30 text-red-300' }}">
+                Score: {{ final_feedback.overall_score }}/100
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="mb-6 border-b border-brand-bg-light">
+    <nav class="flex gap-1" role="tablist">
+        <button class="tab-btn active" onclick="switchTab('ergebnis')" role="tab" aria-selected="true" data-tab="ergebnis">
+            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Ergebnis
+        </button>
+        {% if post.writer_versions and post.writer_versions | length > 0 %}
+        <button class="tab-btn" onclick="switchTab('iterationen')" role="tab" aria-selected="false" data-tab="iterationen">
+            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Iterationen
+            <span class="ml-1 px-1.5 py-0.5 text-xs bg-brand-bg rounded">{{ post.writer_versions | length }}</span>
+        </button>
+        {% endif %}
+    </nav>
+</div>
+
+<!-- Tab: Ergebnis (mit Sidebar) -->
+<div id="tab-ergebnis" class="tab-content active">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Post Content -->
+        <div class="xl:col-span-2">
+            <div class="section-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Finaler Post
+                    </h2>
+                    <div class="flex items-center gap-3">
+                        <!-- View Toggle -->
+                        <div class="view-toggle">
+                            <button onclick="setView('preview')" id="previewToggle" class="view-toggle-btn active">
+                                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                Preview
+                            </button>
+                            <button onclick="setView('raw')" id="rawToggle" class="view-toggle-btn">
+                                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                Raw
+                            </button>
+                        </div>
+                        <button onclick="copyToClipboard()" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-bg-light rounded-lg text-sm text-gray-300 transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            Kopieren
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LinkedIn Preview View -->
+                <div id="linkedinPreview" class="linkedin-preview shadow-lg">
+                    <div class="linkedin-header">
+                        <div class="linkedin-avatar">
+                            {% if profile_picture_url %}
+                            <img src="{{ profile_picture_url }}" alt="{{ session.linkedin_name }}" loading="lazy" referrerpolicy="no-referrer">
+                            {% else %}
+                            {{ session.linkedin_name[:2] | upper if session.linkedin_name else 'UN' }}
+                            {% endif %}
+                        </div>
+                        <div class="linkedin-user-info">
+                            <div class="linkedin-name">{{ session.linkedin_name or 'LinkedIn User' }}</div>
+                            <div class="linkedin-headline">{{ session.customer_name or 'LinkedIn Member' }}</div>
+                            <div class="linkedin-timestamp">
+                                <span>Jetzt</span>
+                                <span>•</span>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M8 1a7 7 0 107 7 7 7 0 00-7-7zM3 8a5 5 0 011-3l.55.55A1.5 1.5 0 015 6.62v1.07a.75.75 0 00.22.53l.56.56a.75.75 0 00.53.22H7v.69a.75.75 0 00.22.53l.56.56a.75.75 0 01.22.53V13a5 5 0 01-5-5zm6.24 4.83l2-2.46a.75.75 0 00.09-.8l-.58-1.16A.76.76 0 0010 8H7v-.19a.51.51 0 01.28-.45l.38-.19a.74.74 0 00.3-1L7.4 5.19a.75.75 0 00-.67-.41H5.67a.75.75 0 01-.44-.14l-.34-.26a5 5 0 017.35 8.44z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="linkedin-more-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14 12a2 2 0 11-4 0 2 2 0 014 0zM4 12a2 2 0 11-4 0 2 2 0 014 0zm16 0a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="linkedinContent" class="linkedin-content collapsed">{{ post.post_content }}</div>
+                    <div id="seeMoreBtn" class="linkedin-see-more" onclick="toggleContent()">...mehr anzeigen</div>
+                    <div class="linkedin-engagement">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2">
+                            <path d="M19.46 11l-3.91-3.91a7 7 0 01-1.69-2.74l-.49-1.47A2.76 2.76 0 0010.76 1 2.75 2.75 0 008 3.74v1.12a9.19 9.19 0 00.46 2.85L8.89 9H4.12A2.12 2.12 0 002 11.12a2.16 2.16 0 00.92 1.76A2.11 2.11 0 002 14.62a2.14 2.14 0 001.28 2 2 2 0 00-.28 1 2.12 2.12 0 002 2.12v.14A2.12 2.12 0 007.12 22h7.49a8.08 8.08 0 003.58-.84l.31-.16H21V11z"/>
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#df704d" style="margin-left: -6px;">
+                            <path d="M22.51 11.35a5.84 5.84 0 00-2.53-4.83 5.71 5.71 0 00-5.36-.58 5.64 5.64 0 00-2.62 2.09 5.64 5.64 0 00-2.62-2.09 5.71 5.71 0 00-5.36.58 5.84 5.84 0 00-2.53 4.83 6.6 6.6 0 00.49 2.56c1 2.33 9.91 8.09 9.91 8.09s8.92-5.76 9.91-8.09a6.6 6.6 0 00.71-2.56z"/>
+                        </svg>
+                        <span style="margin-left: 4px;">42</span>
+                        <span style="margin-left: auto;">12 Kommentare • 3 Reposts</span>
+                    </div>
+                    <div class="linkedin-actions">
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.46 11l-3.91-3.91a7 7 0 01-1.69-2.74l-.49-1.47A2.76 2.76 0 0010.76 1 2.75 2.75 0 008 3.74v1.12a9.19 9.19 0 00.46 2.85L8.89 9H4.12A2.12 2.12 0 002 11.12a2.16 2.16 0 00.92 1.76A2.11 2.11 0 002 14.62a2.14 2.14 0 001.28 2 2 2 0 00-.28 1 2.12 2.12 0 002 2.12v.14A2.12 2.12 0 007.12 22h7.49a8.08 8.08 0 003.58-.84l.31-.16H21V11z"/>
+                            </svg>
+                            Gefällt mir
+                        </button>
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 9h10v1H7zm0 4h7v-1H7zm16-2a6.78 6.78 0 01-2.84 5.61L12 22v-4H8A7 7 0 018 4h8a7 7 0 017 7z"/>
+                            </svg>
+                            Kommentieren
+                        </button>
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M13.96 5H6c-.55 0-1 .45-1 1v11H3V6c0-1.66 1.34-3 3-3h7.96L12 0l1.96 5zM17 7h-7c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                            Reposten
+                        </button>
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 3L0 10l7.66 4.26L16 8l-6.26 8.34L14 24l7-21z"/>
+                            </svg>
+                            Senden
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Raw View -->
+                <div id="rawView" class="bg-brand-bg/50 rounded-lg p-5 hidden">
+                    <pre id="finalPostContent" class="whitespace-pre-wrap text-gray-200 font-sans text-sm leading-relaxed">{{ post.post_content }}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Score Breakdown -->
+            {% if final_feedback and final_feedback.scores %}
+            <div class="section-card rounded-xl p-6">
+                <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Score-Aufschlüsselung
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Authentizität & Stil</span>
+                            <span class="text-white font-medium">{{ final_feedback.scores.authenticity_and_style }}/40</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.authenticity_and_style / 40 * 100) | int }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Content-Qualität</span>
+                            <span class="text-white font-medium">{{ final_feedback.scores.content_quality }}/35</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.content_quality / 35 * 100) | int }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Technische Umsetzung</span>
+                            <span class="text-white font-medium">{{ final_feedback.scores.technical_execution }}/25</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.technical_execution / 25 * 100) | int }}%"></div>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-brand-bg-light">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300 font-medium">Gesamt</span>
+                            <span class="text-brand-highlight font-bold text-lg">{{ final_feedback.overall_score }}/100</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Final Feedback Summary -->
+            {% if final_feedback %}
+            <div class="section-card rounded-xl p-6">
+                <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    Finales Feedback
+                </h3>
+                <p class="text-sm text-gray-300 mb-4">{{ final_feedback.feedback }}</p>
+                {% if final_feedback.strengths %}
+                <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
+                    <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
+                    <ul class="space-y-1">
+                        {% for s in final_feedback.strengths %}
+                        <li class="text-sm text-gray-400 flex items-start gap-2"><span class="text-green-400">+</span> {{ s }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="section-card rounded-xl p-6">
+                <h3 class="font-semibold text-white mb-4">Aktionen</h3>
+                <div class="space-y-2">
+                    <button onclick="copyToClipboard()" class="w-full px-4 py-2.5 bg-brand-highlight hover:bg-brand-highlight/90 text-brand-bg-dark font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        Post kopieren
+                    </button>
+                    <a href="/create" class="w-full px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Neuen Post erstellen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Iterationen -->
+{% if post.writer_versions and post.writer_versions | length > 0 %}
+<div id="tab-iterationen" class="tab-content">
+    <div class="section-card rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Iterationen
+            </h2>
+            <!-- Pagination Controls -->
+            <div class="flex items-center gap-2">
+                <button id="prevVersion" onclick="changeVersion(-1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span class="text-sm text-gray-400">
+                    <span id="currentVersionNum">1</span> / {{ post.writer_versions | length }}
+                </span>
+                <button id="nextVersion" onclick="changeVersion(1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Version Content Container -->
+        {% for i in range(post.writer_versions | length) %}
+        <div class="version-panel {% if i == 0 %}block{% else %}hidden{% endif %}" data-version="{{ i }}">
+            <div class="flex items-center justify-between mb-3">
+                <span class="px-3 py-1 bg-brand-highlight/20 text-brand-highlight rounded-lg text-sm font-medium">Version {{ i + 1 }}</span>
+                {% if post.critic_feedback and i < post.critic_feedback | length %}
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-1 rounded text-xs font-medium {{ 'bg-green-600/30 text-green-300' if post.critic_feedback[i].overall_score >= 85 else 'bg-yellow-600/30 text-yellow-300' }}">
+                        Score: {{ post.critic_feedback[i].overall_score }}/100
+                    </span>
+                    {% if post.critic_feedback[i].approved %}
+                    <span class="px-2 py-1 bg-green-600/30 text-green-300 rounded text-xs">Approved</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="bg-brand-bg/30 rounded-lg p-4 mb-4">
+                <pre class="whitespace-pre-wrap text-gray-300 font-sans text-sm">{{ post.writer_versions[i] }}</pre>
+            </div>
+
+            {% if post.critic_feedback and i < post.critic_feedback | length %}
+            {% set fb = post.critic_feedback[i] %}
+            <div class="bg-brand-bg/20 rounded-lg p-4 border border-brand-bg-light">
+                <h4 class="text-sm font-medium text-white mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    Critic Feedback
+                </h4>
+                <p class="text-sm text-gray-400 mb-3">{{ fb.feedback }}</p>
+                <div class="grid md:grid-cols-2 gap-4">
+                    {% if fb.strengths %}
+                    <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
+                        <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
+                        <ul class="space-y-1 text-sm text-gray-400">
+                            {% for s in fb.strengths %}
+                            <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">+</span> {{ s }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% if fb.improvements %}
+                    <div class="bg-yellow-900/10 rounded-lg p-3 border border-yellow-600/20">
+                        <span class="text-xs font-medium text-yellow-400 block mb-2">Verbesserungen</span>
+                        <ul class="space-y-1 text-sm text-gray-400">
+                            {% for imp in fb.improvements %}
+                            <li class="flex items-start gap-2"><span class="text-yellow-400 mt-0.5">-</span> {{ imp }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentVersion = 0;
+const totalVersions = {{ post.writer_versions | length if post.writer_versions else 0 }};
+let currentView = 'preview';
+let contentExpanded = false;
+
+// LinkedIn Preview functions
+function setView(view) {
+    currentView = view;
+    const previewEl = document.getElementById('linkedinPreview');
+    const rawEl = document.getElementById('rawView');
+    const previewToggle = document.getElementById('previewToggle');
+    const rawToggle = document.getElementById('rawToggle');
+
+    if (view === 'preview') {
+        previewEl.classList.remove('hidden');
+        rawEl.classList.add('hidden');
+        previewToggle.classList.add('active');
+        rawToggle.classList.remove('active');
+    } else {
+        previewEl.classList.add('hidden');
+        rawEl.classList.remove('hidden');
+        previewToggle.classList.remove('active');
+        rawToggle.classList.add('active');
+    }
+}
+
+function toggleContent() {
+    const contentEl = document.getElementById('linkedinContent');
+    const seeMoreBtn = document.getElementById('seeMoreBtn');
+
+    if (contentExpanded) {
+        contentEl.classList.add('collapsed');
+        seeMoreBtn.textContent = '...mehr anzeigen';
+        seeMoreBtn.style.display = 'block';
+    } else {
+        contentEl.classList.remove('collapsed');
+        seeMoreBtn.textContent = '...weniger anzeigen';
+    }
+    contentExpanded = !contentExpanded;
+}
+
+function initLinkedInPreview() {
+    const contentEl = document.getElementById('linkedinContent');
+    const seeMoreBtn = document.getElementById('seeMoreBtn');
+
+    if (contentEl && seeMoreBtn) {
+        // Check if content is short enough to not need "see more"
+        const maxCollapsedHeight = 120;
+        contentEl.classList.remove('collapsed');
+        const fullHeight = contentEl.scrollHeight;
+        contentEl.classList.add('collapsed');
+
+        if (fullHeight <= maxCollapsedHeight) {
+            // Content is short, hide "see more" button and remove collapsed class
+            seeMoreBtn.style.display = 'none';
+            contentEl.classList.remove('collapsed');
+        }
+    }
+}
+
+// Tab switching function
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Deactivate all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+    });
+
+    // Show selected tab content
+    const tabContent = document.getElementById('tab-' + tabName);
+    if (tabContent) {
+        tabContent.classList.add('active');
+    }
+
+    // Activate selected tab button
+    const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    if (tabBtn) {
+        tabBtn.classList.add('active');
+        tabBtn.setAttribute('aria-selected', 'true');
+    }
+}
+
+function copyToClipboard() {
+    const content = document.getElementById('finalPostContent').textContent;
+    navigator.clipboard.writeText(content).then(() => {
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Kopiert!';
+        setTimeout(() => btn.innerHTML = originalHTML, 2000);
+    });
+}
+
+function changeVersion(delta) {
+    const newVersion = currentVersion + delta;
+    if (newVersion < 0 || newVersion >= totalVersions) return;
+
+    // Hide current
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.add('hidden');
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.remove('block');
+
+    // Show new
+    currentVersion = newVersion;
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.remove('hidden');
+    document.querySelector(`.version-panel[data-version="${currentVersion}"]`).classList.add('block');
+
+    // Update counter
+    document.getElementById('currentVersionNum').textContent = currentVersion + 1;
+
+    // Update button states
+    document.getElementById('prevVersion').disabled = currentVersion === 0;
+    document.getElementById('nextVersion').disabled = currentVersion === totalVersions - 1;
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    if (totalVersions > 0) {
+        document.getElementById('prevVersion').disabled = true;
+        document.getElementById('nextVersion').disabled = totalVersions <= 1;
+    }
+    // Initialize LinkedIn preview
+    initLinkedInPreview();
+});
+</script>
+{% endblock %}
