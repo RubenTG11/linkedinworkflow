@@ -52,6 +52,195 @@
         border-radius: 3px;
         transition: width 0.5s ease;
     }
+    /* LinkedIn Preview styles */
+    .linkedin-preview {
+        background: #ffffff;
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        color: rgba(0, 0, 0, 0.9);
+        overflow: hidden;
+    }
+    .linkedin-header {
+        padding: 12px 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .linkedin-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0a66c2 0%, #004182 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 18px;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    .linkedin-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .linkedin-user-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .linkedin-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.9);
+        line-height: 1.3;
+    }
+    .linkedin-headline {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+        line-height: 1.3;
+        margin-top: 2px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .linkedin-timestamp {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 2px;
+    }
+    .linkedin-content {
+        padding: 0 16px 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(0, 0, 0, 0.9);
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .linkedin-content.collapsed {
+        max-height: 120px;
+        overflow: hidden;
+        position: relative;
+    }
+    .linkedin-content.collapsed::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: linear-gradient(transparent, white);
+    }
+    .linkedin-see-more {
+        padding: 0 16px 12px;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .linkedin-see-more:hover {
+        color: #0a66c2;
+        text-decoration: underline;
+    }
+    .linkedin-engagement {
+        padding: 8px 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+    }
+    .linkedin-actions {
+        display: flex;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .linkedin-action-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.6);
+        background: transparent;
+        border: none;
+        cursor: default;
+        transition: background 0.15s;
+    }
+    .linkedin-action-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+    .linkedin-more-btn {
+        padding: 4px;
+        color: rgba(0, 0, 0, 0.6);
+        border-radius: 50%;
+        cursor: default;
+    }
+    .view-toggle {
+        display: inline-flex;
+        background: rgba(61, 72, 72, 0.5);
+        border-radius: 8px;
+        padding: 2px;
+    }
+    .view-toggle-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 6px;
+        color: #9ca3af;
+        transition: all 0.2s;
+    }
+    .view-toggle-btn.active {
+        background: rgba(255, 199, 0, 0.2);
+        color: #ffc700;
+    }
+    .view-toggle-btn:hover:not(.active) {
+        color: #e5e7eb;
+    }
+    /* Tab styles */
+    .tab-btn {
+        position: relative;
+        padding: 0.75rem 1.25rem;
+        font-weight: 500;
+        color: #9ca3af;
+        transition: all 0.2s ease;
+        border-bottom: 2px solid transparent;
+    }
+    .tab-btn:hover {
+        color: #e5e7eb;
+    }
+    .tab-btn.active {
+        color: #ffc700;
+        border-bottom-color: #ffc700;
+    }
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #ffc700;
+    }
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.2s ease;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 {% endblock %}
 
@@ -91,398 +280,907 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-    <!-- Main Content (2 cols) -->
-    <div class="xl:col-span-2 space-y-6">
-        <!-- Final Post -->
-        <div class="section-card rounded-xl p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Finaler Post
-                </h2>
-                <button onclick="copyToClipboard()" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-bg-light rounded-lg text-sm text-gray-300 transition-colors flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    Kopieren
-                </button>
-            </div>
-            <div class="bg-brand-bg/50 rounded-lg p-5">
-                <pre id="finalPostContent" class="whitespace-pre-wrap text-gray-200 font-sans text-sm leading-relaxed">{{ post.post_content }}</pre>
-            </div>
-        </div>
-
-        <!-- Iteration History with Pagination -->
+<!-- Tab Navigation -->
+<div class="mb-6 border-b border-brand-bg-light">
+    <nav class="flex gap-1" role="tablist">
+        <button class="tab-btn active" onclick="switchTab('ergebnis')" role="tab" aria-selected="true" data-tab="ergebnis">
+            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Ergebnis
+        </button>
         {% if post.writer_versions and post.writer_versions | length > 0 %}
-        <div class="section-card rounded-xl p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Iterationen
-                </h2>
-                <!-- Pagination Controls -->
-                <div class="flex items-center gap-2">
-                    <button id="prevVersion" onclick="changeVersion(-1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <span class="text-sm text-gray-400">
-                        <span id="currentVersionNum">1</span> / {{ post.writer_versions | length }}
-                    </span>
-                    <button id="nextVersion" onclick="changeVersion(1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Version Content Container -->
-            {% for i in range(post.writer_versions | length) %}
-            <div class="version-panel {% if i == 0 %}block{% else %}hidden{% endif %}" data-version="{{ i }}">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="px-3 py-1 bg-brand-highlight/20 text-brand-highlight rounded-lg text-sm font-medium">Version {{ i + 1 }}</span>
-                    {% if post.critic_feedback and i < post.critic_feedback | length %}
-                    <div class="flex items-center gap-2">
-                        <span class="px-2 py-1 rounded text-xs font-medium {{ 'bg-green-600/30 text-green-300' if post.critic_feedback[i].overall_score >= 85 else 'bg-yellow-600/30 text-yellow-300' }}">
-                            Score: {{ post.critic_feedback[i].overall_score }}/100
-                        </span>
-                        {% if post.critic_feedback[i].approved %}
-                        <span class="px-2 py-1 bg-green-600/30 text-green-300 rounded text-xs">Approved</span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="bg-brand-bg/30 rounded-lg p-4 mb-4">
-                    <pre class="whitespace-pre-wrap text-gray-300 font-sans text-sm">{{ post.writer_versions[i] }}</pre>
-                </div>
-
-                {% if post.critic_feedback and i < post.critic_feedback | length %}
-                {% set fb = post.critic_feedback[i] %}
-                <div class="bg-brand-bg/20 rounded-lg p-4 border border-brand-bg-light">
-                    <h4 class="text-sm font-medium text-white mb-2 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                        Critic Feedback
-                    </h4>
-                    <p class="text-sm text-gray-400 mb-3">{{ fb.feedback }}</p>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        {% if fb.strengths %}
-                        <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
-                            <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
-                            <ul class="space-y-1 text-sm text-gray-400">
-                                {% for s in fb.strengths %}
-                                <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">+</span> {{ s }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
-                        {% if fb.improvements %}
-                        <div class="bg-yellow-900/10 rounded-lg p-3 border border-yellow-600/20">
-                            <span class="text-xs font-medium text-yellow-400 block mb-2">Verbesserungen</span>
-                            <ul class="space-y-1 text-sm text-gray-400">
-                                {% for imp in fb.improvements %}
-                                <li class="flex items-start gap-2"><span class="text-yellow-400 mt-0.5">-</span> {{ imp }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
+        <button class="tab-btn" onclick="switchTab('iterationen')" role="tab" aria-selected="false" data-tab="iterationen">
+            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Iterationen
+            <span class="ml-1 px-1.5 py-0.5 text-xs bg-brand-bg rounded">{{ post.writer_versions | length }}</span>
+        </button>
         {% endif %}
-
-        <!-- Reference Posts -->
         {% if reference_posts %}
-        <div class="section-card rounded-xl p-6">
-            <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                Referenz-Posts für KI
-                <span class="text-sm font-normal text-gray-500">({{ reference_posts | length }} Posts)</span>
-            </h2>
-            <p class="text-sm text-gray-500 mb-5">Diese echten LinkedIn-Posts wurden der KI als Stil-Referenz gegeben:</p>
-
-            <div class="space-y-4">
-                {% for ref_post in reference_posts[:6] %}
-                <div class="reference-post rounded-xl p-5">
-                    <div class="flex items-start justify-between gap-3 mb-2">
-                        <span class="px-2 py-0.5 bg-brand-highlight/10 text-brand-highlight text-xs font-medium rounded">
-                            Beispiel {{ loop.index }}
-                        </span>
-                        <span class="text-xs text-gray-500">{{ ref_post | length }} Zeichen</span>
-                    </div>
-                    <pre class="whitespace-pre-wrap text-gray-300 font-sans text-sm leading-relaxed">{{ ref_post[:500] }}{% if ref_post | length > 500 %}...{% endif %}</pre>
-                </div>
-                {% endfor %}
-            </div>
-
-            {% if reference_posts | length > 6 %}
-            <div class="mt-4 text-center">
-                <span class="text-sm text-gray-500">+ {{ reference_posts | length - 6 }} weitere Referenz-Posts</span>
-            </div>
-            {% endif %}
-        </div>
+        <button class="tab-btn" onclick="switchTab('referenz')" role="tab" aria-selected="false" data-tab="referenz">
+            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            Referenz Posts
+            <span class="ml-1 px-1.5 py-0.5 text-xs bg-brand-bg rounded">{{ reference_posts | length }}</span>
+        </button>
         {% endif %}
-
-        <!-- Full Profile Analysis -->
         {% if profile_analysis %}
-        <div class="section-card rounded-xl p-6">
-            <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Profil-Analyse
-            </h2>
+        <button class="tab-btn" onclick="switchTab('profil')" role="tab" aria-selected="false" data-tab="profil">
+            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Profil Analyse
+        </button>
+        {% endif %}
+        {% if post_type_analysis %}
+        <button class="tab-btn" onclick="switchTab('postanalyse')" role="tab" aria-selected="false" data-tab="postanalyse">
+            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            Post-Analyse
+        </button>
+        {% endif %}
+    </nav>
+</div>
 
-            <!-- Writing Style -->
-            {% if profile_analysis.writing_style %}
-            <div class="mb-6">
-                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Schreibstil</h3>
-                <div class="profile-grid">
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Perspektive</span>
-                        <span class="text-white font-medium">{{ profile_analysis.writing_style.perspective or 'N/A' }}</span>
+<!-- Tab: Ergebnis (mit Sidebar) -->
+<div id="tab-ergebnis" class="tab-content active">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Post Content -->
+        <div class="xl:col-span-2">
+            <div class="section-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Finaler Post
+                    </h2>
+                    <div class="flex items-center gap-3">
+                        <!-- View Toggle -->
+                        <div class="view-toggle">
+                            <button onclick="setView('preview')" id="previewToggle" class="view-toggle-btn active">
+                                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                Preview
+                            </button>
+                            <button onclick="setView('raw')" id="rawToggle" class="view-toggle-btn">
+                                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                Raw
+                            </button>
+                        </div>
+                        <button onclick="copyToClipboard()" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-bg-light rounded-lg text-sm text-gray-300 transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            Kopieren
+                        </button>
                     </div>
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Ansprache</span>
-                        <span class="text-white font-medium">{{ profile_analysis.writing_style.form_of_address or 'N/A' }}</span>
-                    </div>
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Tonalität</span>
-                        <span class="text-white font-medium">{{ profile_analysis.writing_style.tone or 'N/A' }}</span>
-                    </div>
-                    {% if profile_analysis.writing_style.average_word_count %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Ø Wortanzahl</span>
-                        <span class="text-white font-medium">{{ profile_analysis.writing_style.average_word_count }} Wörter</span>
-                    </div>
-                    {% endif %}
                 </div>
-            </div>
-            {% endif %}
 
-            <!-- Linguistic Fingerprint -->
-            {% if profile_analysis.linguistic_fingerprint %}
-            <div class="mb-6">
-                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Sprachlicher Fingerabdruck</h3>
-                <div class="profile-grid">
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-2">Energie-Level</span>
-                        <div class="flex items-center gap-3">
-                            <div class="stat-bar flex-1">
-                                <div class="stat-bar-fill" style="width: {{ (profile_analysis.linguistic_fingerprint.energy_level or 5) * 10 }}%"></div>
+                <!-- LinkedIn Preview View -->
+                <div id="linkedinPreview" class="linkedin-preview shadow-lg">
+                    <div class="linkedin-header">
+                        <div class="linkedin-avatar">
+                            {% if profile_picture_url %}
+                            <img src="{{ profile_picture_url }}" alt="{{ customer.name }}" loading="lazy" referrerpolicy="no-referrer">
+                            {% else %}
+                            {{ customer.name[:2] | upper if customer.name else 'UN' }}
+                            {% endif %}
+                        </div>
+                        <div class="linkedin-user-info">
+                            <div class="linkedin-name">{{ customer.name }}</div>
+                            <div class="linkedin-headline">{{ customer.company_name or 'LinkedIn Member' }}</div>
+                            <div class="linkedin-timestamp">
+                                <span>Jetzt</span>
+                                <span>•</span>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M8 1a7 7 0 107 7 7 7 0 00-7-7zM3 8a5 5 0 011-3l.55.55A1.5 1.5 0 015 6.62v1.07a.75.75 0 00.22.53l.56.56a.75.75 0 00.53.22H7v.69a.75.75 0 00.22.53l.56.56a.75.75 0 01.22.53V13a5 5 0 01-5-5zm6.24 4.83l2-2.46a.75.75 0 00.09-.8l-.58-1.16A.76.76 0 0010 8H7v-.19a.51.51 0 01.28-.45l.38-.19a.74.74 0 00.3-1L7.4 5.19a.75.75 0 00-.67-.41H5.67a.75.75 0 01-.44-.14l-.34-.26a5 5 0 017.35 8.44z"/>
+                                </svg>
                             </div>
-                            <span class="text-white font-bold text-lg">{{ profile_analysis.linguistic_fingerprint.energy_level or 'N/A' }}<span class="text-gray-500 text-sm font-normal">/10</span></span>
+                        </div>
+                        <div class="linkedin-more-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14 12a2 2 0 11-4 0 2 2 0 014 0zM4 12a2 2 0 11-4 0 2 2 0 014 0zm16 0a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
                         </div>
                     </div>
-                    {% if profile_analysis.linguistic_fingerprint.formality_level %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-2">Formalität</span>
-                        <div class="flex items-center gap-3">
-                            <div class="stat-bar flex-1">
-                                <div class="stat-bar-fill" style="width: {{ (profile_analysis.linguistic_fingerprint.formality_level or 5) * 10 }}%"></div>
-                            </div>
-                            <span class="text-white font-bold text-lg">{{ profile_analysis.linguistic_fingerprint.formality_level }}<span class="text-gray-500 text-sm font-normal">/10</span></span>
-                        </div>
+                    <div id="linkedinContent" class="linkedin-content collapsed">{{ post.post_content }}</div>
+                    <div id="seeMoreBtn" class="linkedin-see-more" onclick="toggleContent()">...mehr anzeigen</div>
+                    <div class="linkedin-engagement">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2">
+                            <path d="M19.46 11l-3.91-3.91a7 7 0 01-1.69-2.74l-.49-1.47A2.76 2.76 0 0010.76 1 2.75 2.75 0 008 3.74v1.12a9.19 9.19 0 00.46 2.85L8.89 9H4.12A2.12 2.12 0 002 11.12a2.16 2.16 0 00.92 1.76A2.11 2.11 0 002 14.62a2.14 2.14 0 001.28 2 2 2 0 00-.28 1 2.12 2.12 0 002 2.12v.14A2.12 2.12 0 007.12 22h7.49a8.08 8.08 0 003.58-.84l.31-.16H21V11z"/>
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#df704d" style="margin-left: -6px;">
+                            <path d="M22.51 11.35a5.84 5.84 0 00-2.53-4.83 5.71 5.71 0 00-5.36-.58 5.64 5.64 0 00-2.62 2.09 5.64 5.64 0 00-2.62-2.09 5.71 5.71 0 00-5.36.58 5.84 5.84 0 00-2.53 4.83 6.6 6.6 0 00.49 2.56c1 2.33 9.91 8.09 9.91 8.09s8.92-5.76 9.91-8.09a6.6 6.6 0 00.71-2.56z"/>
+                        </svg>
+                        <span style="margin-left: 4px;">42</span>
+                        <span style="margin-left: auto;">12 Kommentare • 3 Reposts</span>
                     </div>
-                    {% endif %}
+                    <div class="linkedin-actions">
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.46 11l-3.91-3.91a7 7 0 01-1.69-2.74l-.49-1.47A2.76 2.76 0 0010.76 1 2.75 2.75 0 008 3.74v1.12a9.19 9.19 0 00.46 2.85L8.89 9H4.12A2.12 2.12 0 002 11.12a2.16 2.16 0 00.92 1.76A2.11 2.11 0 002 14.62a2.14 2.14 0 001.28 2 2 2 0 00-.28 1 2.12 2.12 0 002 2.12v.14A2.12 2.12 0 007.12 22h7.49a8.08 8.08 0 003.58-.84l.31-.16H21V11z"/>
+                            </svg>
+                            Gefällt mir
+                        </button>
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 9h10v1H7zm0 4h7v-1H7zm16-2a6.78 6.78 0 01-2.84 5.61L12 22v-4H8A7 7 0 018 4h8a7 7 0 017 7z"/>
+                            </svg>
+                            Kommentieren
+                        </button>
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M13.96 5H6c-.55 0-1 .45-1 1v11H3V6c0-1.66 1.34-3 3-3h7.96L12 0l1.96 5zM17 7h-7c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                            Reposten
+                        </button>
+                        <button class="linkedin-action-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 3L0 10l7.66 4.26L16 8l-6.26 8.34L14 24l7-21z"/>
+                            </svg>
+                            Senden
+                        </button>
+                    </div>
                 </div>
 
-                {% if profile_analysis.linguistic_fingerprint.signature_phrases %}
-                <div class="mt-4">
-                    <span class="text-xs text-gray-500 block mb-2">Signature Phrases</span>
-                    <div class="flex flex-wrap gap-2">
-                        {% for phrase in profile_analysis.linguistic_fingerprint.signature_phrases %}
-                        <span class="px-3 py-1.5 bg-brand-bg rounded-lg text-sm text-gray-300 border border-brand-bg-light">{{ phrase }}</span>
-                        {% endfor %}
-                    </div>
+                <!-- Raw View -->
+                <div id="rawView" class="bg-brand-bg/50 rounded-lg p-5 hidden">
+                    <pre id="finalPostContent" class="whitespace-pre-wrap text-gray-200 font-sans text-sm leading-relaxed">{{ post.post_content }}</pre>
                 </div>
-                {% endif %}
             </div>
-            {% endif %}
+        </div>
 
-            <!-- Phrase Library -->
-            {% if profile_analysis.phrase_library %}
-            <div class="mb-6">
-                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Phrasen-Bibliothek</h3>
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Score Breakdown -->
+            {% if final_feedback and final_feedback.scores %}
+            <div class="section-card rounded-xl p-6">
+                <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Score-Aufschlüsselung
+                </h3>
                 <div class="space-y-4">
-                    {% if profile_analysis.phrase_library.hook_phrases %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-2">Hook-Phrasen</span>
-                        <div class="space-y-2">
-                            {% for hook in profile_analysis.phrase_library.hook_phrases[:4] %}
-                            <p class="text-sm text-gray-300 italic pl-3 border-l-2 border-brand-highlight/30">"{{ hook }}"</p>
-                            {% endfor %}
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Authentizität & Stil</span>
+                            <span class="text-white font-medium">{{ final_feedback.scores.authenticity_and_style }}/40</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.authenticity_and_style / 40 * 100) | int }}%"></div>
                         </div>
                     </div>
-                    {% endif %}
-
-                    {% if profile_analysis.phrase_library.emotional_expressions %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-2">Emotionale Ausdrücke</span>
-                        <div class="flex flex-wrap gap-2">
-                            {% for expr in profile_analysis.phrase_library.emotional_expressions[:6] %}
-                            <span class="px-2 py-1 bg-yellow-900/20 text-yellow-300 text-xs rounded border border-yellow-600/20">{{ expr }}</span>
-                            {% endfor %}
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Content-Qualität</span>
+                            <span class="text-white font-medium">{{ final_feedback.scores.content_quality }}/35</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.content_quality / 35 * 100) | int }}%"></div>
                         </div>
                     </div>
-                    {% endif %}
-
-                    {% if profile_analysis.phrase_library.cta_phrases %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-2">CTA-Phrasen</span>
-                        <div class="space-y-2">
-                            {% for cta in profile_analysis.phrase_library.cta_phrases[:3] %}
-                            <p class="text-sm text-gray-300 italic pl-3 border-l-2 border-green-600/30">"{{ cta }}"</p>
-                            {% endfor %}
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Technische Umsetzung</span>
+                            <span class="text-white font-medium">{{ final_feedback.scores.technical_execution }}/25</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.technical_execution / 25 * 100) | int }}%"></div>
                         </div>
                     </div>
-                    {% endif %}
+                    <div class="pt-3 border-t border-brand-bg-light">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300 font-medium">Gesamt</span>
+                            <span class="text-brand-highlight font-bold text-lg">{{ final_feedback.overall_score }}/100</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% endif %}
 
-            <!-- Tone Analysis -->
-            {% if profile_analysis.tone_analysis %}
-            <div class="mb-6">
-                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Ton-Analyse</h3>
-                <div class="profile-grid">
-                    {% if profile_analysis.tone_analysis.primary_tone %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Primärer Ton</span>
-                        <span class="text-white font-medium">{{ profile_analysis.tone_analysis.primary_tone }}</span>
-                    </div>
-                    {% endif %}
-                    {% if profile_analysis.tone_analysis.secondary_tones %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Sekundäre Töne</span>
-                        <span class="text-white font-medium">{{ profile_analysis.tone_analysis.secondary_tones | join(', ') }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Audience Insights -->
-            {% if profile_analysis.audience_insights %}
-            <div>
-                <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Zielgruppen-Insights</h3>
-                <div class="profile-grid">
-                    {% if profile_analysis.audience_insights.industry_context %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Branche</span>
-                        <span class="text-white font-medium">{{ profile_analysis.audience_insights.industry_context }}</span>
-                    </div>
-                    {% endif %}
-                    {% if profile_analysis.audience_insights.target_audience %}
-                    <div class="profile-item">
-                        <span class="text-xs text-gray-500 block mb-1">Zielgruppe</span>
-                        <span class="text-white font-medium">{{ profile_analysis.audience_insights.target_audience }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-
-                {% if profile_analysis.audience_insights.pain_points_addressed %}
-                <div class="mt-4 profile-item">
-                    <span class="text-xs text-gray-500 block mb-2">Adressierte Pain Points</span>
-                    <div class="flex flex-wrap gap-2">
-                        {% for pain in profile_analysis.audience_insights.pain_points_addressed %}
-                        <span class="px-2 py-1 bg-red-900/20 text-red-300 text-xs rounded border border-red-600/20">{{ pain }}</span>
+            <!-- Final Feedback Summary -->
+            {% if final_feedback %}
+            <div class="section-card rounded-xl p-6">
+                <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    Finales Feedback
+                </h3>
+                <p class="text-sm text-gray-300 mb-4">{{ final_feedback.feedback }}</p>
+                {% if final_feedback.strengths %}
+                <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
+                    <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
+                    <ul class="space-y-1">
+                        {% for s in final_feedback.strengths %}
+                        <li class="text-sm text-gray-400 flex items-start gap-2"><span class="text-green-400">+</span> {{ s }}</li>
                         {% endfor %}
-                    </div>
+                    </ul>
                 </div>
                 {% endif %}
             </div>
             {% endif %}
-        </div>
-        {% endif %}
-    </div>
 
-    <!-- Sidebar (1 col) -->
-    <div class="space-y-6">
-        <!-- Score Breakdown -->
-        {% if final_feedback and final_feedback.scores %}
-        <div class="section-card rounded-xl p-6">
-            <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Score-Aufschlüsselung
-            </h3>
-            <div class="space-y-4">
-                <div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-400">Authentizität & Stil</span>
-                        <span class="text-white font-medium">{{ final_feedback.scores.authenticity_and_style }}/40</span>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.authenticity_and_style / 40 * 100) | int }}%"></div>
-                    </div>
+            <!-- Quick Actions -->
+            <div class="section-card rounded-xl p-6">
+                <h3 class="font-semibold text-white mb-4">Aktionen</h3>
+                <div class="space-y-2">
+                    <button onclick="copyToClipboard()" class="w-full px-4 py-2.5 bg-brand-highlight hover:bg-brand-highlight/90 text-brand-bg-dark font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        Post kopieren
+                    </button>
+                    <button onclick="openEmailModal()" id="emailBtn" class="w-full px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        Per E-Mail senden
+                    </button>
+                    <a href="/create?customer={{ customer.id }}" class="w-full px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Neuen Post erstellen
+                    </a>
                 </div>
-                <div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-400">Content-Qualität</span>
-                        <span class="text-white font-medium">{{ final_feedback.scores.content_quality }}/35</span>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.content_quality / 35 * 100) | int }}%"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-400">Technische Umsetzung</span>
-                        <span class="text-white font-medium">{{ final_feedback.scores.technical_execution }}/25</span>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-bar-fill" style="width: {{ (final_feedback.scores.technical_execution / 25 * 100) | int }}%"></div>
-                    </div>
-                </div>
-                <div class="pt-3 border-t border-brand-bg-light">
-                    <div class="flex justify-between">
-                        <span class="text-gray-300 font-medium">Gesamt</span>
-                        <span class="text-brand-highlight font-bold text-lg">{{ final_feedback.overall_score }}/100</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Final Feedback Summary -->
-        {% if final_feedback %}
-        <div class="section-card rounded-xl p-6">
-            <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                Finales Feedback
-            </h3>
-            <p class="text-sm text-gray-300 mb-4">{{ final_feedback.feedback }}</p>
-            {% if final_feedback.strengths %}
-            <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
-                <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
-                <ul class="space-y-1">
-                    {% for s in final_feedback.strengths %}
-                    <li class="text-sm text-gray-400 flex items-start gap-2"><span class="text-green-400">+</span> {{ s }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        <!-- Quick Actions -->
-        <div class="section-card rounded-xl p-6">
-            <h3 class="font-semibold text-white mb-4">Aktionen</h3>
-            <div class="space-y-2">
-                <button onclick="copyToClipboard()" class="w-full px-4 py-2.5 bg-brand-highlight hover:bg-brand-highlight/90 text-brand-bg-dark font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    Post kopieren
-                </button>
-                <button onclick="openEmailModal()" id="emailBtn" class="w-full px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    Per E-Mail senden
-                </button>
-                <a href="/create?customer={{ customer.id }}" class="w-full px-4 py-2.5 bg-brand-bg hover:bg-brand-bg-light text-white rounded-lg transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    Neuen Post erstellen
-                </a>
             </div>
         </div>
     </div>
 </div>
+
+        <!-- Tab: Iterationen -->
+        {% if post.writer_versions and post.writer_versions | length > 0 %}
+        <div id="tab-iterationen" class="tab-content">
+            <div class="section-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Iterationen
+                    </h2>
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center gap-2">
+                        <button id="prevVersion" onclick="changeVersion(-1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <span class="text-sm text-gray-400">
+                            <span id="currentVersionNum">1</span> / {{ post.writer_versions | length }}
+                        </span>
+                        <button id="nextVersion" onclick="changeVersion(1)" class="p-2 rounded-lg bg-brand-bg hover:bg-brand-bg-light text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Version Content Container -->
+                {% for i in range(post.writer_versions | length) %}
+                <div class="version-panel {% if i == 0 %}block{% else %}hidden{% endif %}" data-version="{{ i }}">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-3 py-1 bg-brand-highlight/20 text-brand-highlight rounded-lg text-sm font-medium">Version {{ i + 1 }}</span>
+                        {% if post.critic_feedback and i < post.critic_feedback | length %}
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-1 rounded text-xs font-medium {{ 'bg-green-600/30 text-green-300' if post.critic_feedback[i].overall_score >= 85 else 'bg-yellow-600/30 text-yellow-300' }}">
+                                Score: {{ post.critic_feedback[i].overall_score }}/100
+                            </span>
+                            {% if post.critic_feedback[i].approved %}
+                            <span class="px-2 py-1 bg-green-600/30 text-green-300 rounded text-xs">Approved</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="bg-brand-bg/30 rounded-lg p-4 mb-4">
+                        <pre class="whitespace-pre-wrap text-gray-300 font-sans text-sm">{{ post.writer_versions[i] }}</pre>
+                    </div>
+
+                    {% if post.critic_feedback and i < post.critic_feedback | length %}
+                    {% set fb = post.critic_feedback[i] %}
+                    <div class="bg-brand-bg/20 rounded-lg p-4 border border-brand-bg-light">
+                        <h4 class="text-sm font-medium text-white mb-2 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                            Critic Feedback
+                        </h4>
+                        <p class="text-sm text-gray-400 mb-3">{{ fb.feedback }}</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            {% if fb.strengths %}
+                            <div class="bg-green-900/10 rounded-lg p-3 border border-green-600/20">
+                                <span class="text-xs font-medium text-green-400 block mb-2">Stärken</span>
+                                <ul class="space-y-1 text-sm text-gray-400">
+                                    {% for s in fb.strengths %}
+                                    <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">+</span> {{ s }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            {% if fb.improvements %}
+                            <div class="bg-yellow-900/10 rounded-lg p-3 border border-yellow-600/20">
+                                <span class="text-xs font-medium text-yellow-400 block mb-2">Verbesserungen</span>
+                                <ul class="space-y-1 text-sm text-gray-400">
+                                    {% for imp in fb.improvements %}
+                                    <li class="flex items-start gap-2"><span class="text-yellow-400 mt-0.5">-</span> {{ imp }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tab: Referenz Posts -->
+        {% if reference_posts %}
+        <div id="tab-referenz" class="tab-content">
+            <div class="section-card rounded-xl p-6">
+                <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    Referenz-Posts für KI
+                    <span class="text-sm font-normal text-gray-500">({{ reference_posts | length }} Posts)</span>
+                </h2>
+                <p class="text-sm text-gray-500 mb-5">Diese echten LinkedIn-Posts wurden der KI als Stil-Referenz gegeben:</p>
+
+                <div class="space-y-4">
+                    {% for ref_post in reference_posts %}
+                    <div class="reference-post rounded-xl p-5">
+                        <div class="flex items-start justify-between gap-3 mb-2">
+                            <span class="px-2 py-0.5 bg-brand-highlight/10 text-brand-highlight text-xs font-medium rounded">
+                                Beispiel {{ loop.index }}
+                            </span>
+                            <span class="text-xs text-gray-500">{{ ref_post | length }} Zeichen</span>
+                        </div>
+                        <pre class="whitespace-pre-wrap text-gray-300 font-sans text-sm leading-relaxed">{{ ref_post[:500] }}{% if ref_post | length > 500 %}...{% endif %}</pre>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tab: Profil Analyse -->
+        {% if profile_analysis %}
+        <div id="tab-profil" class="tab-content">
+            <div class="section-card rounded-xl p-6">
+                <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Profil-Analyse
+                </h2>
+
+                <!-- Writing Style -->
+                {% if profile_analysis.writing_style %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Schreibstil</h3>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Perspektive</span>
+                            <span class="text-white font-medium">{{ profile_analysis.writing_style.perspective or 'N/A' }}</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Ansprache</span>
+                            <span class="text-white font-medium">{{ profile_analysis.writing_style.form_of_address or 'N/A' }}</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Tonalität</span>
+                            <span class="text-white font-medium">{{ profile_analysis.writing_style.tone or 'N/A' }}</span>
+                        </div>
+                        {% if profile_analysis.writing_style.average_word_count %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Ø Wortanzahl</span>
+                            <span class="text-white font-medium">{{ profile_analysis.writing_style.average_word_count }} Wörter</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Linguistic Fingerprint -->
+                {% if profile_analysis.linguistic_fingerprint %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Sprachlicher Fingerabdruck</h3>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-2">Energie-Level</span>
+                            <div class="flex items-center gap-3">
+                                <div class="stat-bar flex-1">
+                                    <div class="stat-bar-fill" style="width: {{ (profile_analysis.linguistic_fingerprint.energy_level or 5) * 10 }}%"></div>
+                                </div>
+                                <span class="text-white font-bold text-lg">{{ profile_analysis.linguistic_fingerprint.energy_level or 'N/A' }}<span class="text-gray-500 text-sm font-normal">/10</span></span>
+                            </div>
+                        </div>
+                        {% if profile_analysis.linguistic_fingerprint.formality_level %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-2">Formalität</span>
+                            <div class="flex items-center gap-3">
+                                <div class="stat-bar flex-1">
+                                    <div class="stat-bar-fill" style="width: {{ (profile_analysis.linguistic_fingerprint.formality_level or 5) * 10 }}%"></div>
+                                </div>
+                                <span class="text-white font-bold text-lg">{{ profile_analysis.linguistic_fingerprint.formality_level }}<span class="text-gray-500 text-sm font-normal">/10</span></span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if profile_analysis.linguistic_fingerprint.signature_phrases %}
+                    <div class="mt-4">
+                        <span class="text-xs text-gray-500 block mb-2">Signature Phrases</span>
+                        <div class="flex flex-wrap gap-2">
+                            {% for phrase in profile_analysis.linguistic_fingerprint.signature_phrases %}
+                            <span class="px-3 py-1.5 bg-brand-bg rounded-lg text-sm text-gray-300 border border-brand-bg-light">{{ phrase }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Phrase Library -->
+                {% if profile_analysis.phrase_library %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Phrasen-Bibliothek</h3>
+                    <div class="space-y-4">
+                        {% if profile_analysis.phrase_library.hook_phrases %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-2">Hook-Phrasen</span>
+                            <div class="space-y-2">
+                                {% for hook in profile_analysis.phrase_library.hook_phrases[:4] %}
+                                <p class="text-sm text-gray-300 italic pl-3 border-l-2 border-brand-highlight/30">"{{ hook }}"</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if profile_analysis.phrase_library.emotional_expressions %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-2">Emotionale Ausdrücke</span>
+                            <div class="flex flex-wrap gap-2">
+                                {% for expr in profile_analysis.phrase_library.emotional_expressions[:6] %}
+                                <span class="px-2 py-1 bg-yellow-900/20 text-yellow-300 text-xs rounded border border-yellow-600/20">{{ expr }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if profile_analysis.phrase_library.cta_phrases %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-2">CTA-Phrasen</span>
+                            <div class="space-y-2">
+                                {% for cta in profile_analysis.phrase_library.cta_phrases[:3] %}
+                                <p class="text-sm text-gray-300 italic pl-3 border-l-2 border-green-600/30">"{{ cta }}"</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Tone Analysis -->
+                {% if profile_analysis.tone_analysis %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Ton-Analyse</h3>
+                    <div class="profile-grid">
+                        {% if profile_analysis.tone_analysis.primary_tone %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Primärer Ton</span>
+                            <span class="text-white font-medium">{{ profile_analysis.tone_analysis.primary_tone }}</span>
+                        </div>
+                        {% endif %}
+                        {% if profile_analysis.tone_analysis.secondary_tones %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Sekundäre Töne</span>
+                            <span class="text-white font-medium">{{ profile_analysis.tone_analysis.secondary_tones | join(', ') }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Audience Insights -->
+                {% if profile_analysis.audience_insights %}
+                <div>
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Zielgruppen-Insights</h3>
+                    <div class="profile-grid">
+                        {% if profile_analysis.audience_insights.industry_context %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Branche</span>
+                            <span class="text-white font-medium">{{ profile_analysis.audience_insights.industry_context }}</span>
+                        </div>
+                        {% endif %}
+                        {% if profile_analysis.audience_insights.target_audience %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Zielgruppe</span>
+                            <span class="text-white font-medium">{{ profile_analysis.audience_insights.target_audience }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if profile_analysis.audience_insights.pain_points_addressed %}
+                    <div class="mt-4 profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Adressierte Pain Points</span>
+                        <div class="flex flex-wrap gap-2">
+                            {% for pain in profile_analysis.audience_insights.pain_points_addressed %}
+                            <span class="px-2 py-1 bg-red-900/20 text-red-300 text-xs rounded border border-red-600/20">{{ pain }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tab: Post-Analyse -->
+        {% if post_type_analysis %}
+        <div id="tab-postanalyse" class="tab-content">
+            <div class="section-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        Post-Typ Analyse
+                    </h2>
+                    {% if post_type %}
+                    <span class="px-3 py-1.5 bg-brand-highlight/20 text-brand-highlight rounded-lg text-sm font-medium">
+                        {{ post_type.name }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                {% if post_type_analysis.post_count %}
+                <p class="text-sm text-gray-500 mb-6">Basierend auf {{ post_type_analysis.post_count }} analysierten Posts dieses Typs</p>
+                {% endif %}
+
+                <!-- Structure Patterns -->
+                {% if post_type_analysis.structure_patterns %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Struktur-Muster</h3>
+                    <div class="profile-grid">
+                        {% if post_type_analysis.structure_patterns.typical_structure %}
+                        <div class="profile-item col-span-full">
+                            <span class="text-xs text-gray-500 block mb-1">Typische Struktur</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.structure_patterns.typical_structure }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.structure_patterns.paragraph_count %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Absätze</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.structure_patterns.paragraph_count }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.structure_patterns.paragraph_length %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Absatzlänge</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.structure_patterns.paragraph_length }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.structure_patterns.uses_lists is defined %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Listen</span>
+                            <span class="text-white font-medium">{{ 'Ja' if post_type_analysis.structure_patterns.uses_lists else 'Nein' }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.structure_patterns.list_style %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Listen-Stil</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.structure_patterns.list_style }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if post_type_analysis.structure_patterns.structure_template %}
+                    <div class="mt-4 profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Struktur-Vorlage</span>
+                        <pre class="text-sm text-gray-300 whitespace-pre-wrap">{{ post_type_analysis.structure_patterns.structure_template }}</pre>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Language Style -->
+                {% if post_type_analysis.language_style %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Sprachstil</h3>
+                    <div class="profile-grid">
+                        {% if post_type_analysis.language_style.tone %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Tonalität</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.language_style.tone }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.language_style.perspective %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Perspektive</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.language_style.perspective }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.language_style.energy_level %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-2">Energie-Level</span>
+                            <div class="flex items-center gap-3">
+                                <div class="stat-bar flex-1">
+                                    <div class="stat-bar-fill" style="width: {{ (post_type_analysis.language_style.energy_level or 5) * 10 }}%"></div>
+                                </div>
+                                <span class="text-white font-bold text-lg">{{ post_type_analysis.language_style.energy_level }}<span class="text-gray-500 text-sm font-normal">/10</span></span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.language_style.formality %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Formalität</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.language_style.formality }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.language_style.sentence_types %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Satz-Typen</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.language_style.sentence_types }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if post_type_analysis.language_style.typical_sentence_starters %}
+                    <div class="mt-4 profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Typische Satzanfänge</span>
+                        <div class="flex flex-wrap gap-2">
+                            {% for starter in post_type_analysis.language_style.typical_sentence_starters[:8] %}
+                            <span class="px-3 py-1.5 bg-brand-bg rounded-lg text-sm text-gray-300 border border-brand-bg-light">"{{ starter }}"</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if post_type_analysis.language_style.signature_phrases %}
+                    <div class="mt-4 profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Signature Phrases</span>
+                        <div class="space-y-2">
+                            {% for phrase in post_type_analysis.language_style.signature_phrases[:5] %}
+                            <p class="text-sm text-gray-300 italic pl-3 border-l-2 border-brand-highlight/30">"{{ phrase }}"</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Hooks -->
+                {% if post_type_analysis.hooks %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Hook-Muster</h3>
+                    {% if post_type_analysis.hooks.hook_types %}
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        {% for hook_type in post_type_analysis.hooks.hook_types %}
+                        <span class="px-2 py-1 bg-blue-900/20 text-blue-300 text-xs rounded border border-blue-600/20">{{ hook_type }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if post_type_analysis.hooks.real_examples %}
+                    <div class="space-y-3">
+                        {% for example in post_type_analysis.hooks.real_examples[:4] %}
+                        <div class="profile-item">
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <span class="text-xs text-gray-500">{{ example.type or 'Hook' }}</span>
+                                {% if example.why_effective %}
+                                <span class="text-xs text-green-400">{{ example.why_effective }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-white italic">"{{ example.hook }}"</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if post_type_analysis.hooks.average_hook_length %}
+                    <div class="mt-4 text-sm text-gray-400">
+                        Durchschnittliche Hook-Länge: {{ post_type_analysis.hooks.average_hook_length }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- CTAs -->
+                {% if post_type_analysis.ctas %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">CTA-Muster</h3>
+                    {% if post_type_analysis.ctas.cta_types %}
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        {% for cta_type in post_type_analysis.ctas.cta_types %}
+                        <span class="px-2 py-1 bg-green-900/20 text-green-300 text-xs rounded border border-green-600/20">{{ cta_type }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if post_type_analysis.ctas.real_examples %}
+                    <div class="space-y-2">
+                        {% for example in post_type_analysis.ctas.real_examples[:4] %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">{{ example.type or 'CTA' }}</span>
+                            <p class="text-sm text-white italic">"{{ example.cta }}"</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 profile-grid">
+                        {% if post_type_analysis.ctas.cta_position %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Position</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.ctas.cta_position }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.ctas.cta_intensity %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Intensität</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.ctas.cta_intensity }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Visual Patterns -->
+                {% if post_type_analysis.visual_patterns %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Visuelle Elemente</h3>
+                    <div class="profile-grid">
+                        {% if post_type_analysis.visual_patterns.emoji_usage %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Emoji-Häufigkeit</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.visual_patterns.emoji_usage.frequency or 'mittel' }}</span>
+                        </div>
+                        {% if post_type_analysis.visual_patterns.emoji_usage.typical_emojis %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Typische Emojis</span>
+                            <span class="text-white font-medium text-lg">{{ post_type_analysis.visual_patterns.emoji_usage.typical_emojis | join(' ') }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.visual_patterns.emoji_usage.placement %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Platzierung</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.visual_patterns.emoji_usage.placement }}</span>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        {% if post_type_analysis.visual_patterns.formatting %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Formatierung</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.visual_patterns.formatting }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.visual_patterns.whitespace %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Whitespace</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.visual_patterns.whitespace }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Length Patterns -->
+                {% if post_type_analysis.length_patterns %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Längen-Muster</h3>
+                    <div class="profile-grid">
+                        {% if post_type_analysis.length_patterns.ideal_length %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Ideale Länge</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.length_patterns.ideal_length }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.length_patterns.average_words %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Durchschnitt</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.length_patterns.average_words }} Wörter</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.length_patterns.range %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Range</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.length_patterns.range }} Wörter</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Content Focus -->
+                {% if post_type_analysis.content_focus %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Inhaltlicher Fokus</h3>
+                    {% if post_type_analysis.content_focus.main_themes %}
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        {% for theme in post_type_analysis.content_focus.main_themes %}
+                        <span class="px-3 py-1.5 bg-purple-900/20 text-purple-300 text-sm rounded-lg border border-purple-600/20">{{ theme }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="profile-grid">
+                        {% if post_type_analysis.content_focus.value_proposition %}
+                        <div class="profile-item col-span-full">
+                            <span class="text-xs text-gray-500 block mb-1">Mehrwert</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.content_focus.value_proposition }}</span>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.content_focus.target_emotion %}
+                        <div class="profile-item">
+                            <span class="text-xs text-gray-500 block mb-1">Ziel-Emotion</span>
+                            <span class="text-white font-medium">{{ post_type_analysis.content_focus.target_emotion }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Recurring Elements -->
+                {% if post_type_analysis.recurring_elements %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Wiederkehrende Elemente</h3>
+                    {% if post_type_analysis.recurring_elements.phrases %}
+                    <div class="profile-item mb-4">
+                        <span class="text-xs text-gray-500 block mb-2">Wiederkehrende Phrasen</span>
+                        <div class="flex flex-wrap gap-2">
+                            {% for phrase in post_type_analysis.recurring_elements.phrases[:8] %}
+                            <span class="px-3 py-1.5 bg-brand-bg rounded-lg text-sm text-gray-300 border border-brand-bg-light">"{{ phrase }}"</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if post_type_analysis.recurring_elements.transitions %}
+                    <div class="profile-item mb-4">
+                        <span class="text-xs text-gray-500 block mb-2">Typische Übergänge</span>
+                        <div class="space-y-2">
+                            {% for transition in post_type_analysis.recurring_elements.transitions[:4] %}
+                            <p class="text-sm text-gray-300 pl-3 border-l-2 border-brand-bg-light">"{{ transition }}"</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if post_type_analysis.recurring_elements.closings %}
+                    <div class="profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Schlussformulierungen</span>
+                        <div class="space-y-2">
+                            {% for closing in post_type_analysis.recurring_elements.closings[:4] %}
+                            <p class="text-sm text-gray-300 pl-3 border-l-2 border-brand-bg-light">"{{ closing }}"</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Writing Guidelines -->
+                {% if post_type_analysis.writing_guidelines %}
+                <div>
+                    <h3 class="text-sm font-semibold text-brand-highlight uppercase tracking-wider mb-3">Schreib-Richtlinien</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        {% if post_type_analysis.writing_guidelines.dos %}
+                        <div class="bg-green-900/10 rounded-lg p-4 border border-green-600/20">
+                            <span class="text-xs font-medium text-green-400 block mb-3">DO</span>
+                            <ul class="space-y-2">
+                                {% for do in post_type_analysis.writing_guidelines.dos %}
+                                <li class="text-sm text-gray-300 flex items-start gap-2">
+                                    <span class="text-green-400 mt-0.5 flex-shrink-0">✓</span>
+                                    {{ do }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% if post_type_analysis.writing_guidelines.donts %}
+                        <div class="bg-red-900/10 rounded-lg p-4 border border-red-600/20">
+                            <span class="text-xs font-medium text-red-400 block mb-3">DON'T</span>
+                            <ul class="space-y-2">
+                                {% for dont in post_type_analysis.writing_guidelines.donts %}
+                                <li class="text-sm text-gray-300 flex items-start gap-2">
+                                    <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+                                    {{ dont }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if post_type_analysis.writing_guidelines.key_success_factors %}
+                    <div class="mt-4 profile-item">
+                        <span class="text-xs text-gray-500 block mb-2">Erfolgsfaktoren</span>
+                        <ul class="space-y-2">
+                            {% for factor in post_type_analysis.writing_guidelines.key_success_factors %}
+                            <li class="text-sm text-gray-300 flex items-start gap-2">
+                                <span class="text-brand-highlight mt-0.5 flex-shrink-0">★</span>
+                                {{ factor }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
 
 <!-- Email Modal -->
 <div id="emailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
@@ -547,6 +1245,91 @@ let currentVersion = 0;
 const totalVersions = {{ post.writer_versions | length if post.writer_versions else 0 }};
 const postId = "{{ post.id }}";
 let emailConfigured = false;
+let currentView = 'preview';
+let contentExpanded = false;
+
+// LinkedIn Preview functions
+function setView(view) {
+    currentView = view;
+    const previewEl = document.getElementById('linkedinPreview');
+    const rawEl = document.getElementById('rawView');
+    const previewToggle = document.getElementById('previewToggle');
+    const rawToggle = document.getElementById('rawToggle');
+
+    if (view === 'preview') {
+        previewEl.classList.remove('hidden');
+        rawEl.classList.add('hidden');
+        previewToggle.classList.add('active');
+        rawToggle.classList.remove('active');
+    } else {
+        previewEl.classList.add('hidden');
+        rawEl.classList.remove('hidden');
+        previewToggle.classList.remove('active');
+        rawToggle.classList.add('active');
+    }
+}
+
+function toggleContent() {
+    const contentEl = document.getElementById('linkedinContent');
+    const seeMoreBtn = document.getElementById('seeMoreBtn');
+
+    if (contentExpanded) {
+        contentEl.classList.add('collapsed');
+        seeMoreBtn.textContent = '...mehr anzeigen';
+        seeMoreBtn.style.display = 'block';
+    } else {
+        contentEl.classList.remove('collapsed');
+        seeMoreBtn.textContent = '...weniger anzeigen';
+    }
+    contentExpanded = !contentExpanded;
+}
+
+function initLinkedInPreview() {
+    const contentEl = document.getElementById('linkedinContent');
+    const seeMoreBtn = document.getElementById('seeMoreBtn');
+
+    if (contentEl && seeMoreBtn) {
+        // Check if content is short enough to not need "see more"
+        const lineHeight = 21; // approximate line height
+        const maxCollapsedHeight = 120;
+        contentEl.classList.remove('collapsed');
+        const fullHeight = contentEl.scrollHeight;
+        contentEl.classList.add('collapsed');
+
+        if (fullHeight <= maxCollapsedHeight) {
+            // Content is short, hide "see more" button and remove collapsed class
+            seeMoreBtn.style.display = 'none';
+            contentEl.classList.remove('collapsed');
+        }
+    }
+}
+
+// Tab switching function
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Deactivate all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+    });
+
+    // Show selected tab content
+    const tabContent = document.getElementById('tab-' + tabName);
+    if (tabContent) {
+        tabContent.classList.add('active');
+    }
+
+    // Activate selected tab button
+    const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    if (tabBtn) {
+        tabBtn.classList.add('active');
+        tabBtn.setAttribute('aria-selected', 'true');
+    }
+}
 
 function copyToClipboard() {
     const content = document.getElementById('finalPostContent').textContent;
@@ -691,6 +1474,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('prevVersion').disabled = true;
         document.getElementById('nextVersion').disabled = totalVersions <= 1;
     }
+    // Initialize LinkedIn preview
+    initLinkedInPreview();
 });
 </script>
 {% endblock %}

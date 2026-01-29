@@ -220,9 +220,27 @@ async def post_detail_page(request: Request, post_id: str):
             if p.post_text and len(p.post_text) > 100
         ][:10]  # Show top 10 as reference
 
+        # Extract profile picture from LinkedIn posts raw_data
+        profile_picture_url = None
+        for lp in linkedin_posts:
+            if lp.raw_data and isinstance(lp.raw_data, dict):
+                author = lp.raw_data.get("author", {})
+                if author and isinstance(author, dict):
+                    profile_picture_url = author.get("profile_picture")
+                    if profile_picture_url:
+                        break  # Found it, stop searching
+
         # Get profile analysis
         profile_analysis_record = await db.get_profile_analysis(post.customer_id)
         profile_analysis = profile_analysis_record.full_analysis if profile_analysis_record else None
+
+        # Get post type analysis if a post type was used
+        post_type = None
+        post_type_analysis = None
+        if post.post_type_id:
+            post_type = await db.get_post_type(post.post_type_id)
+            if post_type and post_type.analysis:
+                post_type_analysis = post_type.analysis
 
         # Get final feedback
         final_feedback = None
@@ -236,7 +254,10 @@ async def post_detail_page(request: Request, post_id: str):
             "customer": customer,
             "reference_posts": reference_posts,
             "profile_analysis": profile_analysis,
-            "final_feedback": final_feedback
+            "post_type": post_type,
+            "post_type_analysis": post_type_analysis,
+            "final_feedback": final_feedback,
+            "profile_picture_url": profile_picture_url
         })
     except Exception as e:
         logger.error(f"Error loading post detail: {e}")

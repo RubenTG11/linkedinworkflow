@@ -52,6 +52,7 @@ class LinkedInScraper:
                 lambda: list(self.client.dataset(run["defaultDatasetId"]).iterate_items())
             )
 
+
             if not dataset_items:
                 logger.warning("No posts found")
                 return []
@@ -93,6 +94,8 @@ class LinkedInScraper:
         """
         Parse and structure the raw Apify posts data.
 
+        Only includes posts with post_type "regular" (excludes reposts, shared posts, etc.)
+
         Args:
             raw_posts: List of raw post data from Apify
 
@@ -101,8 +104,15 @@ class LinkedInScraper:
         """
         from datetime import datetime
         parsed_posts = []
+        skipped_count = 0
 
         for post in raw_posts:
+            # Only include regular posts (not reposts, shares, etc.)
+            post_type = post.get("post_type", "").lower()
+            if post_type != "regular":
+                skipped_count += 1
+                logger.debug(f"Skipping non-regular post (type: {post_type})")
+                continue
             # Extract posted_at date
             posted_at_data = post.get("posted_at", {})
             post_date = None
@@ -147,6 +157,9 @@ class LinkedInScraper:
                 "raw_data": raw_data_clean
             }
             parsed_posts.append(parsed_post)
+
+        if skipped_count > 0:
+            logger.info(f"Skipped {skipped_count} non-regular posts (reposts, shares, etc.)")
 
         return parsed_posts
 
