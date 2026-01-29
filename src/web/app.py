@@ -38,6 +38,19 @@ def hash_password(password: str) -> str:
     """Hash password with session secret."""
     return hashlib.sha256(f"{password}{SESSION_SECRET}".encode()).hexdigest()
 
+
+async def get_customer_profile_picture(customer_id: UUID) -> Optional[str]:
+    """Get profile picture URL from customer's LinkedIn posts."""
+    linkedin_posts = await db.get_linkedin_posts(customer_id)
+    for lp in linkedin_posts:
+        if lp.raw_data and isinstance(lp.raw_data, dict):
+            author = lp.raw_data.get("author", {})
+            if author and isinstance(author, dict):
+                profile_picture_url = author.get("profile_picture")
+                if profile_picture_url:
+                    return profile_picture_url
+    return None
+
 def verify_auth(request: Request) -> bool:
     """Check if request is authenticated."""
     if not WEB_PASSWORD:
@@ -177,10 +190,12 @@ async def posts_page(request: Request):
 
         for customer in customers:
             posts = await db.get_generated_posts(customer.id)
+            profile_picture = await get_customer_profile_picture(customer.id)
             customers_with_posts.append({
                 "customer": customer,
                 "posts": posts,
-                "post_count": len(posts)
+                "post_count": len(posts),
+                "profile_picture": profile_picture
             })
 
         return templates.TemplateResponse("posts.html", {
@@ -275,9 +290,11 @@ async def status_page(request: Request):
 
         for customer in customers:
             status = await orchestrator.get_customer_status(customer.id)
+            profile_picture = await get_customer_profile_picture(customer.id)
             customer_statuses.append({
                 "customer": customer,
-                "status": status
+                "status": status,
+                "profile_picture": profile_picture
             })
 
         return templates.TemplateResponse("status.html", {

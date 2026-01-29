@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  linkedin-posts:
+    build: .
+    container_name: linkedin-posts
+    restart: unless-stopped
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - VIRTUAL_HOST=linkedin.onyva.dev
+      - VIRTUAL_PORT=8000
+      - LETSENCRYPT_HOST=linkedin.onyva.dev
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/login', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - proxy-network
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DEFAULT_HOST=linkedin.onyva.dev
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - vhost:/etc/nginx/vhost.d
+    networks:
+      - proxy-network
+
+  acme-companion:
+    image: nginxproxy/acme-companion
+    container_name: acme-companion
+    restart: unless-stopped
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - acme:/etc/acme.sh
+    environment:
+      - DEFAULT_EMAIL=ruben.fischer@onyva.de
+    networks:
+      - proxy-network
+
+networks:
+  proxy-network:
+    driver: bridge
+
+volumes:
+  certs:
+  html:
+  vhost:
+  acme:

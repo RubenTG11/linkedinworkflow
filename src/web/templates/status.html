@@ -21,8 +21,12 @@
         <div class="px-6 py-4 border-b border-brand-bg-light">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-brand-highlight rounded-full flex items-center justify-center">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden {{ 'bg-brand-highlight' if not item.profile_picture else '' }}">
+                        {% if item.profile_picture %}
+                        <img src="{{ item.profile_picture }}" alt="{{ item.customer.name }}" class="w-full h-full object-cover" loading="lazy" referrerpolicy="no-referrer">
+                        {% else %}
                         <span class="text-brand-bg-dark font-bold text-lg">{{ item.customer.name[0] | upper }}</span>
+                        {% endif %}
                     </div>
                     <div>
                         <h3 class="font-semibold text-white text-lg">{{ item.customer.name }}</h3>
